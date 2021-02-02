@@ -1,4 +1,4 @@
-__version__ = "0.1.1"
+__version__ = "0.2.0"
 
 from .stats import (  # noqa
     norm_pdf,
@@ -9,4 +9,7 @@ from .stats import (  # noqa
     expon_pdf,
     expon_cdf,
     expon_ppf,
+    t_pdf,
+    t_cdf,
+    t_ppf,
 )
