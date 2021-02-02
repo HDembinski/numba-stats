@@ -7,6 +7,7 @@ We provide numba-accelerated implementations of statistical functions for common
 * normal
 * poisson
 * exponential
+* student's t
 
 with more to come. The speed gains are huge, up to a factor of 100 compared to `scipy`.
 

@@ -84,3 +84,42 @@ def test_expon_cdf_speed(benchmark, which, n):
     benchmark(
         lambda: sc.expon.cdf(x, m, s) if which == "scipy" else nb.expon_cdf(x, m, s)
     )
+
+
+@pytest.mark.benchmark(group="t_pdf")
+@pytest.mark.parametrize("which", ("scipy", "ours"))
+@pytest.mark.parametrize("n", (10, 100, 1000, 10000))
+def test_t_pdf_speed(benchmark, which, n):
+    x = np.linspace(-5, 5, n)
+    df = np.linspace(1, 10, n)
+    m = np.linspace(-1, 1, n)
+    s = np.linspace(0.1, 1, n)
+    benchmark(
+        lambda: sc.t.pdf(x, df, m, s) if which == "scipy" else nb.t_pdf(x, df, m, s)
+    )
+
+
+@pytest.mark.benchmark(group="t_cdf")
+@pytest.mark.parametrize("which", ("scipy", "ours"))
+@pytest.mark.parametrize("n", (10, 100, 1000, 10000))
+def test_t_cdf_speed(benchmark, which, n):
+    x = np.linspace(-5, 5, n)
+    df = np.linspace(1, 10, n)
+    m = np.linspace(-1, 1, n)
+    s = np.linspace(0.1, 1, n)
+    benchmark(
+        lambda: sc.t.cdf(x, df, m, s) if which == "scipy" else nb.t_cdf(x, df, m, s)
+    )
+
+
+@pytest.mark.benchmark(group="t_ppf")
+@pytest.mark.parametrize("which", ("scipy", "ours"))
+@pytest.mark.parametrize("n", (10, 100, 1000, 10000))
+def test_t_ppf_speed(benchmark, which, n):
+    x = np.linspace(0, 1, n)
+    df = np.linspace(1, 10, n)
+    m = np.linspace(-1, 1, n)
+    s = np.linspace(0.1, 1, n)
+    benchmark(
+        lambda: sc.t.ppf(x, df, m, s) if which == "scipy" else nb.t_ppf(x, df, m, s)
+    )

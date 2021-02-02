@@ -1,6 +1,6 @@
 import numpy as np
 import numba as nb
-from ._special import gammaln, erf, erfinv, xlogy, pdtr, expm1, log1p
+from ._special import gammaln, erf, erfinv, xlogy, pdtr, expm1, log1p, stdtr, stdtrit
 
 
 @nb.vectorize("float64(float64, float64, float64)")
@@ -10,7 +10,7 @@ def norm_pdf(x, mu, sigma):
     """
     z = (x - mu) / sigma
     c = 1.0 / np.sqrt(2 * np.pi)
-    return np.exp(-0.5 * z ** 2) / sigma * c
+    return np.exp(-0.5 * z ** 2) * c / sigma
 
 
 @nb.vectorize("float64(float64, float64, float64)")
@@ -76,3 +76,37 @@ def expon_ppf(p, mu, sigma):
     z = -log1p(-p)
     x = z * sigma + mu
     return x
+
+
+@nb.vectorize("float64(float64, float64, float64, float64)")
+def t_pdf(x, df, mu, sigma):
+    """
+    Return probability density of student's distribution.
+    """
+    z = (x - mu) / sigma
+    k = 0.5 * (df + 1)
+    p = np.exp(gammaln(k) - gammaln(0.5 * df))
+    p /= np.sqrt(df * np.pi) * (1 + (z ** 2) / df) ** k
+    return p / sigma
+
+
+@nb.vectorize("float64(float64, float64, float64, float64)")
+def t_cdf(x, df, mu, sigma):
+    """
+    Return probability density of student's distribution.
+    """
+    z = (x - mu) / sigma
+    return stdtr(df, z)
+
+
+@nb.vectorize("float64(float64, float64, float64, float64)")
+def t_ppf(p, df, mu, sigma):
+    """
+    Return probability density of student's distribution.
+    """
+    if p == 0:
+        return -np.inf
+    elif p == 1:
+        return np.inf
+    z = stdtrit(df, p)
+    return sigma * z + mu

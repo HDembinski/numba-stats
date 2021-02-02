@@ -59,3 +59,24 @@ def test_expon_ppf():
     got = nb.expon_ppf(p, 1, 2)
     expected = sc.expon.ppf(p, 1, 2)
     np.testing.assert_allclose(got, expected)
+
+
+def test_t_pdf():
+    x = np.linspace(-5, 5, 10)
+    got = nb.t_pdf(x, 1.5, 2, 3)
+    expected = sc.t.pdf(x, 1.5, 2, 3)
+    np.testing.assert_allclose(got, expected)
+
+
+def test_t_cdf():
+    x = np.linspace(-5, 5, 10)
+    got = nb.t_cdf(x, 1.5, 2, 3)
+    expected = sc.t.cdf(x, 1.5, 2, 3)
+    np.testing.assert_allclose(got, expected)
+
+
+def test_t_ppf():
+    x = np.linspace(0, 1, 10)
+    got = nb.t_ppf(x, 1.5, 2, 3)
+    expected = sc.t.ppf(x, 1.5, 2, 3)
+    np.testing.assert_allclose(got, expected)

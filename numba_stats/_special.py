@@ -4,19 +4,25 @@
 # scipy to implement the needed functions here.
 from numba.extending import get_cython_function_address
 import ctypes
+import scipy.special.cython_special as cysp
 
 
-def wrap(name, narg):
+def get(name, narg):
+    pyx_fuse_name = f"__pyx_fuse_1{name}"
+    if pyx_fuse_name in cysp.__pyx_capi__:
+        name = pyx_fuse_name
     addr = get_cython_function_address("scipy.special.cython_special", name)
     functype = ctypes.CFUNCTYPE(ctypes.c_double, *([ctypes.c_double] * narg))
     return functype(addr)
 
 
-erfinv = wrap("erfinv", 1)
-gammaincc = wrap("gammaincc", 2)
-erf = wrap("__pyx_fuse_1erf", 1)
-gammaln = wrap("gammaln", 1)
-xlogy = wrap("__pyx_fuse_1xlogy", 2)
-pdtr = wrap("pdtr", 2)
-expm1 = wrap("__pyx_fuse_1expm1", 1)
-log1p = wrap("__pyx_fuse_1log1p", 1)
+erfinv = get("erfinv", 1)
+gammaincc = get("gammaincc", 2)
+erf = get("erf", 1)
+gammaln = get("gammaln", 1)
+xlogy = get("xlogy", 2)
+pdtr = get("pdtr", 2)
+expm1 = get("expm1", 1)
+log1p = get("log1p", 1)
+stdtr = get("stdtr", 2)
+stdtrit = get("stdtrit", 2)
