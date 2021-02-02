@@ -1,6 +1,6 @@
 [tool.poetry]
 name = "numba-stats"
-version = "0.1.0"
+version = "0.1.1"
 description = ""
 authors = ["Hans Dembinski <hans.dembinski@gmail.com>"]
 
@@ -8,10 +8,12 @@ authors = ["Hans Dembinski <hans.dembinski@gmail.com>"]
 python = "^3.6"
 numba = "^0.51"
 scipy = "^1.5.0"
-pytest-benchmark = "^3.2.3"
 
 [tool.poetry.dev-dependencies]
 pytest = "^5.2"
+pytest-benchmark = "^3.2.3"
+requests = "^2.25.1"
+toml = "^0.10.2"
 
 [build-system]
 requires = ["poetry-core>=1.0.0"]
