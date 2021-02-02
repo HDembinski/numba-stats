@@ -6,7 +6,7 @@ authors = ["Hans Dembinski <hans.dembinski@gmail.com>"]
 
 [tool.poetry.dependencies]
 python = "^3.6"
-numba = "^0.51"
+numba = "^0.50"
 scipy = "^1.5.0"
 
 [tool.poetry.dev-dependencies]

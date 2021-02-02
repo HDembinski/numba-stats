@@ -1,6 +1,6 @@
 import numpy as np
 import numba as nb
-from ._special import gammaincc, gamma, erf, erfinv
+from ._special import gammaln, erf, erfinv, xlogy, pdtr, expm1, log1p
 
 
 @nb.vectorize("float64(float64, float64, float64)")
@@ -37,15 +37,17 @@ def poisson_pmf(k, mu):
     """
     Return probability mass for Poisson distribution.
     """
-    return mu ** k * np.exp(-mu) / gamma(k + 1)
+    logp = xlogy(k, mu) - gammaln(k + 1.0) - mu
+    return np.exp(logp)
 
 
 @nb.vectorize("float64(intp, float64)")
-def poisson_cdf(k, mu):
+def poisson_cdf(x, mu):
     """
     Evaluate cumulative distribution function of Poisson distribution.
     """
-    return gammaincc(k + 1, mu)
+    k = np.floor(x)
+    return pdtr(k, mu)
 
 
 @nb.vectorize("float64(float64, float64, float64)")
@@ -63,7 +65,7 @@ def expon_cdf(x, mu, sigma):
     Evaluate cumulative distribution function of exponential distribution.
     """
     z = (x - mu) / sigma
-    return 1 - np.exp(-z)
+    return -expm1(-z)
 
 
 @nb.vectorize("float64(float64, float64, float64)")
@@ -71,7 +73,6 @@ def expon_ppf(p, mu, sigma):
     """
     Return quantile of exponential distribution for given probability.
     """
-    # FIXME: suppress the divide by zero warning
-    z = -np.log(1 - p)
+    z = -log1p(-p)
     x = z * sigma + mu
     return x

@@ -6,13 +6,17 @@ from numba.extending import get_cython_function_address
 import ctypes
 
 
-def make_fcn(name, narg):
+def wrap(name, narg):
     addr = get_cython_function_address("scipy.special.cython_special", name)
     functype = ctypes.CFUNCTYPE(ctypes.c_double, *([ctypes.c_double] * narg))
     return functype(addr)
 
 
-erfinv = make_fcn("erfinv", 1)
-gammaincc = make_fcn("gammaincc", 2)
-erf = make_fcn("__pyx_fuse_1erf", 1)
-gamma = make_fcn("__pyx_fuse_1gamma", 1)
+erfinv = wrap("erfinv", 1)
+gammaincc = wrap("gammaincc", 2)
+erf = wrap("__pyx_fuse_1erf", 1)
+gammaln = wrap("gammaln", 1)
+xlogy = wrap("__pyx_fuse_1xlogy", 2)
+pdtr = wrap("pdtr", 2)
+expm1 = wrap("__pyx_fuse_1expm1", 1)
+log1p = wrap("__pyx_fuse_1log1p", 1)
