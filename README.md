@@ -1,5 +1,7 @@
 # numba-stats
 
+![](https://img.shields.io/pypi/v/numba-stats.svg)
+
 We provide numba-accelerated implementations of statistical functions for common probability distributions
 
 * normal
