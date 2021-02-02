@@ -48,17 +48,30 @@ def poisson_cdf(k, mu):
     return gammaincc(k + 1, mu)
 
 
-@nb.vectorize("float64(float64, float64)")
-def expon_pdf(x, lambd):
+@nb.vectorize("float64(float64, float64, float64)")
+def expon_pdf(x, mu, sigma):
     """
-    Return probability mass for Poisson distribution.
+    Return probability density of exponential distribution.
     """
-    return lambd * np.exp(-lambd * x)
+    z = (x - mu) / sigma
+    return np.exp(-z) / sigma
 
 
-@nb.vectorize("float64(intp, float64)")
-def expon_cdf(k, mu):
+@nb.vectorize("float64(float64, float64, float64)")
+def expon_cdf(x, mu, sigma):
     """
-    Evaluate cumulative distribution function of Poisson distribution.
+    Evaluate cumulative distribution function of exponential distribution.
     """
-    return gammaincc(k + 1, mu)
+    z = (x - mu) / sigma
+    return 1 - np.exp(-z)
+
+
+@nb.vectorize("float64(float64, float64, float64)")
+def expon_ppf(p, mu, sigma):
+    """
+    Return quantile of exponential distribution for given probability.
+    """
+    # FIXME: suppress the divide by zero warning
+    z = -np.log(1 - p)
+    x = z * sigma + mu
+    return x
