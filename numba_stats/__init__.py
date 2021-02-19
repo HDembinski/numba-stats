@@ -12,4 +12,5 @@ from .stats import (  # noqa
     t_pdf,
     t_cdf,
     t_ppf,
+    voigt_pdf,
 )
