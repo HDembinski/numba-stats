@@ -1,5 +1,6 @@
 import numba_stats.stats as nbs
 import scipy.stats as sc
+import scipy.special as sp
 import numpy as np
 import numba as nb
 
@@ -80,6 +81,13 @@ def test_t_ppf():
     x = np.linspace(0, 1, 10)
     got = nbs.t_ppf(x, 1.5, 2, 3)
     expected = sc.t.ppf(x, 1.5, 2, 3)
+    np.testing.assert_allclose(got, expected)
+
+
+def test_voigt_pdf():
+    x = np.linspace(-5, 5, 10)
+    got = nbs.voigt_pdf(x, 2, 1, 3)
+    expected = sp.voigt_profile(x - 1, 2, 3)
     np.testing.assert_allclose(got, expected)
 
 

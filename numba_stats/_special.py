@@ -3,26 +3,42 @@
 # function. As a workaround, we wrap special functions from
 # scipy to implement the needed functions here.
 from numba.extending import get_cython_function_address
-import ctypes
+from numba.types import WrapperAddressProtocol, complex128, float64
 import scipy.special.cython_special as cysp
 
 
-def get(name, narg):
-    pyx_fuse_name = f"__pyx_fuse_1{name}"
+def get(name, signature):
+    index = 1 if signature.return_type is float64 else 0
+    pyx_fuse_name = f"__pyx_fuse_{index}{name}"
     if pyx_fuse_name in cysp.__pyx_capi__:
         name = pyx_fuse_name
     addr = get_cython_function_address("scipy.special.cython_special", name)
-    functype = ctypes.CFUNCTYPE(ctypes.c_double, *([ctypes.c_double] * narg))
-    return functype(addr)
+
+    cls = type(
+        name,
+        (WrapperAddressProtocol,),
+        {"__wrapper_address__": lambda self: addr, "signature": lambda self: signature},
+    )
+    return cls()
 
 
-erfinv = get("erfinv", 1)
-gammaincc = get("gammaincc", 2)
-erf = get("erf", 1)
-gammaln = get("gammaln", 1)
-xlogy = get("xlogy", 2)
-pdtr = get("pdtr", 2)
-expm1 = get("expm1", 1)
-log1p = get("log1p", 1)
-stdtr = get("stdtr", 2)
-stdtrit = get("stdtrit", 2)
+# unary functions (double)
+erfinv = get("erfinv", float64(float64))
+erf = get("erf", float64(float64))
+gammaln = get("gammaln", float64(float64))
+expm1 = get("expm1", float64(float64))
+log1p = get("log1p", float64(float64))
+
+# binary functions (double)
+xlogy = get("xlogy", float64(float64, float64))
+gammaincc = get("gammaincc", float64(float64, float64))
+pdtr = get("pdtr", float64(float64, float64))
+stdtr = get("stdtr", float64(float64, float64))
+stdtrit = get("stdtrit", float64(float64, float64))
+
+# n-ary functions (double)
+voigt_profile = get("voigt_profile", float64(float64, float64, float64))
+
+# unary functions (complex)
+cerf = get("erf", complex128(complex128))
+# wofz = get("wofz", complex128(complex128))

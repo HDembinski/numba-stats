@@ -1,6 +1,18 @@
 import numpy as np
 import numba as nb
-from ._special import gammaln, erf, erfinv, xlogy, pdtr, expm1, log1p, stdtr, stdtrit
+from ._special import (
+    gammaln,
+    erf,
+    erfinv,
+    xlogy,
+    pdtr,
+    expm1,
+    log1p,
+    stdtr,
+    stdtrit,
+    cerf,
+    voigt_profile,
+)
 
 
 @nb.vectorize("float64(float64, float64, float64)")
@@ -110,3 +122,8 @@ def t_ppf(p, df, mu, sigma):
         return np.inf
     z = stdtrit(df, p)
     return sigma * z + mu
+
+
+@nb.vectorize("float64(float64, float64, float64, float64)")
+def voigt_pdf(x, gamma, mu, sigma):
+    return voigt_profile(x - mu, gamma, sigma)
