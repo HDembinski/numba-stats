@@ -1,4 +1,6 @@
-__version__ = "0.2.0.dev0"
+from importlib_metadata import distribution as _d
+
+__version__ = _d("numba-stats").version
 
 from .stats import (  # noqa
     norm_pdf,
