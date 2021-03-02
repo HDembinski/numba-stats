@@ -15,7 +15,7 @@ scipy = ">= 1.5"
 importlib_metadata = ">= 3.4"
 
 [tool.poetry.dev-dependencies]
-pytest = ">= 5.2"
+pytest = ">= 6.0"
 pytest-benchmark = ">= 3.2"
 pytest-cov = ">= 2.11"
 requests = ">= 2.25"
@@ -23,3 +23,8 @@ requests = ">= 2.25"
 [build-system]
 requires = ["poetry-core>=1.0.0"]
 build-backend = "poetry.core.masonry.api"
+
+[tool.pytest.ini_options]
+minversion = "6.0"
+addopts = "-q -ra --ff"
+testpaths = ["tests"]
