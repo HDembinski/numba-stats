@@ -1,8 +1,11 @@
 [tool.poetry]
 name = "numba-stats"
-version = "0.3.1"
-description = ""
+version = "0.3.2"
+description = "Numba-accelerated implementations of common probability distributions"
+homepage = "https://github.com/hdembinski/numba-stats"
 authors = ["Hans Dembinski <hans.dembinski@gmail.com>"]
+license = "MIT"
+readme = "README.md"
 
 [tool.poetry.dependencies]
 python = ">= 3.6"
@@ -12,11 +15,16 @@ scipy = ">= 1.5"
 importlib_metadata = ">= 3.4"
 
 [tool.poetry.dev-dependencies]
-pytest = ">= 5.2"
+pytest = ">= 6.0"
 pytest-benchmark = ">= 3.2"
+pytest-cov = ">= 2.11"
 requests = ">= 2.25"
-toml = ">= 0.10"
 
 [build-system]
 requires = ["poetry-core>=1.0.0"]
 build-backend = "poetry.core.masonry.api"
+
+[tool.pytest.ini_options]
+minversion = "6.0"
+addopts = "-q -ra --ff"
+testpaths = ["tests"]
