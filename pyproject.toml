@@ -17,6 +17,7 @@ importlib_metadata = ">= 3.4"
 [tool.poetry.dev-dependencies]
 pytest = ">= 5.2"
 pytest-benchmark = ">= 3.2"
+pytest-cov = ">= 2.11"
 requests = ">= 2.25"
 
 [build-system]
