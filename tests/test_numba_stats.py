@@ -1,9 +1,10 @@
-from numba_stats import __version__
 import requests
 from pkg_resources import parse_version
 
 
 def test_local_against_pypi_version():
+    from numba_stats import __version__
+
     # make sure version is up-to-date
     pypi_versions = [
         parse_version(v)
@@ -26,3 +27,12 @@ def test_import():
             or key.endswith("_pmf")
         ):
             assert hasattr(numba_stats, key)
+
+
+def test_packs():
+    import numba_stats as ns
+    import numba_stats.stats as st
+
+    assert ns.norm.pdf is st.norm_pdf
+    assert ns.norm.cdf is st.norm_cdf
+    assert ns.norm.ppf is st.norm_ppf

@@ -14,3 +14,13 @@ from .stats import (  # noqa
     t_ppf,
     voigt_pdf,
 )
+
+from argparse import Namespace
+
+norm = Namespace(pdf=norm_pdf, cdf=norm_cdf, ppf=norm_ppf)
+poisson = Namespace(pmf=poisson_pmf, cdf=poisson_cdf)
+expon = Namespace(pdf=expon_pdf, cdf=expon_cdf, ppf=expon_ppf)
+t = Namespace(pdf=t_pdf, cdf=t_cdf, ppf=t_ppf)
+voigt = Namespace(pdf=voigt_pdf)
+
+del Namespace

@@ -3,6 +3,7 @@ import scipy.stats as sc
 import scipy.special as sp
 import numpy as np
 import numba as nb
+import warnings
 
 
 def test_norm_pdf():
