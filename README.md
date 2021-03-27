@@ -4,6 +4,7 @@
 
 We provide numba-accelerated implementations of statistical functions for common probability distributions
 
+* uniform
 * normal
 * poisson
 * exponential
