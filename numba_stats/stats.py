@@ -13,8 +13,13 @@ from ._special import (
     voigt_profile,
 )
 
+_signatures = [
+    nb.float32(nb.float32, nb.float32, nb.float32),
+    nb.float64(nb.float64, nb.float64, nb.float64),
+]
 
-@nb.vectorize("float64(float64, float64, float64)")
+
+@nb.vectorize(_signatures)
 def norm_pdf(x, mu, sigma):
     """
     Return probability density of normal distribution.
@@ -24,7 +29,7 @@ def norm_pdf(x, mu, sigma):
     return np.exp(-0.5 * z ** 2) * c / sigma
 
 
-@nb.vectorize("float64(float64, float64, float64)")
+@nb.vectorize(_signatures)
 def norm_cdf(x, mu, sigma):
     """
     Evaluate cumulative distribution function of normal distribution.
@@ -34,7 +39,7 @@ def norm_cdf(x, mu, sigma):
     return 0.5 * (1.0 + erf(z))
 
 
-@nb.vectorize("float64(float64, float64, float64)")
+@nb.vectorize(_signatures)
 def norm_ppf(p, mu, sigma):
     """
     Return quantile of normal distribution for given probability.
@@ -43,7 +48,13 @@ def norm_ppf(p, mu, sigma):
     return sigma * z + mu
 
 
-@nb.vectorize("float64(intp, float64)")
+_signatures = [
+    nb.float32(nb.int32, nb.float32),
+    nb.float64(nb.intp, nb.float64),
+]
+
+
+@nb.vectorize(_signatures)
 def poisson_pmf(k, mu):
     """
     Return probability mass for Poisson distribution.
@@ -52,7 +63,13 @@ def poisson_pmf(k, mu):
     return np.exp(logp)
 
 
-@nb.vectorize("float64(intp, float64)")
+_signatures = [
+    nb.float32(nb.float32, nb.float32),
+    nb.float64(nb.float64, nb.float64),
+]
+
+
+@nb.vectorize(_signatures)
 def poisson_cdf(x, mu):
     """
     Evaluate cumulative distribution function of Poisson distribution.
@@ -61,7 +78,13 @@ def poisson_cdf(x, mu):
     return pdtr(k, mu)
 
 
-@nb.vectorize("float64(float64, float64, float64)")
+_signatures = [
+    nb.float32(nb.float32, nb.float32, nb.float32),
+    nb.float64(nb.float64, nb.float64, nb.float64),
+]
+
+
+@nb.vectorize(_signatures)
 def expon_pdf(x, mu, sigma):
     """
     Return probability density of exponential distribution.
@@ -70,7 +93,7 @@ def expon_pdf(x, mu, sigma):
     return np.exp(-z) / sigma
 
 
-@nb.vectorize("float64(float64, float64, float64)")
+@nb.vectorize(_signatures)
 def expon_cdf(x, mu, sigma):
     """
     Evaluate cumulative distribution function of exponential distribution.
@@ -79,7 +102,7 @@ def expon_cdf(x, mu, sigma):
     return -expm1(-z)
 
 
-@nb.vectorize("float64(float64, float64, float64)")
+@nb.vectorize(_signatures)
 def expon_ppf(p, mu, sigma):
     """
     Return quantile of exponential distribution for given probability.
@@ -89,7 +112,13 @@ def expon_ppf(p, mu, sigma):
     return x
 
 
-@nb.vectorize("float64(float64, float64, float64, float64)")
+_signatures = [
+    nb.float32(nb.float32, nb.float32, nb.float32, nb.float32),
+    nb.float64(nb.float64, nb.float64, nb.float64, nb.float64),
+]
+
+
+@nb.vectorize(_signatures)
 def t_pdf(x, df, mu, sigma):
     """
     Return probability density of student's distribution.
@@ -101,7 +130,7 @@ def t_pdf(x, df, mu, sigma):
     return p / sigma
 
 
-@nb.vectorize("float64(float64, float64, float64, float64)")
+@nb.vectorize(_signatures)
 def t_cdf(x, df, mu, sigma):
     """
     Evaluate cumulative distribution function of student's distribution.
@@ -110,7 +139,7 @@ def t_cdf(x, df, mu, sigma):
     return stdtr(df, z)
 
 
-@nb.vectorize("float64(float64, float64, float64, float64)")
+@nb.vectorize(_signatures)
 def t_ppf(p, df, mu, sigma):
     """
     Return quantile of student's distribution for given probability.
@@ -123,7 +152,7 @@ def t_ppf(p, df, mu, sigma):
     return sigma * z + mu
 
 
-@nb.vectorize("float64(float64, float64, float64, float64)")
+@nb.vectorize(_signatures)
 def voigt_pdf(x, gamma, mu, sigma):
     """
     Return probability density of Voigtian distribution.
