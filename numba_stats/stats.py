@@ -158,3 +158,30 @@ def voigt_pdf(x, gamma, mu, sigma):
     Return probability density of Voigtian distribution.
     """
     return voigt_profile(x - mu, gamma, sigma)
+
+
+_signatures = [
+    nb.float32(nb.float32, nb.float32, nb.float32),
+    nb.float64(nb.float64, nb.float64, nb.float64),
+]
+
+
+@nb.vectorize(_signatures)
+def uniform_pdf(x, a, w):
+    if a <= x <= a + w:
+        return 1 / w
+    return 0
+
+
+@nb.vectorize(_signatures)
+def uniform_cdf(x, a, w):
+    if a <= x:
+        if x <= a + w:
+            return (x - a) / w
+        return 1
+    return 0
+
+
+@nb.vectorize(_signatures)
+def uniform_ppf(p, a, w):
+    return w * p + a

@@ -1,6 +1,6 @@
 [tool.poetry]
 name = "numba-stats"
-version = "0.4.0"
+version = "0.5.0"
 description = "Numba-accelerated implementations of common probability distributions"
 homepage = "https://github.com/hdembinski/numba-stats"
 authors = ["Hans Dembinski <hans.dembinski@gmail.com>"]
