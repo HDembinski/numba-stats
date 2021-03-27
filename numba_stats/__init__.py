@@ -1,6 +1,9 @@
 from ._version import version as __version__  # noqa
 
 from .stats import (  # noqa
+    uniform_pdf,
+    uniform_cdf,
+    uniform_ppf,
     norm_pdf,
     norm_cdf,
     norm_ppf,
@@ -17,6 +20,7 @@ from .stats import (  # noqa
 
 from argparse import Namespace
 
+uniform = Namespace(pdf=uniform_pdf, cdf=uniform_cdf, ppf=uniform_ppf)
 norm = Namespace(pdf=norm_pdf, cdf=norm_cdf, ppf=norm_ppf)
 poisson = Namespace(pmf=poisson_pmf, cdf=poisson_cdf)
 expon = Namespace(pdf=expon_pdf, cdf=expon_cdf, ppf=expon_ppf)

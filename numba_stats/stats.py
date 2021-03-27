@@ -168,12 +168,18 @@ _signatures = [
 
 @nb.vectorize(_signatures)
 def uniform_pdf(x, a, w):
-    return 1 / w
+    if a <= x <= a + w:
+        return 1 / w
+    return 0
 
 
 @nb.vectorize(_signatures)
 def uniform_cdf(x, a, w):
-    return (x - a) / w
+    if a <= x:
+        if x <= a + w:
+            return (x - a) / w
+        return 1
+    return 0
 
 
 @nb.vectorize(_signatures)
