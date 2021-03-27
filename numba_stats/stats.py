@@ -10,7 +10,6 @@ from ._special import (
     log1p,
     stdtr,
     stdtrit,
-    cerf,
     voigt_profile,
 )
 
@@ -105,7 +104,7 @@ def t_pdf(x, df, mu, sigma):
 @nb.vectorize("float64(float64, float64, float64, float64)")
 def t_cdf(x, df, mu, sigma):
     """
-    Return probability density of student's distribution.
+    Evaluate cumulative distribution function of student's distribution.
     """
     z = (x - mu) / sigma
     return stdtr(df, z)
@@ -114,7 +113,7 @@ def t_cdf(x, df, mu, sigma):
 @nb.vectorize("float64(float64, float64, float64, float64)")
 def t_ppf(p, df, mu, sigma):
     """
-    Return probability density of student's distribution.
+    Return quantile of student's distribution for given probability.
     """
     if p == 0:
         return -np.inf
@@ -126,4 +125,7 @@ def t_ppf(p, df, mu, sigma):
 
 @nb.vectorize("float64(float64, float64, float64, float64)")
 def voigt_pdf(x, gamma, mu, sigma):
+    """
+    Return probability density of Voigtian distribution.
+    """
     return voigt_profile(x - mu, gamma, sigma)
