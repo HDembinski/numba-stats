@@ -4,3 +4,8 @@ requires = [
     "wheel"
 ]
 build-backend = "setuptools.build_meta"
+
+[pytest]
+minversion = 6.0
+addopts = "-q -ra --ff"
+testpaths = ["tests"]
