@@ -126,8 +126,11 @@ def test_uniform_ppf():
 
 
 def test_tsallis_pdf():
-    v, err = quad(lambda pt: nbs.tsallis_pdf(pt, 100, 100, 3), 0, np.inf)
-    assert abs(1 - v) < err
+    for m in (100, 1000):
+        for t in (100, 1000):
+            for n in (3, 5, 8):
+                v, err = quad(lambda pt: nbs.tsallis_pdf(pt, m, t, n), 0, np.inf)
+                assert abs(1 - v) < err
 
 
 def test_tsallis_cdf():
