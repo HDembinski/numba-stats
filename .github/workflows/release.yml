@@ -37,7 +37,7 @@ jobs:
     steps:
     - uses: actions/checkout@v2
 
-    uses: softprops/action-gh-release@v1
-    env:
-      draft: True
-      GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+    - uses: softprops/action-gh-release@v1
+      env:
+        draft: True
+        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
