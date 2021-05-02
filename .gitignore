@@ -3,3 +3,5 @@ dist
 .benchmarks
 .coverage
 htmlcov
+.venv
+*.egg-info
