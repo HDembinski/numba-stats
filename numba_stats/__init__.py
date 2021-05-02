@@ -1,4 +1,4 @@
-from ._version import version as __version__  # noqa
+__version__ = "0.6.0"  # noqa
 
 from .stats import (  # noqa
     uniform_pdf,
@@ -16,6 +16,8 @@ from .stats import (  # noqa
     t_cdf,
     t_ppf,
     voigt_pdf,
+    tsallis_pdf,
+    tsallis_cdf,
 )
 
 from argparse import Namespace
@@ -26,5 +28,6 @@ poisson = Namespace(pmf=poisson_pmf, cdf=poisson_cdf)
 expon = Namespace(pdf=expon_pdf, cdf=expon_cdf, ppf=expon_ppf)
 t = Namespace(pdf=t_pdf, cdf=t_cdf, ppf=t_ppf)
 voigt = Namespace(pdf=voigt_pdf)
+tsallis = Namespace(pdf=tsallis_pdf, cdf=tsallis_cdf)
 
 del Namespace
