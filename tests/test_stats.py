@@ -59,7 +59,8 @@ def test_expon_cdf():
 
 def test_expon_ppf():
     p = np.linspace(0, 1, 20)
-    got = nbs.expon_ppf(p, 1, 2)
+    with np.errstate(invalid="ignore", divide="ignore"):
+        got = nbs.expon_ppf(p, 1, 2)
     expected = sc.expon.ppf(p, 1, 2)
     np.testing.assert_allclose(got, expected)
 
