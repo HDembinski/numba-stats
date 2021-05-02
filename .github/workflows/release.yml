@@ -1,42 +1,30 @@
 name: Release
 
 on:
-  push:
-    tags:
-      - 'v*.*.*'
+  workflow_dispatch:
+  release:
+    types: [published]
 
 jobs:
-  pypi:
+  upload:
     runs-on: ubuntu-latest
     steps:
     - uses: actions/checkout@v2
 
-    # - uses: actions/setup-python@v2
-    #   with:
-    #     python-version: '3.x'
-    #
-    # - run: |
-    #     python -m pip install --upgrade pip
-    #     python -m pip install wheel
-    #
-    # - run: python setup.py sdist bdist_wheel
-    #
-    # - run: python -m pip install dist/*.whl[test]
-    #
-    # - run: python -m pytest
-    #
-    # - uses: pypa/gh-action-pypi-publish@master
-    #   with:
-    #     user: __token__
-    #     password: ${{secrets.PYPI_TOKEN}}
+    - uses: actions/setup-python@v2
+      with:
+        python-version: '3.x'
 
-  release:
-    runs-on: ubuntu-latest
-    needs: [pypi]
-    steps:
-    - uses: actions/checkout@v2
+    - run: |
+        python -m pip install --upgrade pip
+        python -m pip install wheel
+        python -m pip install .[test]
 
-    - uses: softprops/action-gh-release@v1
-      env:
-        draft: True
-        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+    - run: python -m pytest
+
+    - run: python setup.py sdist bdist_wheel
+
+    - uses: pypa/gh-action-pypi-publish@master
+      with:
+        user: __token__
+        password: ${{secrets.PYPI_TOKEN}}
