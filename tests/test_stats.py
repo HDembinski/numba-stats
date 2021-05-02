@@ -1,6 +1,7 @@
 import numba_stats.stats as nbs
 import scipy.stats as sc
 import scipy.special as sp
+from scipy.integrate import quad
 import numpy as np
 import numba as nb
 
@@ -121,3 +122,18 @@ def test_uniform_ppf():
     got = nbs.uniform_ppf(x, -1, 2)
     expected = sc.uniform.ppf(x, -1, 2)
     np.testing.assert_allclose(got, expected)
+
+
+def test_tsallis_pdf():
+    v, err = quad(lambda pt: nbs.tsallis_pdf(pt, 100, 100, 3), 0, np.inf)
+    assert abs(1 - v) < err
+
+
+def test_tsallis_cdf():
+    for m in (100, 1000):
+        for t in (100, 1000):
+            for n in (3, 5, 8):
+                for ptrange in ((0, 500), (500, 1000), (1000, 2000)):
+                    v, err = quad(lambda pt: nbs.tsallis_pdf(pt, m, t, n), *ptrange)
+                    v2 = np.diff(nbs.tsallis_cdf(ptrange, m, t, n))
+                    assert abs(v2 - v) < err

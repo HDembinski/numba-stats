@@ -1,4 +1,4 @@
-from ._version import version as __version__  # noqa
+__version__  = "0.6.0" # noqa
 
 from .stats import (  # noqa
     uniform_pdf,
