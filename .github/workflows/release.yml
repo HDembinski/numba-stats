@@ -1,12 +1,13 @@
-name: Publish
+name: Release
 
 on:
   workflow_dispatch:
-  release:
-    types: [published]
+  # push:
+    # tags:
+    #   - 'v*.*.*'
 
 jobs:
-  upload:
+  pypi:
     runs-on: ubuntu-latest
     steps:
     - uses: actions/checkout@v2
@@ -29,3 +30,14 @@ jobs:
       with:
         user: __token__
         password: ${{secrets.PYPI_TOKEN}}
+
+  release:
+    runs-on: ubuntu-latest
+    needs: [pypi]
+    steps:
+    - uses: actions/checkout@v2
+
+    uses: softprops/action-gh-release@v1
+    env:
+      draft: True
+      GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
