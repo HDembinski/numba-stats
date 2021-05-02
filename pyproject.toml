@@ -5,7 +5,9 @@ requires = [
 ]
 build-backend = "setuptools.build_meta"
 
-[pytest]
-minversion = 6.0
+[tool.pytest.ini_options]
+minversion = "6.0"
 addopts = "-q -ra --ff"
-testpaths = ["tests"]
+testpaths = [
+    "tests"
+]

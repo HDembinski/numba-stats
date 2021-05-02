@@ -187,6 +187,12 @@ def uniform_ppf(p, a, w):
     return w * p + a
 
 
+_signatures = [
+    nb.float32(nb.float32, nb.float32, nb.float32, nb.float32),
+    nb.float64(nb.float64, nb.float64, nb.float64, nb.float64),
+]
+
+
 @nb.vectorize(_signatures)
 def tsallis_pdf(pt, m, t, n):
     # Formula from CMS, Eur. Phys. J. C (2012) 72:2164
@@ -207,3 +213,6 @@ def tsallis_cdf(pt, m, t, n):
     mt = np.sqrt(m ** 2 + pt ** 2)
     nt = n * t
     return ((mt - m) / nt + 1) ** (1 - n) * (m + mt - n * (mt + t)) / (m * (n - 2) + nt)
+
+
+del _signatures
