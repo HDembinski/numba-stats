@@ -27,8 +27,8 @@ def _norm_pdf(z):
 
 @nb.njit(inline="always")
 def _norm_cdf(z):
-    z /= np.sqrt(2)
-    return 0.5 * (1.0 + erf(z))
+    c = np.sqrt(0.5)
+    return 0.5 * (1.0 + erf(z * c))
 
 
 @nb.njit(inline="always")
@@ -265,29 +265,56 @@ def _crystalball_pdf(z, beta, m):
     assert beta > 0
     assert m > 1
 
-    exp_beta = np.exp(-(beta ** 2) / 2.0)
+    exp_beta = np.exp(-0.5 * beta ** 2)
 
-    a = (m / beta) ** m * exp_beta
-    b = m / beta - beta
-    c = m / beta / (m - 1) * exp_beta
-    d = _norm_cdf(beta) * 2
+    c = m / (beta * (m - 1.0)) * exp_beta
+    # d = _norm_cdf(-beta) * np.sqrt(2 * np.pi)
+    d = np.sqrt(0.5 * np.pi) * (1.0 + erf(beta * np.sqrt(0.5)))
     n = 1.0 / (c + d)
 
     if z <= -beta:
+        a = (m / beta) ** m * exp_beta
+        b = m / beta - beta
         return n * a * (b - z) ** -m
-    return n * np.exp(-(z ** 2) / 2.0)
+    return n * np.exp(-0.5 * z ** 2)
+
+
+@nb.njit(inline="always")
+def _crystalball_cdf(z, beta, m):
+    exp_beta = np.exp(-0.5 * beta ** 2)
+    c = m / (beta * (m - 1.0)) * exp_beta
+    d = np.sqrt(0.5 * np.pi) * (1.0 + erf(beta * np.sqrt(0.5)))
+    n = 1.0 / (c + d)
+
+    if z <= -beta:
+        return n * (
+            (m / beta) ** m
+            * np.exp(-0.5 * beta ** 2)
+            * (m / beta - beta - z) ** (1.0 - m)
+            / (m - 1.0)
+        )
+    return n * (
+        (m / beta) * exp_beta / (m - 1.0)
+        + np.sqrt(0.5 * np.pi) * (erf(z * np.sqrt(0.5)) - erf(beta * np.sqrt(0.5)))
+    )
 
 
 _signatures = [
-    nb.float32(nb.float32, nb.float32, nb.float32, nb.float32, nb.float32, nb.float32),
-    nb.float64(nb.float64, nb.float64, nb.float64, nb.float64, nb.float64, nb.float64),
+    nb.float32(nb.float32, nb.float32, nb.float32, nb.float32, nb.float32),
+    nb.float64(nb.float64, nb.float64, nb.float64, nb.float64, nb.float64),
 ]
 
 
 @nb.vectorize(_signatures)
-def crystalball_pdf(x, mu, sigma, beta, m):
-    z = (x - mu) / sigma
-    return _crystalball_pdf(z, beta, m)
+def crystalball_pdf(x, beta, m, loc, scale):
+    z = (x - loc) / scale
+    return _crystalball_pdf(z, beta, m) / scale
+
+
+@nb.vectorize(_signatures)
+def crystalball_cdf(x, beta, m, loc, scale):
+    z = (x - loc) / scale
+    return _crystalball_cdf(z, beta, m)
 
 
 del _signatures

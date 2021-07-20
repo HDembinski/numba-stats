@@ -20,6 +20,8 @@ from .stats import (  # noqa
     voigt_pdf,
     tsallis_pdf,
     tsallis_cdf,
+    crystalball_pdf,
+    crystalball_cdf,
 )
 
 from argparse import Namespace
@@ -33,5 +35,6 @@ expon = Namespace(pdf=expon_pdf, cdf=expon_cdf, ppf=expon_ppf)
 t = Namespace(pdf=t_pdf, cdf=t_cdf, ppf=t_ppf)
 voigt = Namespace(pdf=voigt_pdf)
 tsallis = Namespace(pdf=tsallis_pdf, cdf=tsallis_cdf)
+crystalball = Namespace(pdf=crystalball_pdf, cdf=crystalball_cdf)
 
 del Namespace

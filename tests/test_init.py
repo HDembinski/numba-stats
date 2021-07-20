@@ -20,10 +20,10 @@ def test_import():
     import numba_stats
 
     for key in dir(st):
-        if (
-            key.endswith("_ppf")
+        if not key.startswith("_") and (
+            key.endswith("_pdf")
             or key.endswith("_cdf")
-            or key.endswith("_pdf")
+            or key.endswith("_ppf")
             or key.endswith("_pmf")
         ):
             assert hasattr(numba_stats, key)
