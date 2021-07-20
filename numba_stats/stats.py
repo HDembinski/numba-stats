@@ -19,14 +19,30 @@ _signatures = [
 ]
 
 
+@nb.njit(inline="always")
+def _norm_pdf(z):
+    c = 1.0 / np.sqrt(2 * np.pi)
+    return np.exp(-0.5 * z ** 2) * c
+
+
+@nb.njit(inline="always")
+def _norm_cdf(z):
+    z /= np.sqrt(2)
+    return 0.5 * (1.0 + erf(z))
+
+
+@nb.njit(inline="always")
+def _norm_ppf(p):
+    return np.sqrt(2) * erfinv(2 * p - 1)
+
+
 @nb.vectorize(_signatures)
 def norm_pdf(x, mu, sigma):
     """
     Return probability density of normal distribution.
     """
     z = (x - mu) / sigma
-    c = 1.0 / np.sqrt(2 * np.pi)
-    return np.exp(-0.5 * z ** 2) * c / sigma
+    return _norm_pdf(z) / sigma
 
 
 @nb.vectorize(_signatures)
@@ -35,8 +51,7 @@ def norm_cdf(x, mu, sigma):
     Evaluate cumulative distribution function of normal distribution.
     """
     z = (x - mu) / sigma
-    z *= 1.0 / np.sqrt(2)
-    return 0.5 * (1.0 + erf(z))
+    return _norm_cdf(z)
 
 
 @nb.vectorize(_signatures)
@@ -44,7 +59,7 @@ def norm_ppf(p, mu, sigma):
     """
     Return quantile of normal distribution for given probability.
     """
-    z = np.sqrt(2) * erfinv(2 * p - 1)
+    z = _norm_ppf(p)
     return sigma * z + mu
 
 
@@ -224,25 +239,55 @@ _signatures = [
 
 
 @nb.vectorize(_signatures)
-def tsallis_pdf(pt, m, t, n):
+def tsallis_pdf(x, m, t, n):
     # Formula from CMS, Eur. Phys. J. C (2012) 72:2164
     assert n > 2
 
-    mt = np.sqrt(m ** 2 + pt ** 2)
+    mt = np.sqrt(m ** 2 + x ** 2)
     nt = n * t
     c = (n - 1) * (n - 2) / (nt * (nt + (n - 2) * m))
 
-    return c * pt * (1 + (mt - m) / nt) ** -n
+    return c * x * (1 + (mt - m) / nt) ** -n
 
 
 @nb.vectorize(_signatures)
-def tsallis_cdf(pt, m, t, n):
+def tsallis_cdf(x, m, t, n):
     # Formula computed from tsallis_pdf with Sympy, then simplified by hand
     assert n > 2
 
-    mt = np.sqrt(m ** 2 + pt ** 2)
+    mt = np.sqrt(m ** 2 + x ** 2)
     nt = n * t
     return ((mt - m) / nt + 1) ** (1 - n) * (m + mt - n * (mt + t)) / (m * (n - 2) + nt)
+
+
+@nb.njit(inline="always")
+def _crystalball_pdf(z, beta, m):
+    assert beta > 0
+    assert m > 1
+
+    exp_beta = np.exp(-(beta ** 2) / 2.0)
+
+    a = (m / beta) ** m * exp_beta
+    b = m / beta - beta
+    c = m / beta / (m - 1) * exp_beta
+    d = _norm_cdf(beta) * 2
+    n = 1.0 / (c + d)
+
+    if z <= -beta:
+        return n * a * (b - z) ** -m
+    return n * np.exp(-(z ** 2) / 2.0)
+
+
+_signatures = [
+    nb.float32(nb.float32, nb.float32, nb.float32, nb.float32, nb.float32, nb.float32),
+    nb.float64(nb.float64, nb.float64, nb.float64, nb.float64, nb.float64, nb.float64),
+]
+
+
+@nb.vectorize(_signatures)
+def crystalball_pdf(x, mu, sigma, beta, m):
+    z = (x - mu) / sigma
+    return _crystalball_pdf(z, beta, m)
 
 
 del _signatures

@@ -157,3 +157,12 @@ def test_tsallis_cdf():
                     v, err = quad(lambda pt: nbs.tsallis_pdf(pt, m, t, n), *ptrange)
                     v2 = np.diff(nbs.tsallis_cdf(ptrange, m, t, n))
                     assert abs(v2 - v) < err
+
+
+def test_crystalball_pdf():
+    x = np.linspace(-10, 5, 1000)
+    beta = 1
+    for m in (1, 2, 3):
+        got = nbs.crystalball_pdf(x, 0, 1, beta, m)
+        expected = sc.crystalbal.pdf(x, beta, m)
+        np.testing.assert_allclose(got, expected)
