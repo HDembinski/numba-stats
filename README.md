@@ -11,7 +11,7 @@ We provide numba-accelerated implementations of statistical functions for common
 * Student's t
 * Voigtian
 * Tsallis
-* Crystalball
+* Crystal Ball
 
 with more to come. The speed gains are huge, up to a factor of 100 compared to `scipy`. Benchmarks are included in the repository and are run by pytest.
 
