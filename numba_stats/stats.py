@@ -288,14 +288,11 @@ def _crystalball_cdf(z, beta, m):
 
     if z <= -beta:
         return n * (
-            (m / beta) ** m
-            * np.exp(-0.5 * beta ** 2)
-            * (m / beta - beta - z) ** (1.0 - m)
-            / (m - 1.0)
+            (m / beta) ** m * exp_beta * (m / beta - beta - z) ** (1.0 - m) / (m - 1.0)
         )
     return n * (
         (m / beta) * exp_beta / (m - 1.0)
-        + np.sqrt(0.5 * np.pi) * (erf(z * np.sqrt(0.5)) - erf(beta * np.sqrt(0.5)))
+        + np.sqrt(0.5 * np.pi) * (erf(z * np.sqrt(0.5)) - erf(-beta * np.sqrt(0.5)))
     )
 
 
