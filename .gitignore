@@ -5,4 +5,6 @@ dist
 .coverage
 htmlcov
 .venv
+.pytest_cache
 *.egg-info
+src/numba_stats/_version.py
