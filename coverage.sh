@@ -1,2 +1,2 @@
 #!/bin/sh
-pytest --cov=numba_stats --cov-report=html
+pytest --cov=src/numba_stats --cov-report=html
