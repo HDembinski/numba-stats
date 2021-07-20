@@ -4,6 +4,7 @@ import scipy.special as sp
 from scipy.integrate import quad
 import numpy as np
 import numba as nb
+import pytest
 
 
 def test_norm_pdf():
@@ -157,3 +158,21 @@ def test_tsallis_cdf():
                     v, err = quad(lambda pt: nbs.tsallis_pdf(pt, m, t, n), *ptrange)
                     v2 = np.diff(nbs.tsallis_cdf(ptrange, m, t, n))
                     assert abs(v2 - v) < err
+
+
+@pytest.mark.parametrize("m", (1.001, 2, 3))
+def test_crystalball_pdf(m):
+    x = np.linspace(-10, 5, 10)
+    beta = 1
+    got = nbs.crystalball_pdf(x, beta, m, 0, 1)
+    expected = sc.crystalball.pdf(x, beta, m)
+    np.testing.assert_allclose(got, expected)
+
+
+@pytest.mark.parametrize("m", (1.001, 2, 3))
+def test_crystalball_cdf(m):
+    x = np.linspace(-10, 5, 10)
+    beta = 1
+    got = nbs.crystalball_cdf(x, beta, m, 0, 1)
+    expected = sc.crystalball.cdf(x, beta, m)
+    np.testing.assert_allclose(got, expected)
