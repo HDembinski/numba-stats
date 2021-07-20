@@ -43,6 +43,22 @@ def test_poisson_cdf():
     np.testing.assert_allclose(got, expected)
 
 
+def test_cpoisson_pmf():
+    m = np.linspace(0.1, 3, 20)[:, np.newaxis]
+    k = np.arange(10)
+    got = nbs.cpoisson_pmf(k, m)
+    expected = sc.poisson.pmf(k, m)
+    np.testing.assert_allclose(got, expected)
+
+
+def test_cpoisson_cdf():
+    m = np.linspace(0.1, 3, 20)[:, np.newaxis]
+    k = np.arange(10)
+    got = nbs.cpoisson_cdf(k, m)
+    expected = sc.poisson.cdf(k, m)
+    np.testing.assert_allclose(got, expected)
+
+
 def test_expon_pdf():
     x = np.linspace(1, 5, 20)
     got = nbs.expon_pdf(x, 1, 2)

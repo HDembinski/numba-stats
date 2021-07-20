@@ -1,2 +1,2 @@
 #!/bin/sh
-poetry run pytest --cov=numba_stats --cov-report=html
+pytest --cov=numba_stats --cov-report=html
