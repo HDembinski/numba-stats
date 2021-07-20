@@ -8,12 +8,15 @@ import scipy.special.cython_special as cysp
 
 
 def get(name, signature):
+    # create new function object with correct signature that numba can call by extracting
+    # function pointer from scipy.special.cython_special; uses scipy/cython internals
     index = 1 if signature.return_type is float64 else 0
     pyx_fuse_name = f"__pyx_fuse_{index}{name}"
     if pyx_fuse_name in cysp.__pyx_capi__:
         name = pyx_fuse_name
     addr = get_cython_function_address("scipy.special.cython_special", name)
 
+    # dynamically create type that inherits from WrapperAddressProtocol
     cls = type(
         name,
         (WrapperAddressProtocol,),
