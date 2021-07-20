@@ -79,6 +79,36 @@ def poisson_cdf(x, mu):
 
 
 _signatures = [
+    nb.float32(nb.float32, nb.float32),
+    nb.float64(nb.float64, nb.float64),
+]
+
+
+@nb.vectorize(_signatures)
+def cpoisson_pmf(k, mu):
+    """
+    Return probability mass for Poisson distribution (allow non-integer k)
+    """
+    logp = xlogy(k, mu) - gammaln(k + 1.0) - mu
+    return np.exp(logp)
+
+
+_signatures = [
+    nb.float32(nb.float32, nb.float32),
+    nb.float64(nb.float64, nb.float64),
+]
+
+
+@nb.vectorize(_signatures)
+def cpoisson_cdf(x, mu):
+    """
+    Evaluate cumulative distribution function of Poisson distribution.
+    """
+    k = np.floor(x)
+    return pdtr(k, mu)
+
+
+_signatures = [
     nb.float32(nb.float32, nb.float32, nb.float32),
     nb.float64(nb.float64, nb.float64, nb.float64),
 ]
