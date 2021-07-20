@@ -22,6 +22,7 @@ from .stats import (  # noqa
 
 from argparse import Namespace
 
+# TODO this does not work in numba
 uniform = Namespace(pdf=uniform_pdf, cdf=uniform_cdf, ppf=uniform_ppf)
 norm = Namespace(pdf=norm_pdf, cdf=norm_cdf, ppf=norm_ppf)
 poisson = Namespace(pmf=poisson_pmf, cdf=poisson_cdf)
