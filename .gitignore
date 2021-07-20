@@ -6,3 +6,4 @@ dist
 htmlcov
 .venv
 *.egg-info
+numba_stats/_version.py
