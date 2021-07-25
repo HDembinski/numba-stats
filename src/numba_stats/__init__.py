@@ -24,6 +24,8 @@ from .stats import (  # noqa
     crystalball_cdf,
 )
 
+from .not_in_scipy import bernstein_pdf, bernstein_cdf  # noqa
+
 from argparse import Namespace
 
 # TODO this does not work in numba
@@ -36,5 +38,6 @@ t = Namespace(pdf=t_pdf, cdf=t_cdf, ppf=t_ppf)
 voigt = Namespace(pdf=voigt_pdf)
 tsallis = Namespace(pdf=tsallis_pdf, cdf=tsallis_cdf)
 crystalball = Namespace(pdf=crystalball_pdf, cdf=crystalball_cdf)
+bernstein = Namespace(pdf=bernstein_pdf, cdf=bernstein_cdf)
 
 del Namespace
