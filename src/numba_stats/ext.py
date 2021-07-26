@@ -40,4 +40,9 @@ def bernstein_scaled_cdf(x, beta, xmin, xmax):
     beta1 = np.empty(len(beta) + 1, dtype=beta.dtype)
     beta1[1:] = beta
     beta1[0] = 0
-    return bernstein_density(x, beta1, xmin, xmax)
+    scale = 1.0 / (xmax - xmin)
+    x = np.atleast_1d(x)
+    z = (x - xmin) * scale
+    res = np.empty_like(z)
+    _de_castlejau(z, beta1, res)
+    return res * scale / len(beta1)

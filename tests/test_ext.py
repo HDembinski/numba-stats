@@ -18,11 +18,12 @@ def test_bernstein_density(beta):
 
 @pytest.mark.parametrize("beta", [[1], [1, 1], [1, 1, 1], [1, 2, 3], [1, 3, 2]])
 def test_bernstein_scaled_cdf(beta):
-    x = np.linspace(1, 3)
+    x = np.linspace(0, 1)
 
     got = nbs.bernstein_scaled_cdf(x, beta, x[0], x[-1])
     expected = [
-        quad(lambda x: nbs.bernstein_density(x, beta, x[0], x[-1]), x[0], xi)[0]
+        quad(lambda xi: nbs.bernstein_density(xi, beta, x[0], x[-1]), x[0], xi)[0]
         for xi in x
     ]
+    print(len(beta), expected / got)
     np.testing.assert_allclose(got, expected)
