@@ -3,7 +3,7 @@ from scipy.interpolate import BPoly
 import pytest
 import numpy as np
 from scipy.integrate import quad
-import numba as nb  # noqa
+import numba as nb
 
 
 @pytest.mark.parametrize(
@@ -16,6 +16,10 @@ def test_bernstein_density(beta):
     expected = BPoly(np.array(beta)[:, np.newaxis], [x[0], x[-1]])(x) / (
         (len(beta) + 1) * (x[-1] - x[0])
     )
+    np.testing.assert_allclose(got, expected)
+
+    got = nbs.bernstein_density(0.5, beta, 0, 1)
+    expected = nbs.bernstein_density([0.5], beta, 0, 1)
     np.testing.assert_allclose(got, expected)
 
 
@@ -31,11 +35,27 @@ def test_bernstein_scaled_cdf(beta):
     np.testing.assert_allclose(got, expected)
 
 
-# def test_numba_bernstein_density():
-#     x = np.linspace(1, 3)
-#
-#     @nb.njit
-#     def f(x, beta):
-#         return nbs.bernstein_density(x, beta, 0, 1)
-#
-#     f(x, [1, 2])
+def test_numba_bernstein_density():
+    @nb.njit
+    def f():
+        return nbs.bernstein_density(
+            np.array([0.5, 0.6]),
+            np.array([1.0, 2.0, 3.0]),
+            0.0,
+            1.0,
+        )
+
+    f()
+
+
+def test_numba_bernstein_scaled_cdf():
+    @nb.njit
+    def f():
+        return nbs.bernstein_scaled_cdf(
+            np.array([0.5, 0.6]),
+            np.array([1.0, 2.0, 3.0]),
+            0.0,
+            1.0,
+        )
+
+    f()
