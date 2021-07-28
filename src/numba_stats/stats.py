@@ -19,19 +19,19 @@ _signatures = [
 ]
 
 
-@nb.njit(inline="always")
+@nb.njit
 def _norm_pdf(z):
     c = 1.0 / np.sqrt(2 * np.pi)
     return np.exp(-0.5 * z ** 2) * c
 
 
-@nb.njit(inline="always")
+@nb.njit
 def _norm_cdf(z):
     c = np.sqrt(0.5)
     return 0.5 * (1.0 + erf(z * c))
 
 
-@nb.njit(inline="always")
+@nb.njit
 def _norm_ppf(p):
     return np.sqrt(2) * erfinv(2 * p - 1)
 
@@ -260,7 +260,7 @@ def tsallis_cdf(x, m, t, n):
     return ((mt - m) / nt + 1) ** (1 - n) * (m + mt - n * (mt + t)) / (m * (n - 2) + nt)
 
 
-@nb.njit(inline="always")
+@nb.njit
 def _crystalball_pdf(z, beta, m):
     assert beta > 0
     assert m > 1
@@ -279,7 +279,7 @@ def _crystalball_pdf(z, beta, m):
     return n * np.exp(-0.5 * z ** 2)
 
 
-@nb.njit(inline="always")
+@nb.njit
 def _crystalball_cdf(z, beta, m):
     exp_beta = np.exp(-0.5 * beta ** 2)
     c = m / (beta * (m - 1.0)) * exp_beta
