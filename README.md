@@ -10,17 +10,31 @@ We provide numba-accelerated implementations of statistical functions for common
 * Exponential
 * Student's t
 * Voigtian
-* Tsallis
 * Crystal Ball
+* Tsallis
+* Bernstein density
 
-with more to come. The speed gains are huge, up to a factor of 100 compared to `scipy`. Benchmarks are included in the repository and are run by pytest.
+with more to come. The speed gains are huge, up to a factor of 100 compared to `scipy`. Benchmarks are included in the repository and are run by `pytest`.
 
-Additional tools not included in SciPy:
-* Bernstein density and density integral
+**You can help with adding more distributions, patches are very welcome.** Implementing a probability distribution is easy. You need to write it in simple Python that `numba` can understand. Special functions from `scipy.special` can be used after some wrapping, see submodule `numba_stats._special.py` how it is done.
 
-**You can help with adding more distributions, patches are very welcome.** Implementing a probability distribution is easy. You need to write it in simple Python that numba can understand. Special functions from `scipy.special` can be used after some wrapping, see submodule `numba_stats._special.py` how it is done.
+Because of limited manpower, this project is barely documented. The documentation is basically `pydoc numba_stats`. The calling conventions are the same as for the corresponding functions in `scipy.stats`. These are sometimes a bit unusual, for example, for the exponential distribution, see the `scipy` docs for details.
 
-Because of limited manpower, this project is barely documented. The documentation is basically `pydoc numba_stats`. The calling conventions are the same as for the corresponding functions in scipy.stats. These are sometimes a bit unusual, for example, for the exponential distribution, see the `scipy` docs for details.
+# Breaking changes
+
+**Version v0.8 introduced breaking changes to the API.**
+```
+# before v0.8
+from numba_stats import norm_pdf
+
+dp = norm_pdf(1, 2, 3)
+
+# since v0.8
+from numba_stats import norm
+
+dp = norm.pdf(1, 2, 3)
+```
+This change is not only cosmetics, it was necessary to battle the increasing startup times of `numba-stats`. Now you only pay the compilation cost for the distribution that you actually need. To keep old code running, please pin your numba_stats to version `0.7`.
 
 ## numba-stats and numba-scipy
 
