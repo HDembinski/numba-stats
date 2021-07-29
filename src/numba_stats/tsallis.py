@@ -7,7 +7,7 @@ _signatures = [
 ]
 
 
-@nb.vectorize(_signatures)
+@nb.vectorize(_signatures, cache=True)
 def pdf(x, m, t, n):
     # Formula from CMS, Eur. Phys. J. C (2012) 72:2164
     assert n > 2
@@ -18,7 +18,7 @@ def pdf(x, m, t, n):
     return c * x * (1 + (mt - m) / nt) ** -n
 
 
-@nb.vectorize(_signatures)
+@nb.vectorize(_signatures, cache=True)
 def cdf(x, m, t, n):
     # Formula computed from tsallis_pdf with Sympy, then simplified by hand
     assert n > 2

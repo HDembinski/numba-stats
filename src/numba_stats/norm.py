@@ -1,15 +1,16 @@
 import numba as nb
 import numpy as np
-from ._special import erf, erfinv
+from ._special import erfinv
+from math import erf
 
 
-@nb.njit
+@nb.njit(cache=True)
 def _pdf(z):
     c = 1.0 / np.sqrt(2 * np.pi)
     return np.exp(-0.5 * z ** 2) * c
 
 
-@nb.njit
+@nb.njit(cache=True)
 def _cdf(z):
     c = np.sqrt(0.5)
     return 0.5 * (1.0 + erf(z * c))
@@ -26,7 +27,7 @@ _signatures = [
 ]
 
 
-@nb.vectorize(_signatures)
+@nb.vectorize(_signatures, cache=True)
 def pdf(x, mu, sigma):
     """
     Return probability density of normal distribution.
@@ -35,7 +36,7 @@ def pdf(x, mu, sigma):
     return _pdf(z) / sigma
 
 
-@nb.vectorize(_signatures)
+@nb.vectorize(_signatures, cache=True)
 def cdf(x, mu, sigma):
     """
     Evaluate cumulative distribution function of normal distribution.

@@ -1,6 +1,7 @@
 import numba as nb
 import numpy as np
-from ._special import gammaln, stdtr, stdtrit
+from ._special import stdtr, stdtrit
+from math import lgamma as gammaln
 
 _signatures = [
     nb.float32(nb.float32, nb.float32, nb.float32, nb.float32),
@@ -8,7 +9,7 @@ _signatures = [
 ]
 
 
-@nb.vectorize(_signatures)
+@nb.vectorize(_signatures, cache=True)
 def pdf(x, df, mu, sigma):
     """
     Return probability density of student's distribution.

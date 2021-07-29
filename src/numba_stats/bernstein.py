@@ -8,7 +8,7 @@ _signatures = [
 ]
 
 
-@nb.njit(_signatures)
+@nb.njit(_signatures, cache=True)
 def _de_castlejau(z, beta, res):
     # De Casteljau algorithm, numerically stable
     n = len(beta)
@@ -32,7 +32,7 @@ _signatures = [
 ]
 
 
-@nb.njit(_signatures)
+@nb.njit(_signatures, cache=True)
 def _beta_int(beta):
     n = len(beta)
     r = np.zeros(n + 1, dtype=beta.dtype)
@@ -43,7 +43,7 @@ def _beta_int(beta):
     return r
 
 
-@nb.njit
+@nb.njit(cache=True)
 def _prepare_z_beta(x, xmin, xmax, beta):
     inverse_scale = 1 / (xmax - xmin)
     z = x.copy()
@@ -68,13 +68,13 @@ _signatures = [
 ]
 
 
-@nb.guvectorize(_signatures, "(),(n),(),()->()")
+@nb.guvectorize(_signatures, "(),(n),(),()->()", cache=True)
 def scaled_pdf(x, beta, xmin, xmax, res):
     z, beta = _prepare_z_beta(x, xmin, xmax, beta)
     _de_castlejau(z, beta, res)
 
 
-@nb.guvectorize(_signatures, "(),(n),(),()->()")
+@nb.guvectorize(_signatures, "(),(n),(),()->()", cache=True)
 def scaled_cdf(x, beta, xmin, xmax, res):
     z, beta = _prepare_z_beta(x, xmin, xmax, beta)
     beta = _beta_int(beta)
@@ -126,3 +126,6 @@ def bernstein_scaled_cdf_ol(x, beta, xmin, xmax):
         return res
 
     return impl
+
+
+density = scaled_pdf

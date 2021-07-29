@@ -1,9 +1,9 @@
 import numba as nb
 import numpy as np
-from ._special import erf
+from math import erf
 
 
-@nb.njit
+@nb.njit(cache=True)
 def _pdf(z, beta, m):
     assert beta > 0
     assert m > 1
@@ -22,7 +22,7 @@ def _pdf(z, beta, m):
     return n * np.exp(-0.5 * z ** 2)
 
 
-@nb.njit
+@nb.njit(cache=True)
 def _cdf(z, beta, m):
     exp_beta = np.exp(-0.5 * beta ** 2)
     c = m / (beta * (m - 1.0)) * exp_beta
@@ -45,13 +45,13 @@ _signatures = [
 ]
 
 
-@nb.vectorize(_signatures)
+@nb.vectorize(_signatures, cache=True)
 def pdf(x, beta, m, loc, scale):
     z = (x - loc) / scale
     return _pdf(z, beta, m) / scale
 
 
-@nb.vectorize(_signatures)
+@nb.vectorize(_signatures, cache=True)
 def cdf(x, beta, m, loc, scale):
     z = (x - loc) / scale
     return _cdf(z, beta, m)
