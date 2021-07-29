@@ -1,6 +1,6 @@
 import numba as nb
 import numpy as np
-from ._special import xlogy, pdtr
+from ._special import pdtr
 from math import lgamma
 
 _signatures = [
@@ -14,7 +14,7 @@ def pmf(k, mu):
     """
     Return probability mass for Poisson distribution.
     """
-    logp = xlogy(k, mu) - lgamma(k + 1.0) - mu
+    logp = k * np.log(mu) - lgamma(k + 1.0) - mu
     return np.exp(logp)
 
 

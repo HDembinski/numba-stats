@@ -1,6 +1,6 @@
 import numba as nb
 import numpy as np
-from ._special import xlogy, pdtr
+from ._special import pdtr
 from math import lgamma
 
 _signatures = [
@@ -14,7 +14,7 @@ def pdf(x, mu):
     """
     Return probability density for continuous Poisson distribution (allow non-integer k).
     """
-    logp = xlogy(x, mu) - lgamma(x + 1.0) - mu
+    logp = x * np.log(mu) - lgamma(x + 1.0) - mu
     return np.exp(logp)
 
 

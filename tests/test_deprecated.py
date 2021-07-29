@@ -71,5 +71,6 @@ def test_njit_with_numba_stats():
         return nbs.norm_ppf(p, 0, 1)
 
     expected = np.linspace(-3, 3, 10)
-    got = test(expected)
+    with pytest.warns(VisibleDeprecationWarning):
+        got = test(expected)
     np.testing.assert_allclose(got, expected)
