@@ -1,5 +1,6 @@
 from ._version import version as __version__  # noqa
 
+# for backward compatibility
 from .stats import *  # noqa
 
 from . import (  # noqa
@@ -12,7 +13,5 @@ from . import (  # noqa
     voigt,
     tsallis,
     crystalball,
+    bernstein,
 )
-
-# from .not_in_scipy import bernstein_density, bernstein_scaled_cdf  # noqa
-# bernstein = Namespace(density=bernstein_density, scaled_cdf=bernstein_scaled_cdf)

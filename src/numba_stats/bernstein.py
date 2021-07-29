@@ -69,20 +69,20 @@ _signatures = [
 
 
 @nb.guvectorize(_signatures, "(),(n),(),()->()")
-def bernstein_density(x, beta, xmin, xmax, res):
+def scaled_pdf(x, beta, xmin, xmax, res):
     z, beta = _prepare_z_beta(x, xmin, xmax, beta)
     _de_castlejau(z, beta, res)
 
 
 @nb.guvectorize(_signatures, "(),(n),(),()->()")
-def bernstein_scaled_cdf(x, beta, xmin, xmax, res):
+def scaled_cdf(x, beta, xmin, xmax, res):
     z, beta = _prepare_z_beta(x, xmin, xmax, beta)
     beta = _beta_int(beta)
     _de_castlejau(z, beta, res)
 
 
-@nb.extending.overload(bernstein_density)
-def bernstein_density_ol(x, beta, xmin, xmax):
+@nb.extending.overload(scaled_pdf)
+def bernstein_scaled_pdf_ol(x, beta, xmin, xmax):
     from numba.core.errors import TypingError
     from numba.types import Array, Float
 
@@ -104,7 +104,7 @@ def bernstein_density_ol(x, beta, xmin, xmax):
     return impl
 
 
-@nb.extending.overload(bernstein_scaled_cdf)
+@nb.extending.overload(scaled_cdf)
 def bernstein_scaled_cdf_ol(x, beta, xmin, xmax):
     from numba.core.errors import TypingError
     from numba.types import Array, Float
