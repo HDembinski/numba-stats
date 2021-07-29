@@ -1,14 +1,15 @@
 import numpy as np
 import numba as nb
 import pytest
+from numpy import VisibleDeprecationWarning
 
 
 def test_deprecated_stats():
-    with pytest.warns(DeprecationWarning):
+    with pytest.warns(VisibleDeprecationWarning):
         import numba_stats.stats  # noqa
 
     # FIXME this does not warn
-    # with pytest.warns(DeprecationWarning):
+    # with pytest.warns(VisibleDeprecationWarning):
     #     from numba_stats import stats  # noqa
 
 
@@ -27,37 +28,37 @@ def test_deprecated():
         crystalball,
     )
 
-    with pytest.warns(DeprecationWarning):
+    with pytest.warns(VisibleDeprecationWarning):
         assert nbs.norm_pdf is norm.pdf
 
-    with pytest.warns(DeprecationWarning):
+    with pytest.warns(VisibleDeprecationWarning):
         assert nbs.norm_cdf is norm.cdf
 
-    with pytest.warns(DeprecationWarning):
+    with pytest.warns(VisibleDeprecationWarning):
         assert nbs.norm_ppf is norm.ppf
 
-    with pytest.warns(DeprecationWarning):
+    with pytest.warns(VisibleDeprecationWarning):
         assert nbs.poisson_pmf is poisson.pmf
 
-    with pytest.warns(DeprecationWarning):
+    with pytest.warns(VisibleDeprecationWarning):
         assert nbs.cpoisson_pdf is cpoisson.pdf
 
-    with pytest.warns(DeprecationWarning):
+    with pytest.warns(VisibleDeprecationWarning):
         assert nbs.expon_pdf is expon.pdf
 
-    with pytest.warns(DeprecationWarning):
+    with pytest.warns(VisibleDeprecationWarning):
         assert nbs.t_pdf is t.pdf
 
-    with pytest.warns(DeprecationWarning):
+    with pytest.warns(VisibleDeprecationWarning):
         assert nbs.voigt_pdf is voigt.pdf
 
-    with pytest.warns(DeprecationWarning):
+    with pytest.warns(VisibleDeprecationWarning):
         assert nbs.uniform_pdf is uniform.pdf
 
-    with pytest.warns(DeprecationWarning):
+    with pytest.warns(VisibleDeprecationWarning):
         assert nbs.tsallis_pdf is tsallis.pdf
 
-    with pytest.warns(DeprecationWarning):
+    with pytest.warns(VisibleDeprecationWarning):
         assert nbs.crystalball_pdf is crystalball.pdf
 
 

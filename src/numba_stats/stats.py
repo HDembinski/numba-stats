@@ -1,4 +1,5 @@
 import warnings
+from numpy import VisibleDeprecationWarning
 
 warnings.warn(
     """numba_stats.stats submodule will be removed in v1.0
@@ -8,7 +9,7 @@ from numba_stats import norm
 
 norm.pdf(1, 2, 3)
 """,
-    DeprecationWarning,
+    VisibleDeprecationWarning,
     1,
 )
 

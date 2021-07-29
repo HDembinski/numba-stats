@@ -5,6 +5,7 @@ def __getattr__(key):
     # Temporary hack to maintain backward compatibility
     import importlib
     import warnings
+    from numpy import VisibleDeprecationWarning
 
     try:
         dist, fn = key.split("_")
@@ -12,14 +13,14 @@ def __getattr__(key):
             raise AttributeError
 
         warnings.warn(
-            """Imports of the form `from numba_stats import norm_pdf` will be removed in v1.0
+            f"""Imports of the form `from numba_stats import {key}` will be removed in v1.0
 Please import distributions like this:
 
-from numba_stats import norm
+from numba_stats import {dist}
 
-norm.pdf(1, 2, 3)
+{dist}.{fn}(...)
 """,
-            DeprecationWarning,
+            VisibleDeprecationWarning,
             1,
         )
         dist = importlib.import_module(f"numba_stats.{dist}")
