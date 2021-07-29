@@ -7,6 +7,16 @@ import numba as nb
 import pytest
 
 
+def test_norm_new():
+    import numba_stats as nbs
+
+    @nb.njit
+    def f():
+        return nbs.norm.pdf(1, 2, 3)
+
+    f()
+
+
 def test_norm_pdf():
     x = np.linspace(-5, 5, 10)
     got = nbs.norm_pdf(x, 1, 2)
@@ -44,10 +54,10 @@ def test_poisson_cdf():
     np.testing.assert_allclose(got, expected)
 
 
-def test_cpoisson_pmf():
+def test_cpoisson_pdf():
     m = np.linspace(0.1, 3, 20)[:, np.newaxis]
     k = np.arange(10)
-    got = nbs.cpoisson_pmf(k, m)
+    got = nbs.cpoisson_pdf(k, m)
     expected = sc.poisson.pmf(k, m)
     np.testing.assert_allclose(got, expected)
 
