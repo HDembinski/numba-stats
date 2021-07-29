@@ -12,7 +12,7 @@ We provide numba-accelerated implementations of statistical functions for common
 * Voigtian
 * Crystal Ball
 * Tsallis
-* Bernstein density
+* Bernstein density (not normalised to unity, use this in extended likelihood fits)
 
 with more to come. The speed gains are huge, up to a factor of 100 compared to `scipy`. Benchmarks are included in the repository and are run by `pytest`.
 
@@ -20,21 +20,24 @@ with more to come. The speed gains are huge, up to a factor of 100 compared to `
 
 Because of limited manpower, this project is barely documented. The documentation is basically `pydoc numba_stats`. The calling conventions are the same as for the corresponding functions in `scipy.stats`. These are sometimes a bit unusual, for example, for the exponential distribution, see the `scipy` docs for details.
 
-# Breaking changes
+# Plans for version 1.0
 
-**Version v0.8 introduced breaking changes to the API.**
+Version v1.0 (not there yet) will introduce breaking changes to the API.
 ```
 # before v0.8
 from numba_stats import norm_pdf
+from numba_stats.stats import norm_cdf
 
 dp = norm_pdf(1, 2, 3)
+p = norm_cdf(1, 2, 3)
 
-# since v0.8
+# recommended since v0.8
 from numba_stats import norm
 
 dp = norm.pdf(1, 2, 3)
+p = norm.cdf(1, 2, 3)
 ```
-This change is not only cosmetics, it was necessary to battle the increasing startup times of `numba-stats`. Now you only pay the compilation cost for the distribution that you actually need. To keep old code running, please pin your numba_stats to version `0.7`.
+This change is not only cosmetics, it was necessary to battle the increasing startup times of `numba-stats`. Now you only pay the compilation cost for the distribution that you actually need. The `stats` submodule has been removed. To keep old code running, please pin your numba_stats to version `0.7`.
 
 ## numba-stats and numba-scipy
 
