@@ -1,43 +1,31 @@
 from ._version import version as __version__  # noqa
 
-from .stats import (  # noqa
-    uniform_pdf,
-    uniform_cdf,
-    uniform_ppf,
-    norm_pdf,
-    norm_cdf,
-    norm_ppf,
-    poisson_pmf,
-    poisson_cdf,
-    cpoisson_pmf,
-    cpoisson_cdf,
-    expon_pdf,
-    expon_cdf,
-    expon_ppf,
-    t_pdf,
-    t_cdf,
-    t_ppf,
-    voigt_pdf,
-    tsallis_pdf,
-    tsallis_cdf,
-    crystalball_pdf,
-    crystalball_cdf,
-)
 
-# from .not_in_scipy import bernstein_density, bernstein_scaled_cdf  # noqa
+def __getattr__(key):
+    # Temporary hack to maintain backward compatibility
+    import importlib
+    import warnings
+    from numpy import VisibleDeprecationWarning
 
-from argparse import Namespace
+    try:
+        dist, fn = key.split("_")
+        if fn not in ("pdf", "cdf", "ppf", "pmf"):
+            raise AttributeError
 
-# TODO this does not work in numba
-uniform = Namespace(pdf=uniform_pdf, cdf=uniform_cdf, ppf=uniform_ppf)
-norm = Namespace(pdf=norm_pdf, cdf=norm_cdf, ppf=norm_ppf)
-poisson = Namespace(pmf=poisson_pmf, cdf=poisson_cdf)
-cpoisson = Namespace(pmf=cpoisson_pmf, cdf=cpoisson_cdf)
-expon = Namespace(pdf=expon_pdf, cdf=expon_cdf, ppf=expon_ppf)
-t = Namespace(pdf=t_pdf, cdf=t_cdf, ppf=t_ppf)
-voigt = Namespace(pdf=voigt_pdf)
-tsallis = Namespace(pdf=tsallis_pdf, cdf=tsallis_cdf)
-crystalball = Namespace(pdf=crystalball_pdf, cdf=crystalball_cdf)
-# bernstein = Namespace(density=bernstein_density, scaled_cdf=bernstein_scaled_cdf)
+        warnings.warn(
+            f"""Imports of the form `from numba_stats import {key}` will be removed in v1.0
+Please import distributions like this:
 
-del Namespace
+from numba_stats import {dist}
+
+{dist}.{fn}(...)
+""",
+            VisibleDeprecationWarning,
+            1,
+        )
+        dist = importlib.import_module(f"numba_stats.{dist}")
+        return getattr(dist, fn)
+    except ValueError:
+        pass
+
+    raise AttributeError
