@@ -3,7 +3,7 @@ import numpy as np
 import pytest
 
 
-@pytest.mark.parametrize("nu", (0.1, 1.0, 2.0))
+@pytest.mark.parametrize("nu", (1, 3, 10))
 def test_qgaussian_pdf(nu):
     x = np.linspace(-5, 5)
 

@@ -34,7 +34,13 @@ def _compute_cq(q):
     return np.nan
 
 
-@nb.vectorize
+_signatures = [
+    nb.float32(nb.float32, nb.float32, nb.float32, nb.float32),
+    nb.float64(nb.float64, nb.float64, nb.float64, nb.float64),
+]
+
+
+@nb.vectorize(_signatures)
 def pdf(x, q, mu, sigma):
     inv_scale = 1.0 / sigma
     z = (x - mu) * inv_scale
@@ -42,3 +48,11 @@ def pdf(x, q, mu, sigma):
     inv_scale /= c_q * np.sqrt(2)
     # beta = 1/2 for equivalence with normal dist. for q = 1
     return _qexp(-0.5 * (z ** 2), q) * inv_scale
+
+
+# from sympy import *
+# from matplotlib import pyplot as plt
+#
+# x = np.linspace(-5, 5)
+#
+# plt.plot(x, pdf(x, 1, 0, 1))

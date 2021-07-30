@@ -4,8 +4,8 @@ from ._special import stdtr, stdtrit
 from math import lgamma as gammaln
 
 _signatures = [
-    nb.float32(nb.float32, nb.float32, nb.float32, nb.float32),
-    nb.float64(nb.float64, nb.float64, nb.float64, nb.float64),
+    nb.float32(nb.float32, nb.int32, nb.float32, nb.float32),
+    nb.float64(nb.float64, nb.intp, nb.float64, nb.float64),
 ]
 
 

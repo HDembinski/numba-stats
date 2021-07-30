@@ -81,33 +81,6 @@ def test_expon_ppf():
     np.testing.assert_allclose(got, expected)
 
 
-def test_t_pdf():
-    from numba_stats import t
-
-    x = np.linspace(-5, 5, 10)
-    got = t.pdf(x, 1.5, 2, 3)
-    expected = sc.t.pdf(x, 1.5, 2, 3)
-    np.testing.assert_allclose(got, expected)
-
-
-def test_t_cdf():
-    from numba_stats import t
-
-    x = np.linspace(-5, 5, 10)
-    got = t.cdf(x, 1.5, 2, 3)
-    expected = sc.t.cdf(x, 1.5, 2, 3)
-    np.testing.assert_allclose(got, expected)
-
-
-def test_t_ppf():
-    from numba_stats import t
-
-    x = np.linspace(0, 1, 10)
-    got = t.ppf(x, 1.5, 2, 3)
-    expected = sc.t.ppf(x, 1.5, 2, 3)
-    np.testing.assert_allclose(got, expected)
-
-
 def test_voigt_pdf():
     from numba_stats import voigt
 
