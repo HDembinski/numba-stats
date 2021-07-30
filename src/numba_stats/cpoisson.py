@@ -1,7 +1,6 @@
 import numba as nb
-import numpy as np
-from ._special import pdtr
-from math import lgamma
+from ._special import gammaincc
+
 
 _signatures = [
     nb.float32(nb.float32, nb.float32),
@@ -10,17 +9,19 @@ _signatures = [
 
 
 @nb.vectorize(_signatures)
-def pdf(x, mu):
-    """
-    Return probability density for continuous Poisson distribution (allow non-integer k).
-    """
-    logp = x * np.log(mu) - lgamma(x + 1.0) - mu
-    return np.exp(logp)
-
-
-@nb.vectorize(_signatures)
 def cdf(x, mu):
     """
     Evaluate cumulative distribution function of continuous Poisson distribution.
     """
-    return pdtr(x, mu)
+    return gammaincc(x + 1, mu)
+
+
+# The pdf, d cdf(x, mu)/ dx, cannot be expressed in tabulated functions:
+#
+# d G(x, mu)/d x = ln(mu) G(x, mu) + mu T(3, x, mu)
+#
+# where G(x, mu) is the upper incomplete gamma function and T(m, s, x) is a special case
+# of the Meijer G-function,
+# see https://en.wikipedia.org/wiki/Incomplete_gamma_function#Derivatives
+#
+# There is a Meijer G-function implemented in mpmath, but I don't know how to use it.

@@ -1,6 +1,6 @@
 import numba as nb
 import numpy as np
-from ._special import pdtr
+from ._special import gammaincc
 from math import lgamma
 
 _signatures = [
@@ -23,4 +23,4 @@ def cdf(k, mu):
     """
     Evaluate cumulative distribution function of Poisson distribution.
     """
-    return pdtr(k, mu)
+    return gammaincc(k + 1, mu)

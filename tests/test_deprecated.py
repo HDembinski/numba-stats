@@ -41,7 +41,7 @@ def test_deprecated():
         assert nbs.poisson_pmf is poisson.pmf
 
     with pytest.warns(VisibleDeprecationWarning):
-        assert nbs.cpoisson_pdf is cpoisson.pdf
+        assert nbs.cpoisson_cdf is cpoisson.cdf
 
     with pytest.warns(VisibleDeprecationWarning):
         assert nbs.expon_pdf is expon.pdf
