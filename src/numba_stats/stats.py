@@ -15,7 +15,7 @@ norm.pdf(1, 2, 3)
 
 from .norm import pdf as norm_pdf, cdf as norm_cdf, ppf as norm_ppf  # noqa
 from .poisson import pmf as poisson_pmf, cdf as poisson_cdf  # noqa
-from .cpoisson import pdf as cpoisson_pdf, cdf as cpoisson_cdf  # noqa
+from .cpoisson import cdf as cpoisson_cdf  # noqa
 from .expon import pdf as expon_pdf, cdf as expon_cdf, ppf as expon_ppf  # noqa
 from .crystalball import pdf as crystalball_pdf, cdf as crystalball_cdf  # noqa
 from .t import pdf as t_pdf, cdf as t_cdf, ppf as t_ppf  # noqa

@@ -30,7 +30,6 @@ erfinv = get("erfinv", float64(float64))
 
 # binary functions (double)
 gammaincc = get("gammaincc", float64(float64, float64))
-pdtr = get("pdtr", float64(float64, float64))
 stdtr = get("stdtr", float64(float64, float64))
 stdtrit = get("stdtrit", float64(float64, float64))
 

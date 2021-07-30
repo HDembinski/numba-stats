@@ -53,26 +53,6 @@ def test_poisson_cdf():
     np.testing.assert_allclose(got, expected)
 
 
-def test_cpoisson_pdf():
-    from numba_stats import cpoisson
-
-    m = np.linspace(0.1, 3, 20)[:, np.newaxis]
-    k = np.arange(10)
-    got = cpoisson.pdf(k, m)
-    expected = sc.poisson.pmf(k, m)
-    np.testing.assert_allclose(got, expected)
-
-
-def test_cpoisson_cdf():
-    from numba_stats import cpoisson
-
-    m = np.linspace(0.1, 3, 20)[:, np.newaxis]
-    k = np.arange(10)
-    got = cpoisson.cdf(k, m)
-    expected = sc.poisson.cdf(k, m)
-    np.testing.assert_allclose(got, expected)
-
-
 def test_expon_pdf():
     from numba_stats import expon
 
