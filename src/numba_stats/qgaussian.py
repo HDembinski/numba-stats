@@ -1,7 +1,7 @@
 import numba as nb
 import numpy as np
 from math import lgamma
-from ._special import betainc
+from ._special import stdtr
 from . import norm
 
 
@@ -40,23 +40,6 @@ def _compute_cq(q):
     return np.nan
 
 
-@nb.njit
-def _stdtr(k, t):
-    if k <= 0:
-        return np.nan
-
-    if t == 0:
-        return 0.5
-
-    x = t if t < 0 else -t
-    z = k / (k + x * x)
-    p = 0.5 * betainc(0.5 * k, 0.5, z)
-
-    if t < 0:
-        return p
-    return 1 - p
-
-
 _signatures = [
     nb.float32(nb.float32, nb.float32, nb.float32, nb.float32),
     nb.float64(nb.float64, nb.float64, nb.float64, nb.float64),
@@ -93,4 +76,4 @@ def cdf(x, q, mu, sigma):
     inv_scale = 1.0 / sigma
     z = (x - mu) * inv_scale
 
-    return _stdtr(nu, z)
+    return stdtr(nu, z)
