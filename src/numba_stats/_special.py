@@ -32,6 +32,7 @@ erfinv = get("erfinv", float64(float64))
 gammaincc = get("gammaincc", float64(float64, float64))
 stdtr = get("stdtr", float64(float64, float64))
 stdtrit = get("stdtrit", float64(float64, float64))
+hyp2f1 = get("hyp2f1", float64(float64, float64, float64, float64))
 
 # n-ary functions (double)
 voigt_profile = get("voigt_profile", float64(float64, float64, float64))
