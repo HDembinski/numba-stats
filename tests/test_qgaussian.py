@@ -1,6 +1,7 @@
 from numba_stats import qgaussian, t, norm
 import numpy as np
 import pytest
+from scipy.integrate import quad
 
 
 def q_sigma(nu, sigma):
@@ -32,23 +33,22 @@ def test_qgaussian_cdf_vs_norm():
     np.testing.assert_allclose(got, expected)
 
 
-@pytest.mark.parametrize("nu", (1, 3, 10))
+@pytest.mark.parametrize("nu", np.arange(1, 11))
 def test_qgaussian_pdf_vs_t(nu):
     x = np.linspace(-5, 5)
-    q, sigma = q_sigma(nu, 1)
+    q, sigma = q_sigma(nu, 1.2)
 
-    expected = t.pdf(x, nu, 0, 1)
-    got = qgaussian.pdf(x, q, 0, sigma)
+    expected = t.pdf(x, nu, 0.1, 1.2)
+    got = qgaussian.pdf(x, q, 0.1, sigma)
 
     np.testing.assert_allclose(got, expected)
 
 
-@pytest.mark.parametrize("nu", (1, 3, 10))
-def test_qgaussian_cdf_vs_t(nu):
-    x = np.linspace(-5, 5)
-    q, sigma = q_sigma(nu, 1)
+@pytest.mark.parametrize("q", (1, 1.1, 1.2, 1.3, 1.4, 1.5, 1.9, 2.0, 2.5, 2.9))
+def test_qgaussian_cdf(q):
+    x = np.linspace(-5, 5, 10)
 
-    expected = t.cdf(x, nu, 0, 1)
-    got = qgaussian.cdf(x, q, 0, sigma)
+    expected = [quad(lambda y: qgaussian.pdf(y, q, 0.1, 1.2), 0, xi)[0] for xi in x]
+    got = qgaussian.cdf(x, q, 0.1, 1.2) - qgaussian.cdf(0, q, 0.1, 1.2)
 
     np.testing.assert_allclose(got, expected)
