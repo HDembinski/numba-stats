@@ -1,6 +1,6 @@
 import numba as nb
 import numpy as np
-from math import gamma, lgamma
+from math import lgamma
 from ._special import hyp2f1
 from . import norm
 
@@ -58,15 +58,6 @@ def pdf(x, q, mu, sigma):
     return _qexp(-0.5 * z ** 2, q) * inv_scale
 
 
-# @nb.vectorize(_signatures)
-# def cdf(x, q, mu, sigma):
-#     inv_scale = 1.0 / sigma
-#     z = (x - mu) * inv_scale
-#     c_q = _compute_cq(q)
-#     alpha = 1.0 - q
-#     return hyp2f1(0.5, -1.0 / alpha, 1.5, 0.5 * z ** 2 * alpha) / c_q + 0.5
-
-
 @nb.vectorize(_signatures)
 def cdf(x, q, mu, sigma):
     if q < 1 or q > 2:
@@ -75,14 +66,8 @@ def cdf(x, q, mu, sigma):
     if q == 1:
         return norm.cdf(x, mu, sigma)
 
-    # 1 / (2 sigma^2) = 1 / (3 - q)
-    # sqrt((3 - q) / 2) = sigma
-
-    sigma *= np.sqrt(0.5 * (3.0 - q))
     inv_scale = 1.0 / sigma
     z = (x - mu) * inv_scale
-    nu = (3 - q) / (q - 1)
-
-    return 0.5 + z * gamma(0.5 * (nu + 1)) / np.sqrt(nu * np.pi) / gamma(
-        0.5 * nu
-    ) * hyp2f1(0.5, 0.5 * (nu + 1), 1.5, -(z ** 2) / nu)
+    c_q = _compute_cq(q)
+    qm1 = q - 1.0
+    return 0.5 + z * hyp2f1(0.5, 1.0 / qm1, 1.5, -0.5 * z ** 2 * qm1) / c_q
