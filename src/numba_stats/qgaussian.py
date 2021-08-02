@@ -39,6 +39,21 @@ def _compute_cq(q):
     return np.nan
 
 
+@nb.njit
+def _df_sigma(q, sigma):
+    # https://en.wikipedia.org/wiki/Q-Gaussian_distribution
+    # relation to Student's t-distribution
+
+    # 1/(2 sigma^2) = 1 / (3 - q)
+    # 2 sigma^2 = 3 - q
+    # sigma = sqrt((3 - q)/2)
+
+    df = (3 - q) / (q - 1)
+    sigma /= np.sqrt(0.5 * (3 - q))
+
+    return df, sigma
+
+
 _signatures = [
     nb.float32(nb.float32, nb.float32, nb.float32, nb.float32),
     nb.float64(nb.float64, nb.float64, nb.float64, nb.float64),
@@ -65,12 +80,7 @@ def cdf(x, q, mu, sigma):
     if q == 1:
         return norm.cdf(x, mu, sigma)
 
-    # 1/(2 sigma^2) = 1 / (3 - q)
-    # 2 sigma^2 = 3 - q
-    # sigma = sqrt((3 - q)/2)
-
-    df = (3 - q) / (q - 1)
-    sigma /= np.sqrt(0.5 * (3 - q))
+    df, sigma = _df_sigma(q, sigma)
 
     return t.cdf(x, df, mu, sigma)
 
@@ -83,11 +93,6 @@ def ppf(x, q, mu, sigma):
     if q == 1:
         return norm.ppf(x, mu, sigma)
 
-    # 1/(2 sigma^2) = 1 / (3 - q)
-    # 2 sigma^2 = 3 - q
-    # sigma = sqrt((3 - q)/2)
-
-    df = (3 - q) / (q - 1)
-    sigma /= np.sqrt(0.5 * (3 - q))
+    df, sigma = _df_sigma(q, sigma)
 
     return t.ppf(x, df, mu, sigma)
