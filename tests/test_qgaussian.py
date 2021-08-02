@@ -52,3 +52,17 @@ def test_qgaussian_cdf(q):
     got = qgaussian.cdf(x, q, 0.1, 1.2) - qgaussian.cdf(0, q, 0.1, 1.2)
 
     np.testing.assert_allclose(got, expected)
+
+
+@pytest.mark.parametrize("q", (1, 1.1, 1.2, 1.3, 1.4, 1.5, 1.9, 2.0, 2.5, 2.9))
+def test_qgaussian_ppf(q):
+    x = np.linspace(-5, 5, 10)
+
+    def f(x):
+        p = qgaussian.cdf(x, q, 2, 3)
+        return qgaussian.ppf(p, q, 2, 3)
+
+    expected = x
+    got = f(x)
+
+    np.testing.assert_allclose(got, expected)

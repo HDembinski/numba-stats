@@ -1,8 +1,7 @@
 import numba as nb
 import numpy as np
 from math import lgamma
-from ._special import stdtr
-from . import norm
+from . import norm, t
 
 
 @nb.njit
@@ -70,10 +69,25 @@ def cdf(x, q, mu, sigma):
     # 2 sigma^2 = 3 - q
     # sigma = sqrt((3 - q)/2)
 
-    nu = (3 - q) / (q - 1)
+    df = (3 - q) / (q - 1)
     sigma /= np.sqrt(0.5 * (3 - q))
 
-    inv_scale = 1.0 / sigma
-    z = (x - mu) * inv_scale
+    return t.cdf(x, df, mu, sigma)
 
-    return stdtr(nu, z)
+
+@nb.vectorize(_signatures)
+def ppf(x, q, mu, sigma):
+    if q < 1 or q > 3:
+        raise ValueError("q < 1 or q > 3 are not supported")
+
+    if q == 1:
+        return norm.ppf(x, mu, sigma)
+
+    # 1/(2 sigma^2) = 1 / (3 - q)
+    # 2 sigma^2 = 3 - q
+    # sigma = sqrt((3 - q)/2)
+
+    df = (3 - q) / (q - 1)
+    sigma /= np.sqrt(0.5 * (3 - q))
+
+    return t.ppf(x, df, mu, sigma)
