@@ -1,7 +1,7 @@
 import numba as nb
 import numpy as np
 from ._special import stdtr, stdtrit
-from math import lgamma as gammaln
+from math import lgamma
 
 _signatures = [
     nb.float32(nb.float32, nb.float32, nb.float32, nb.float32),
@@ -16,7 +16,7 @@ def pdf(x, df, mu, sigma):
     """
     z = (x - mu) / sigma
     k = 0.5 * (df + 1)
-    p = np.exp(gammaln(k) - gammaln(0.5 * df))
+    p = np.exp(lgamma(k) - lgamma(0.5 * df))
     p /= np.sqrt(df * np.pi) * (1 + (z ** 2) / df) ** k
     return p / sigma
 
