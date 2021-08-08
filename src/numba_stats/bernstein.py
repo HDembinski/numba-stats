@@ -49,9 +49,9 @@ def _prepare_z_beta(x, xmin, xmax, beta):
     z = x.copy()
     z -= xmin
     z *= inverse_scale
-    beta = beta.copy()
-    inverse_scale /= len(beta) + 1
-    beta *= inverse_scale
+    # beta = beta.copy()
+    # inverse_scale /= len(beta) + 1
+    # beta *= inverse_scale
     return z, beta
 
 

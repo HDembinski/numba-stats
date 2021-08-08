@@ -11,15 +11,20 @@ import numba as nb
 )
 def test_bernstein_density(beta):
     x = np.linspace(1, 3)
-    # bernstein_density is normed so that beta corresponds to local density
     got = bernstein.density(x, beta, x[0], x[-1])
-    expected = BPoly(np.array(beta)[:, np.newaxis], [x[0], x[-1]])(x) / (
-        (len(beta) + 1) * (x[-1] - x[0])
-    )
+    expected = BPoly(np.array(beta)[:, np.newaxis], [x[0], x[-1]])(x)
     np.testing.assert_allclose(got, expected)
 
     got = bernstein.density(0.5, beta, 0, 1)
     expected = bernstein.density([0.5], beta, 0, 1)
+    np.testing.assert_allclose(got, expected)
+
+
+@pytest.mark.parametrize("beta", [[1], [1, 1], [1, 1, 1]])
+def test_bernstein_integral(beta):
+    xrange = 1.5, 3.4
+    got = bernstein.scaled_cdf(xrange[1], beta, *xrange)
+    expected = 1
     np.testing.assert_allclose(got, expected)
 
 
