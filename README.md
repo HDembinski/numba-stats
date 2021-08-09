@@ -17,15 +17,15 @@ We provide numba-accelerated implementations of statistical functions for common
 
 with more to come. The speed gains are huge, up to a factor of 100 compared to `scipy`. Benchmarks are included in the repository and are run by `pytest`.
 
-# Documentation
+## Documentation (or lack of)
 
 Because of limited manpower, this project is poorly documented. The documentation is basically `pydoc numba_stats` and even that is mostly generic stubs. However, you can be assured that the calling conventions for those functions which have a `scipy.stats` equivalent, work in the exact same way. These conventions are sometimes a bit unusual, for example, for the exponential or the uniform distribution, see the `scipy` docs for details.
 
-# Contributions
+## Contributions
 
 **You can help with adding more distributions, patches are very welcome.** Implementing a probability distribution is easy. You need to write it in simple Python that `numba` can understand. Special functions from `scipy.special` can be used after some wrapping, see submodule `numba_stats._special.py` how it is done.
 
-# Plans for version 1.0
+## Plans for version 1.0
 
 Version v1.0 (not there yet) will introduce breaking changes to the API.
 ```
