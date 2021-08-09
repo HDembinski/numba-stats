@@ -42,7 +42,7 @@ from numba_stats import norm
 dp = norm.pdf(1, 2, 3)
 p = norm.cdf(1, 2, 3)
 ```
-This change is not only cosmetics, it was necessary to battle the increasing startup times of `numba-stats`. Now you only pay the compilation cost for the distribution that you actually need. The `stats` submodule will be removed. To keep old code running, please pin your numba_stats to version `<1`.
+This change is not only cosmetical, it was necessary to battle the increasing startup times of `numba-stats`. Now you only pay the compilation cost for the distribution that you actually need. The `stats` submodule will be removed. To keep old code running, please pin your numba_stats to version `<1`.
 
 ## numba-stats and numba-scipy
 
