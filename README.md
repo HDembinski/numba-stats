@@ -19,7 +19,7 @@ with more to come. The speed gains are huge, up to a factor of 100 compared to `
 
 ## Documentation (or lack of)
 
-Because of limited manpower, this project is poorly documented. The documentation is basically `pydoc numba_stats` and even that is mostly generic stubs. However, you can be assured that the calling conventions for those functions which have a `scipy.stats` equivalent, work in the exact same way. These conventions are sometimes a bit unusual, for example, for the exponential or the uniform distribution, see the `scipy` docs for details.
+Because of limited manpower, this project is poorly documented. The documentation is basically `pydoc numba_stats` and even that is mostly generic stubs. However, you can be assured that the calling conventions for those functions which have a `scipy.stats` equivalent, are identical to those in SciPy. These conventions are sometimes a bit unusual, for example, for the exponential or the uniform distribution, see the SciPy docs for details.
 
 ## Contributions
 
