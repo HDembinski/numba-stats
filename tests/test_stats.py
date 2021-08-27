@@ -6,26 +6,6 @@ import numba as nb
 import pytest
 
 
-def test_poisson_pmf():
-    from numba_stats import poisson
-
-    m = np.linspace(0.1, 3, 20)[:, np.newaxis]
-    k = np.arange(10)
-    got = poisson.pmf(k, m)
-    expected = sc.poisson.pmf(k, m)
-    np.testing.assert_allclose(got, expected)
-
-
-def test_poisson_cdf():
-    from numba_stats import poisson
-
-    m = np.linspace(0.1, 3, 20)[:, np.newaxis]
-    k = np.arange(10)
-    got = poisson.cdf(k, m)
-    expected = sc.poisson.cdf(k, m)
-    np.testing.assert_allclose(got, expected)
-
-
 def test_expon_pdf():
     from numba_stats import expon
 

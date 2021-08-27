@@ -14,6 +14,8 @@ def pmf(k, mu):
     """
     Return probability mass for Poisson distribution.
     """
+    if mu == 0:
+        return 1.0 if k == 0 else 0.0
     logp = k * np.log(mu) - lgamma(k + 1.0) - mu
     return np.exp(logp)
 
