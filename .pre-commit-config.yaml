@@ -33,12 +33,12 @@ repos:
 
 # Python linter (Flake8)
 - repo: https://github.com/PyCQA/flake8
-  rev: 3.9.2
+  rev: 4.0.1
   hooks:
   - id: flake8
 
 # Python formatting
 - repo: https://github.com/psf/black
-  rev: 21.8b0
+  rev: 21.9b0
   hooks:
   - id: black
