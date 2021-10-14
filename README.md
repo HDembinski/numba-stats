@@ -5,10 +5,10 @@
 We provide numba-accelerated implementations of statistical functions for common probability distributions
 
 * Uniform
-* Normal
+* (Truncated) Normal
 * Log-normal
 * Poisson
-* Exponential
+* (Truncated) Exponential
 * Student's t
 * Voigtian
 * Crystal Ball
@@ -28,7 +28,7 @@ Because of limited manpower, this project is poorly documented. The documentatio
 
 ## Plans for version 1.0
 
-Version v1.0 (not there yet) will introduce breaking changes to the API.
+Version v1.0 will introduce breaking changes to the API. Users are recommended to update their code.
 ```
 # before v0.8
 from numba_stats import norm_pdf
@@ -43,7 +43,7 @@ from numba_stats import norm
 dp = norm.pdf(1, 2, 3)
 p = norm.cdf(1, 2, 3)
 ```
-This change is not only cosmetical, it was necessary to battle the increasing startup times of `numba-stats`. Now you only pay the compilation cost for the distribution that you actually need. The `stats` submodule will be removed. To keep old code running, please pin your numba_stats to version `<1`.
+This is nicer code, but more importantly, this is necessary to battle the increasing startup times of `numba-stats`. Now you only pay the compilation cost for the distribution that you actually import. The `stats` submodule will be removed. To keep old code running, please pin your numba_stats to version `<1`.
 
 ## numba-stats and numba-scipy
 
