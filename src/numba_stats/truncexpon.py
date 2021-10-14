@@ -1,5 +1,6 @@
 import numba as nb
-from .norm import _pdf, _cdf, _ppf
+import numpy as np
+from math import expm1, log1p
 
 _signatures = [
     nb.float32(nb.float32, nb.float32, nb.float32, nb.float32, nb.float32),
@@ -7,10 +8,15 @@ _signatures = [
 ]
 
 
+@nb.njit
+def _cdf(z):
+    return -expm1(-z)
+
+
 @nb.vectorize(_signatures, cache=True)
 def pdf(x, xmin, xmax, mu, sigma):
     """
-    Return probability density of normal distribution.
+    Return probability density of exponential distribution.
     """
     if x < xmin:
         return 0.0
@@ -20,13 +26,13 @@ def pdf(x, xmin, xmax, mu, sigma):
     z = (x - mu) * sigma_inv
     zmin = (xmin - mu) * sigma_inv
     zmax = (xmax - mu) * sigma_inv
-    return _pdf(z) * sigma_inv / (_cdf(zmax) - _cdf(zmin))
+    return np.exp(-z) * sigma_inv / (_cdf(zmax) - _cdf(zmin))
 
 
 @nb.vectorize(_signatures, cache=True)
 def cdf(x, xmin, xmax, mu, sigma):
     """
-    Evaluate cumulative distribution function of normal distribution.
+    Evaluate cumulative distribution function of exponential distribution.
     """
     if x < xmin:
         return 0.0
@@ -34,17 +40,18 @@ def cdf(x, xmin, xmax, mu, sigma):
         return 1.0
     sigma_inv = 1 / sigma
     z = (x - mu) * sigma_inv
+    p = _cdf(z)
     zmin = (xmin - mu) * sigma_inv
     zmax = (xmax - mu) * sigma_inv
     pmin = _cdf(zmin)
     pmax = _cdf(zmax)
-    return (_cdf(z) - pmin) / (pmax - pmin)
+    return (p - pmin) / (pmax - pmin)
 
 
-@nb.vectorize(_signatures)
+@nb.vectorize(_signatures, cache=True)
 def ppf(p, xmin, xmax, mu, sigma):
     """
-    Return quantile of normal distribution for given probability.
+    Return quantile of exponential distribution for given probability.
     """
     sigma_inv = 1 / sigma
     zmin = (xmin - mu) * sigma_inv
@@ -52,5 +59,6 @@ def ppf(p, xmin, xmax, mu, sigma):
     pmin = _cdf(zmin)
     pmax = _cdf(zmax)
     pstar = p * (pmax - pmin) + pmin
-    z = _ppf(pstar)
-    return sigma * z + mu
+    z = -log1p(-pstar)
+    x = z * sigma + mu
+    return x
