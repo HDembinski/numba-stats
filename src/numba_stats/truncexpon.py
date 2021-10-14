@@ -1,6 +1,6 @@
 import numba as nb
 import numpy as np
-from math import expm1, log1p
+from math import expm1 as _expm1, log1p as _log1p
 
 _signatures = [
     nb.float32(nb.float32, nb.float32, nb.float32, nb.float32, nb.float32),
@@ -10,7 +10,7 @@ _signatures = [
 
 @nb.njit
 def _cdf(z):
-    return -expm1(-z)
+    return -_expm1(-z)
 
 
 @nb.vectorize(_signatures, cache=True)
@@ -59,6 +59,6 @@ def ppf(p, xmin, xmax, mu, sigma):
     pmin = _cdf(zmin)
     pmax = _cdf(zmax)
     pstar = p * (pmax - pmin) + pmin
-    z = -log1p(-pstar)
+    z = -_log1p(-pstar)
     x = z * sigma + mu
     return x

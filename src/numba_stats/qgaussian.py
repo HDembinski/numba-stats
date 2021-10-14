@@ -1,7 +1,7 @@
 import numba as nb
 import numpy as np
-from math import lgamma
-from . import norm, t
+from math import lgamma as _lgamma
+from . import norm as _norm, t as _t
 
 
 @nb.njit
@@ -28,13 +28,13 @@ def _compute_cq(q):
             2.0
             * const
             / ((3.0 - q) * np.sqrt(alpha))
-            * np.exp(lgamma(1.0 / alpha) - lgamma(0.5 * (3.0 - q) / alpha))
+            * np.exp(_lgamma(1.0 / alpha) - _lgamma(0.5 * (3.0 - q) / alpha))
         )
     if q < 3:
         return (
             const
             / np.sqrt(-alpha)
-            * np.exp(lgamma(-0.5 * (3.0 - q) / alpha) - lgamma(-1.0 / alpha))
+            * np.exp(_lgamma(-0.5 * (3.0 - q) / alpha) - _lgamma(-1.0 / alpha))
         )
     return np.nan
 
@@ -78,11 +78,11 @@ def cdf(x, q, mu, sigma):
         raise ValueError("q < 1 or q > 3 are not supported")
 
     if q == 1:
-        return norm.cdf(x, mu, sigma)
+        return _norm.cdf(x, mu, sigma)
 
     df, sigma = _df_sigma(q, sigma)
 
-    return t.cdf(x, df, mu, sigma)
+    return _t.cdf(x, df, mu, sigma)
 
 
 @nb.vectorize(_signatures)
@@ -91,8 +91,8 @@ def ppf(x, q, mu, sigma):
         raise ValueError("q < 1 or q > 3 are not supported")
 
     if q == 1:
-        return norm.ppf(x, mu, sigma)
+        return _norm.ppf(x, mu, sigma)
 
     df, sigma = _df_sigma(q, sigma)
 
-    return t.ppf(x, df, mu, sigma)
+    return _t.ppf(x, df, mu, sigma)

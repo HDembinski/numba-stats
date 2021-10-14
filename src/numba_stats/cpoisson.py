@@ -1,5 +1,5 @@
 import numba as nb
-from ._special import gammaincc
+from ._special import gammaincc as _gammaincc
 
 
 _signatures = [
@@ -13,7 +13,7 @@ def cdf(x, mu):
     """
     Evaluate cumulative distribution function of continuous Poisson distribution.
     """
-    return gammaincc(x + 1, mu)
+    return _gammaincc(x + 1, mu)
 
 
 # The pdf, d cdf(x, mu)/ dx, cannot be expressed in tabulated functions:

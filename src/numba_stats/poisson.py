@@ -1,7 +1,7 @@
 import numba as nb
 import numpy as np
-from ._special import gammaincc
-from math import lgamma
+from ._special import gammaincc as _gammaincc
+from math import lgamma as _lgamma
 
 _signatures = [
     nb.float32(nb.int32, nb.float32),
@@ -16,7 +16,7 @@ def pmf(k, mu):
     """
     if mu == 0:
         return 1.0 if k == 0 else 0.0
-    logp = k * np.log(mu) - lgamma(k + 1.0) - mu
+    logp = k * np.log(mu) - _lgamma(k + 1.0) - mu
     return np.exp(logp)
 
 
@@ -25,4 +25,4 @@ def cdf(k, mu):
     """
     Evaluate cumulative distribution function of Poisson distribution.
     """
-    return gammaincc(k + 1, mu)
+    return _gammaincc(k + 1, mu)

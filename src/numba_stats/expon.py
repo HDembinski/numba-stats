@@ -1,6 +1,6 @@
 import numba as nb
 import numpy as np
-from math import expm1, log1p
+from math import expm1 as _expm1, log1p as _log1p
 
 _signatures = [
     nb.float32(nb.float32, nb.float32, nb.float32),
@@ -23,7 +23,7 @@ def cdf(x, mu, sigma):
     Evaluate cumulative distribution function of exponential distribution.
     """
     z = (x - mu) / sigma
-    return -expm1(-z)
+    return -_expm1(-z)
 
 
 @nb.vectorize(_signatures, cache=True)
@@ -31,6 +31,6 @@ def ppf(p, mu, sigma):
     """
     Return quantile of exponential distribution for given probability.
     """
-    z = -log1p(-p)
+    z = -_log1p(-p)
     x = z * sigma + mu
     return x

@@ -1,6 +1,6 @@
 import numba as nb
 import numpy as np
-from math import erf
+from math import erf as _erf
 
 
 @nb.njit(cache=True)
@@ -12,7 +12,7 @@ def _pdf(z, beta, m):
 
     c = m / (beta * (m - 1.0)) * exp_beta
     # d = _norm_cdf(-beta) * np.sqrt(2 * np.pi)
-    d = np.sqrt(0.5 * np.pi) * (1.0 + erf(beta * np.sqrt(0.5)))
+    d = np.sqrt(0.5 * np.pi) * (1.0 + _erf(beta * np.sqrt(0.5)))
     n = 1.0 / (c + d)
 
     if z <= -beta:
@@ -26,7 +26,7 @@ def _pdf(z, beta, m):
 def _cdf(z, beta, m):
     exp_beta = np.exp(-0.5 * beta ** 2)
     c = m / (beta * (m - 1.0)) * exp_beta
-    d = np.sqrt(0.5 * np.pi) * (1.0 + erf(beta * np.sqrt(0.5)))
+    d = np.sqrt(0.5 * np.pi) * (1.0 + _erf(beta * np.sqrt(0.5)))
     n = 1.0 / (c + d)
 
     if z <= -beta:
@@ -35,7 +35,7 @@ def _cdf(z, beta, m):
         )
     return n * (
         (m / beta) * exp_beta / (m - 1.0)
-        + np.sqrt(0.5 * np.pi) * (erf(z * np.sqrt(0.5)) - erf(-beta * np.sqrt(0.5)))
+        + np.sqrt(0.5 * np.pi) * (_erf(z * np.sqrt(0.5)) - _erf(-beta * np.sqrt(0.5)))
     )
 
 

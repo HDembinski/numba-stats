@@ -1,7 +1,7 @@
 import numba as nb
 import numpy as np
-from ._special import erfinv
-from math import erf
+from ._special import erfinv as _erfinv
+from math import erf as _erf
 
 
 @nb.njit(cache=True)
@@ -13,12 +13,12 @@ def _pdf(z):
 @nb.njit(cache=True)
 def _cdf(z):
     c = np.sqrt(0.5)
-    return 0.5 * (1.0 + erf(z * c))
+    return 0.5 * (1.0 + _erf(z * c))
 
 
 @nb.njit
 def _ppf(p):
-    return np.sqrt(2) * erfinv(2 * p - 1)
+    return np.sqrt(2) * _erfinv(2 * p - 1)
 
 
 _signatures = [

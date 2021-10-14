@@ -1,5 +1,5 @@
 import numba as nb
-from ._special import voigt_profile
+from ._special import voigt_profile as _voigt
 
 _signatures = [
     nb.float32(nb.float32, nb.float32, nb.float32, nb.float32),
@@ -12,4 +12,4 @@ def pdf(x, gamma, mu, sigma):
     """
     Return probability density of Voigtian distribution.
     """
-    return voigt_profile(x - mu, sigma, gamma)
+    return _voigt(x - mu, sigma, gamma)
