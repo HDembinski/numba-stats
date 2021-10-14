@@ -9,6 +9,11 @@ def _pdf(z):
     c = 1.0 / np.sqrt(2 * np.pi)
     return np.exp(-0.5 * z ** 2) * c
 
+@nb.njit(cache=True)
+def _logpdf(z):
+    c = 1.0 / np.sqrt(2 * np.pi)
+    return (-0.5 * z ** 2) + np.log(c)
+
 
 @nb.njit(cache=True)
 def _cdf(z):
@@ -52,3 +57,12 @@ def ppf(p, mu, sigma):
     """
     z = _ppf(p)
     return sigma * z + mu
+
+
+@nb.vectorize(_signatures, cache=True)
+def logpdf(x, mu, sigma):
+    """
+    Return log of probability density of normal distribution.
+    """
+    z = (x - mu) / sigma
+    return _logpdf(z) - np.log(sigma)

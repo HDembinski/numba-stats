@@ -11,6 +11,15 @@ def test_norm_pdf():
     np.testing.assert_allclose(got, expected)
 
 
+def test_norm_logpdf():
+    from numba_stats import norm
+
+    x = np.linspace(-5, 5, 10)
+    got = norm.logpdf(x, 1, 2)
+    expected = sc.norm.logpdf(x, 1, 2)
+    np.testing.assert_allclose(got, expected)
+
+
 def test_norm_cdf():
     from numba_stats import norm
 
