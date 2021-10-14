@@ -8,7 +8,7 @@ _signatures = [
 
 
 @nb.vectorize(_signatures, cache=True)
-def pdf(x, mu, sigma, xmin, xmax):
+def pdf(x, xmin, xmax, mu, sigma):
     """
     Return probability density of normal distribution.
     """
@@ -24,7 +24,7 @@ def pdf(x, mu, sigma, xmin, xmax):
 
 
 @nb.vectorize(_signatures, cache=True)
-def cdf(x, mu, sigma, xmin, xmax):
+def cdf(x, xmin, xmax, mu, sigma):
     """
     Evaluate cumulative distribution function of normal distribution.
     """
@@ -42,7 +42,7 @@ def cdf(x, mu, sigma, xmin, xmax):
 
 
 @nb.vectorize(_signatures)
-def ppf(p, mu, sigma, xmin, xmax):
+def ppf(p, xmin, xmax, mu, sigma):
     """
     Return quantile of normal distribution for given probability.
     """

@@ -1,44 +1,43 @@
-import scipy.stats as sc
 import numpy as np
-from numba_stats import truncnorm
+from numba_stats import truncnorm, norm
 
 
 def test_pdf():
     x = np.linspace(-1, 5, 10)
-    xmin = 0
+    xmin = 1
     xmax = 4
-    mu = 1
-    sigma = 2
-    got = truncnorm.pdf(x, mu, sigma, xmin, xmax)
-    z = (x - mu) / sigma
-    zmin = (xmin - mu) / sigma
-    zmax = (xmax - mu) / sigma
-    expected = sc.truncnorm.pdf(z, zmin, zmax) / sigma
+    mu = 2
+    sigma = 3
+    got = truncnorm.pdf(x, xmin, xmax, mu, sigma)
+    expected = norm.pdf(x, mu, sigma) / (
+        norm.cdf(xmax, mu, sigma) - norm.cdf(xmin, mu, sigma)
+    )
+    expected[x < xmin] = 0
+    expected[x > xmax] = 0
     np.testing.assert_allclose(got, expected)
 
 
 def test_cdf():
     x = np.linspace(-1, 5, 10)
-    xmin = 0
+    xmin = 1
     xmax = 4
-    mu = 1
-    sigma = 2
-    got = truncnorm.cdf(x, mu, sigma, xmin, xmax)
-    z = (x - mu) / sigma
-    zmin = (xmin - mu) / sigma
-    zmax = (xmax - mu) / sigma
-    expected = sc.truncnorm.cdf(z, zmin, zmax)
+    mu = 2
+    sigma = 3
+    got = truncnorm.cdf(x, xmin, xmax, mu, sigma)
+    expected = (norm.cdf(x, mu, sigma) - norm.cdf(xmin, mu, sigma)) / (
+        norm.cdf(xmax, mu, sigma) - norm.cdf(xmin, mu, sigma)
+    )
+    expected[x < xmin] = 0
+    expected[x > xmax] = 1
     np.testing.assert_allclose(got, expected)
 
 
 def test_ppf():
-    p = np.linspace(0, 1, 10)
-    xmin = 0
+    expected = np.linspace(0, 1, 10)
+    xmin = 1
     xmax = 4
-    mu = 1
-    sigma = 2
-    got = truncnorm.ppf(p, mu, sigma, xmin, xmax)
-    zmin = (xmin - mu) / sigma
-    zmax = (xmax - mu) / sigma
-    expected = sc.truncnorm.ppf(p, zmin, zmax) * sigma + mu
+    mu = 2
+    sigma = 3
+    x = truncnorm.ppf(expected, mu, sigma, xmin, xmax)
+    got = truncnorm.cdf(x, mu, sigma, xmin, xmax)
     np.testing.assert_allclose(got, expected, atol=1e-14)
