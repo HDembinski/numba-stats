@@ -1,18 +1,8 @@
 import scipy.stats as sc
-import scipy.special as sp
 from scipy.integrate import quad
 import numpy as np
 import numba as nb
 import pytest
-
-
-def test_voigt_pdf():
-    from numba_stats import voigt
-
-    x = np.linspace(-5, 5, 10)
-    got = voigt.pdf(x, 2, 1, 3)
-    expected = sp.voigt_profile(x - 1, 2, 3)
-    np.testing.assert_allclose(got, expected)
 
 
 def test_njit_with_numba_stats():

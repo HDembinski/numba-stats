@@ -12,4 +12,4 @@ def pdf(x, gamma, mu, sigma):
     """
     Return probability density of Voigtian distribution.
     """
-    return voigt_profile(x - mu, gamma, sigma)
+    return voigt_profile(x - mu, sigma, gamma)
