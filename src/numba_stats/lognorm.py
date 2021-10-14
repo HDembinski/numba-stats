@@ -41,6 +41,7 @@ def ppf(p, s, loc, scale):
     z = np.exp(s * _ppf(p))
     return scale * z + loc
 
+
 @nb.vectorize(_signatures, cache=True)
 def logpdf(x, s, loc, scale):
     """

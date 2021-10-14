@@ -9,6 +9,7 @@ def _pdf(z):
     c = 1.0 / np.sqrt(2 * np.pi)
     return np.exp(-0.5 * z ** 2) * c
 
+
 @nb.njit(cache=True)
 def _logpdf(z):
     c = 1.0 / np.sqrt(2 * np.pi)

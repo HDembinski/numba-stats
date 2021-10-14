@@ -10,6 +10,7 @@ def test_lognorm_pdf():
     expected = sc.lognorm.pdf(x, 1.5, 0.1, 1.2)
     np.testing.assert_allclose(got, expected)
 
+
 def test_lognorm_logpdf():
     from numba_stats import lognorm
 
