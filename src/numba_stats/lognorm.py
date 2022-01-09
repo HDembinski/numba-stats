@@ -14,12 +14,20 @@ def pdf(x, s, loc, scale):
     """
     Return probability density of lognormal distribution.
     """
+    return np.exp(logpdf(x, s, loc, scale))
+
+
+@nb.vectorize(_signatures, cache=True)
+def logpdf(x, s, loc, scale):
+    """
+    Return log of probability density of lognormal distribution.
+    """
     z = (x - loc) / scale
     if z <= 0:
-        return 0.0
+        return -np.inf
     c = np.sqrt(2 * np.pi)
     log_pdf = -0.5 * np.log(z) ** 2 / s ** 2 - np.log(s * z * c)
-    return np.exp(log_pdf) / scale
+    return log_pdf - np.log(scale)
 
 
 @nb.vectorize(_signatures, cache=True)
@@ -40,16 +48,3 @@ def ppf(p, s, loc, scale):
     """
     z = np.exp(s * _ppf(p))
     return scale * z + loc
-
-
-@nb.vectorize(_signatures, cache=True)
-def logpdf(x, s, loc, scale):
-    """
-    Return log probability density of lognormal distribution.
-    """
-    z = (x - loc) / scale
-    if z <= 0:
-        return -np.inf
-    c = np.sqrt(2 * np.pi)
-    log_pdf = -0.5 * np.log(z) ** 2 / s ** 2 - np.log(s * z * c)
-    return log_pdf - np.log(scale)
