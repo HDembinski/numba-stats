@@ -1,5 +1,6 @@
 import numba as nb
-from .norm import _pdf, _cdf, _ppf
+import numpy as np
+from .norm import _logpdf as _norm_logpdf, _cdf, _ppf
 
 _signatures = [
     nb.float32(nb.float32, nb.float32, nb.float32, nb.float32, nb.float32),
@@ -7,20 +8,35 @@ _signatures = [
 ]
 
 
+@nb.njit(cache=True)
+def _logpdf(z, zmin, zmax):
+    if z < zmin or z > zmax:
+        return -np.inf
+    return _norm_logpdf(z) - np.log(_cdf(zmax) - _cdf(zmin))
+
+
+@nb.vectorize(_signatures, cache=True)
+def logpdf(x, xmin, xmax, mu, sigma):
+    """
+    Return log of probability density of normal distribution.
+    """
+    sigma_inv = 1 / sigma
+    z = (x - mu) * sigma_inv
+    zmin = (xmin - mu) * sigma_inv
+    zmax = (xmax - mu) * sigma_inv
+    return _logpdf(z, zmin, zmax) + np.log(sigma_inv)
+
+
 @nb.vectorize(_signatures, cache=True)
 def pdf(x, xmin, xmax, mu, sigma):
     """
     Return probability density of normal distribution.
     """
-    if x < xmin:
-        return 0.0
-    elif x > xmax:
-        return 0.0
     sigma_inv = 1 / sigma
     z = (x - mu) * sigma_inv
     zmin = (xmin - mu) * sigma_inv
     zmax = (xmax - mu) * sigma_inv
-    return _pdf(z) * sigma_inv / (_cdf(zmax) - _cdf(zmin))
+    return np.exp(_logpdf(z, zmin, zmax)) * sigma_inv
 
 
 @nb.vectorize(_signatures, cache=True)

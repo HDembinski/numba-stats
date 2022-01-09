@@ -5,9 +5,8 @@ from math import erf as _erf
 
 
 @nb.njit(cache=True)
-def _pdf(z):
-    c = 1.0 / np.sqrt(2 * np.pi)
-    return np.exp(-0.5 * z ** 2) * c
+def _logpdf(z):
+    return -0.5 * (z ** 2 + np.log(2 * np.pi))
 
 
 @nb.njit(cache=True)
@@ -28,12 +27,23 @@ _signatures = [
 
 
 @nb.vectorize(_signatures, cache=True)
+def logpdf(x, mu, sigma):
+    """
+    Return log of probability density of normal distribution.
+    """
+    z = (x - mu) / sigma
+    return _logpdf(z) - np.log(sigma)
+
+
+@nb.vectorize(_signatures, cache=True)
 def pdf(x, mu, sigma):
     """
     Return probability density of normal distribution.
     """
+    # cannot call logpdf directly here, because nb.vectorize does not generate
+    # inlinable code
     z = (x - mu) / sigma
-    return _pdf(z) / sigma
+    return np.exp(_logpdf(z)) / sigma
 
 
 @nb.vectorize(_signatures, cache=True)
