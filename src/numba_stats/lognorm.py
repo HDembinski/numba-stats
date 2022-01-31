@@ -26,7 +26,7 @@ def logpdf(x, s, loc, scale):
     if z <= 0:
         return -np.inf
     c = np.sqrt(2 * np.pi)
-    log_pdf = -0.5 * np.log(z) ** 2 / s ** 2 - np.log(s * z * c)
+    log_pdf = -0.5 * np.log(z) ** 2 / s**2 - np.log(s * z * c)
     return log_pdf - np.log(scale)
 
 

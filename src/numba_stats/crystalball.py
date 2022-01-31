@@ -8,7 +8,7 @@ def _pdf(z, beta, m):
     assert beta > 0
     assert m > 1
 
-    exp_beta = np.exp(-0.5 * beta ** 2)
+    exp_beta = np.exp(-0.5 * beta**2)
 
     c = m / (beta * (m - 1.0)) * exp_beta
     # d = _norm_cdf(-beta) * np.sqrt(2 * np.pi)
@@ -19,12 +19,12 @@ def _pdf(z, beta, m):
         a = (m / beta) ** m * exp_beta
         b = m / beta - beta
         return n * a * (b - z) ** -m
-    return n * np.exp(-0.5 * z ** 2)
+    return n * np.exp(-0.5 * z**2)
 
 
 @nb.njit(cache=True)
 def _cdf(z, beta, m):
-    exp_beta = np.exp(-0.5 * beta ** 2)
+    exp_beta = np.exp(-0.5 * beta**2)
     c = m / (beta * (m - 1.0)) * exp_beta
     d = np.sqrt(0.5 * np.pi) * (1.0 + _erf(beta * np.sqrt(0.5)))
     n = 1.0 / (c + d)
