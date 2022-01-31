@@ -10,6 +10,14 @@ _signatures = [
 
 
 @nb.vectorize(_signatures, cache=True)
+def pdf(x, s, loc, scale):
+    """
+    Return probability density of lognormal distribution.
+    """
+    return np.exp(logpdf(x, s, loc, scale))
+
+
+@nb.vectorize(_signatures, cache=True)
 def logpdf(x, s, loc, scale):
     """
     Return log of probability density of lognormal distribution.
@@ -20,14 +28,6 @@ def logpdf(x, s, loc, scale):
     c = np.sqrt(2 * np.pi)
     log_pdf = -0.5 * np.log(z) ** 2 / s ** 2 - np.log(s * z * c)
     return log_pdf - np.log(scale)
-
-
-@nb.vectorize(_signatures, cache=True)
-def pdf(x, s, loc, scale):
-    """
-    Return probability density of lognormal distribution.
-    """
-    return np.exp(logpdf(x, s, loc, scale))
 
 
 @nb.vectorize(_signatures, cache=True)
