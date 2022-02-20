@@ -14,7 +14,9 @@ def _pdf(z, betal, ml, betar, mr):
     exp_betar = np.exp(-0.5 * betar ** 2)
 
     c = ml / (betal * (ml - 1.0)) * exp_betal
-    d = np.sqrt(0.5 * np.pi) * (_erf(betar * np.sqrt(0.5)) - _erf(-betal * np.sqrt(0.5)))
+    d = np.sqrt(0.5 * np.pi) * (
+        _erf(betar * np.sqrt(0.5)) - _erf(-betal * np.sqrt(0.5))
+    )
     e = mr / (betar * (mr - 1.0)) * exp_betar
     n = 1.0 / (c + d + e)
 
@@ -35,19 +37,28 @@ def _cdf(z, betal, ml, betar, mr):
     exp_betar = np.exp(-0.5 * betar ** 2)
 
     c = ml / (betal * (ml - 1.0)) * exp_betal
-    d = np.sqrt(0.5 * np.pi) * (_erf(betar * np.sqrt(0.5)) - _erf(-betal * np.sqrt(0.5)))
+    d = np.sqrt(0.5 * np.pi) * (
+        _erf(betar * np.sqrt(0.5)) - _erf(-betal * np.sqrt(0.5))
+    )
     e = mr / (betar * (mr - 1.0)) * exp_betar
     n = 1.0 / (c + d + e)
 
     if z <= -betal:
         return n * (
-            (ml / betal) ** ml * exp_betal * (ml / betal - betal - z) ** (1.0 - ml) / (ml - 1.0)
+            (ml / betal) ** ml
+            * exp_betal
+            * (ml / betal - betal - z) ** (1.0 - ml)
+            / (ml - 1.0)
         )
     elif z >= betar:
         return n * (
             (ml / betal) * exp_betal / (ml - 1.0)
-            + np.sqrt(0.5 * np.pi) * (_erf(betar * np.sqrt(0.5)) - _erf(-betal * np.sqrt(0.5)))
-            + (mr / betar) ** mr * exp_betar * (mr / betar - betar + z) ** (1.0 - mr) / (1.0 - mr)
+            + np.sqrt(0.5 * np.pi)
+            * (_erf(betar * np.sqrt(0.5)) - _erf(-betal * np.sqrt(0.5)))
+            + (mr / betar) ** mr
+            * exp_betar
+            * (mr / betar - betar + z) ** (1.0 - mr)
+            / (1.0 - mr)
             + (mr / betar) * exp_betar / (mr - 1)
         )
     return n * (
@@ -57,8 +68,24 @@ def _cdf(z, betal, ml, betar, mr):
 
 
 _signatures = [
-    nb.float32(nb.float32, nb.float32, nb.float32, nb.float32, nb.float32, nb.float32, nb.float32),
-    nb.float64(nb.float64, nb.float64, nb.float64, nb.float64, nb.float64, nb.float64, nb.float64),
+    nb.float32(
+        nb.float32,
+        nb.float32,
+        nb.float32,
+        nb.float32,
+        nb.float32,
+        nb.float32,
+        nb.float32,
+    ),
+    nb.float64(
+        nb.float64,
+        nb.float64,
+        nb.float64,
+        nb.float64,
+        nb.float64,
+        nb.float64,
+        nb.float64,
+    ),
 ]
 
 
