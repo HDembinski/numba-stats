@@ -6,7 +6,7 @@ from math import erf as _erf
 
 @nb.njit(cache=True)
 def _logpdf(z):
-    return -0.5 * (z ** 2 + np.log(2 * np.pi))
+    return -0.5 * (z**2 + np.log(2 * np.pi))
 
 
 @nb.njit(cache=True)

@@ -17,7 +17,7 @@ def pdf(x, df, mu, sigma):
     z = (x - mu) / sigma
     k = 0.5 * (df + 1)
     p = np.exp(_lgamma(k) - _lgamma(0.5 * df))
-    p /= np.sqrt(df * np.pi) * (1 + (z ** 2) / df) ** k
+    p /= np.sqrt(df * np.pi) * (1 + (z**2) / df) ** k
     return p / sigma
 
 

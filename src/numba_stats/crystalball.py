@@ -7,7 +7,7 @@ from math import erf as _erf
 def _constants(beta, m):
     assert beta > 0
     assert m > 1
-    exp_beta = np.exp(-0.5 * beta ** 2)
+    exp_beta = np.exp(-0.5 * beta**2)
     c = m / (beta * (m - 1.0)) * exp_beta
     d = np.sqrt(0.5 * np.pi) * (1.0 + _erf(beta * np.sqrt(0.5)))
     return exp_beta, 1.0 / (c + d)
@@ -21,7 +21,7 @@ def _pdf(z, beta, m):
         a = (m / beta) ** m * exp_beta
         b = m / beta - beta
         return nf * a * (b - z) ** -m
-    return nf * np.exp(-0.5 * z ** 2)
+    return nf * np.exp(-0.5 * z**2)
 
 
 @nb.njit(cache=True)
