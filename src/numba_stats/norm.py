@@ -15,7 +15,7 @@ def _cdf(z):
     return 0.5 * (1.0 + _erf(z * c))
 
 
-@nb.njit
+@nb.njit  # cannot be cached because of call to _erfinv
 def _ppf(p):
     return np.sqrt(2) * _erfinv(2 * p - 1)
 
