@@ -4,36 +4,35 @@ from math import erf as _erf
 
 
 @nb.njit(cache=True)
-def _pdf(z, beta, m):
+def _constants(beta, m):
     assert beta > 0
     assert m > 1
-
     exp_beta = np.exp(-0.5 * beta ** 2)
-
     c = m / (beta * (m - 1.0)) * exp_beta
-    # d = _norm_cdf(-beta) * np.sqrt(2 * np.pi)
     d = np.sqrt(0.5 * np.pi) * (1.0 + _erf(beta * np.sqrt(0.5)))
-    n = 1.0 / (c + d)
+    return exp_beta, 1.0 / (c + d)
+
+
+@nb.njit(cache=True)
+def _pdf(z, beta, m):
+    exp_beta, nf = _constants(beta, m)
 
     if z <= -beta:
         a = (m / beta) ** m * exp_beta
         b = m / beta - beta
-        return n * a * (b - z) ** -m
-    return n * np.exp(-0.5 * z ** 2)
+        return nf * a * (b - z) ** -m
+    return nf * np.exp(-0.5 * z ** 2)
 
 
 @nb.njit(cache=True)
 def _cdf(z, beta, m):
-    exp_beta = np.exp(-0.5 * beta ** 2)
-    c = m / (beta * (m - 1.0)) * exp_beta
-    d = np.sqrt(0.5 * np.pi) * (1.0 + _erf(beta * np.sqrt(0.5)))
-    n = 1.0 / (c + d)
+    exp_beta, nf = _constants(beta, m)
 
     if z <= -beta:
-        return n * (
+        return nf * (
             (m / beta) ** m * exp_beta * (m / beta - beta - z) ** (1.0 - m) / (m - 1.0)
         )
-    return n * (
+    return nf * (
         (m / beta) * exp_beta / (m - 1.0)
         + np.sqrt(0.5 * np.pi) * (_erf(z * np.sqrt(0.5)) - _erf(-beta * np.sqrt(0.5)))
     )
