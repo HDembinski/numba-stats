@@ -9,11 +9,8 @@ _signatures = [
 ]
 
 
-@nb.vectorize(_signatures, cache=True)
-def logpdf(x, s, loc, scale):
-    """
-    Return log of probability density of lognormal distribution.
-    """
+@nb.njit(_signatures, cache=True)
+def _logpdf(x, s, loc, scale):
     z = (x - loc) / scale
     if z <= 0:
         return -np.inf
@@ -23,11 +20,19 @@ def logpdf(x, s, loc, scale):
 
 
 @nb.vectorize(_signatures, cache=True)
+def logpdf(x, s, loc, scale):
+    """
+    Return log of probability density of lognormal distribution.
+    """
+    return _logpdf(x, s, loc, scale)
+
+
+@nb.vectorize(_signatures, cache=True)
 def pdf(x, s, loc, scale):
     """
     Return probability density of lognormal distribution.
     """
-    return np.exp(logpdf(x, s, loc, scale))
+    return np.exp(_logpdf(x, s, loc, scale))
 
 
 @nb.vectorize(_signatures, cache=True)
