@@ -35,8 +35,12 @@ _signatures = [
 def pdf(x, beta_left, m_left, scale_left, beta_right, m_right, scale_right, loc):
     """
     Return probability density of generalised Crystal Ball distribution.
-    """
 
+    The generalised Crystal Ball distribution replaces the lower and upper tail of
+    an asymmetric normal distribution with power-law tails. Furthermore, the scale
+    is allowed to vary between the left and the right side of the peak. There is no
+    discontinuity at the maximum or elsewhere.
+    """
     if x < loc:
         scale = scale_left
         beta = beta_left
