@@ -7,8 +7,36 @@ def _norm_half(beta, m, scale):
     return (_normal_integral(0, beta) + _powerlaw_integral(-beta, beta, m)) * scale
 
 
-@nb.vectorize(cache=True)
+_signatures = [
+    nb.float32(
+        nb.float32,
+        nb.float32,
+        nb.float32,
+        nb.float32,
+        nb.float32,
+        nb.float32,
+        nb.float32,
+        nb.float32,
+    ),
+    nb.float64(
+        nb.float64,
+        nb.float64,
+        nb.float64,
+        nb.float64,
+        nb.float64,
+        nb.float64,
+        nb.float64,
+        nb.float64,
+    ),
+]
+
+
+@nb.vectorize(_signatures, cache=True)
 def pdf(x, beta_left, m_left, scale_left, beta_right, m_right, scale_right, loc):
+    """
+    Return probability density of generalised Crystal Ball distribution.
+    """
+
     if x < loc:
         scale = scale_left
         beta = beta_left
@@ -26,8 +54,11 @@ def pdf(x, beta_left, m_left, scale_left, beta_right, m_right, scale_right, loc)
     )
 
 
-@nb.vectorize(cache=True)
+@nb.vectorize(_signatures, cache=True)
 def cdf(x, beta_left, m_left, scale_left, beta_right, m_right, scale_right, loc):
+    """
+    Return probability density of generalised Crystal Ball distribution.
+    """
     norm = _norm_half(beta_left, m_left, scale_left) + _norm_half(
         beta_right, m_right, scale_right
     )
