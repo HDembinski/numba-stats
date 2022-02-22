@@ -9,6 +9,7 @@ def _vectorize(narg, cache=True, **kwargs):
         signatures = [arg(*([arg] * narg)) for arg in (nb.float32, nb.float64)]
 
         wrapped = nb.vectorize(signatures, cache=cache, **kwargs)(func)
+        # this does not help with the docs, unfortunately
         functools.update_wrapper(wrapped, func)
 
         return wrapped
