@@ -45,6 +45,14 @@ _signatures = [
 
 @nb.vectorize(_signatures, cache=True)
 def pdf(x, beta, m, loc, scale):
+    """
+    Return probability density of Crystal Ball distribution.
+
+    The Crystal Ball distribution replaces the lower tail of a normal distribution with
+    a power-law tail.
+
+    https://en.wikipedia.org/wiki/Crystal_Ball_function
+    """
     z = (x - loc) / scale
     dens = _density(z, beta, m)
     norm = scale * (
@@ -55,6 +63,9 @@ def pdf(x, beta, m, loc, scale):
 
 @nb.vectorize(_signatures, cache=True)
 def cdf(x, beta, m, loc, scale):
+    """
+    Evaluate cumulative distribution function of Crystal Ball distribution.
+    """
     z = (x - loc) / scale
     norm = _powerlaw_integral(-beta, beta, m) + _normal_integral(-beta, np.inf)
     if z <= -beta:
