@@ -1,20 +1,32 @@
+"""
+Uniform distribution.
+"""
 from ._util import _vectorize
+import numpy as np
+
+
+@_vectorize(3)
+def logpdf(x, a, w):
+    """
+    Return probability density.
+    """
+    if a <= x <= a + w:
+        return -np.log(w)
+    return -np.inf
 
 
 @_vectorize(3)
 def pdf(x, a, w):
     """
-    Return probability density of uniform distribution.
+    Return probability density.
     """
-    if a <= x <= a + w:
-        return 1 / w
-    return 0
+    return np.exp(logpdf(x, a, w))
 
 
 @_vectorize(3)
 def cdf(x, a, w):
     """
-    Return cumulative probability of uniform distribution.
+    Return cumulative probability.
     """
     if a <= x:
         if x <= a + w:
@@ -26,6 +38,6 @@ def cdf(x, a, w):
 @_vectorize(3)
 def ppf(p, a, w):
     """
-    Return quantile of uniform distribution for given probability.
+    Return quantile for given probability.
     """
     return w * p + a

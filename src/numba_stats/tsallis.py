@@ -4,8 +4,12 @@ from ._util import _vectorize
 
 @_vectorize(4)
 def pdf(x, m, t, n):
+    """
+    Return probability density.
+    """
     # Formula from CMS, Eur. Phys. J. C (2012) 72:2164
-    assert n > 2
+    if n <= 2:
+        raise ValueError("n > 2 is required")
 
     mt = np.sqrt(m ** 2 + x ** 2)
     nt = n * t
@@ -16,10 +20,11 @@ def pdf(x, m, t, n):
 @_vectorize(4)
 def cdf(x, m, t, n):
     """
-    Return cumulative probability of Tsallis distribution.
+    Return cumulative probability.
     """
     # Formula computed from tsallis_pdf with Sympy, then simplified by hand
-    assert n > 2
+    if n <= 2:
+        raise ValueError("n > 2 is required")
 
     mt = np.sqrt(m ** 2 + x ** 2)
     nt = n * t

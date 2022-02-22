@@ -1,3 +1,6 @@
+"""
+Normal distribution.
+"""
 import numpy as np
 from ._special import erfinv as _erfinv
 from ._util import _vectorize, _jit
@@ -34,10 +37,7 @@ def pdf(x, loc, scale):
     """
     Return probability density of normal distribution.
     """
-    # cannot call logpdf directly here, because nb.vectorize does not generate
-    # inlinable code
-    z = (x - loc) / scale
-    return np.exp(_logpdf(z)) / scale
+    return np.exp(logpdf(x, loc, scale))
 
 
 @_vectorize(3)

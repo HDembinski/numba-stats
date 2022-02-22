@@ -1,3 +1,6 @@
+"""
+Continuous Poisson distribution.
+"""
 from ._special import gammaincc as _gammaincc
 from ._util import _vectorize
 
@@ -5,7 +8,7 @@ from ._util import _vectorize
 @_vectorize(2, cache=False)
 def cdf(x, mu):
     """
-    Return cumulative probability of continuous Poisson distribution.
+    Return cumulative probability.
     """
     return _gammaincc(x + 1, mu)
 

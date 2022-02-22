@@ -1,8 +1,12 @@
+"""
+Lognormal distribution.
+"""
 import numpy as np
 from .norm import _cdf, _ppf
 from ._util import _jit, _vectorize
 
 
+# has to be separate to avoid a warning
 @_jit
 def _logpdf(x, s, loc, scale):
     z = (x - loc) / scale
@@ -16,7 +20,7 @@ def _logpdf(x, s, loc, scale):
 @_vectorize(4)
 def logpdf(x, s, loc, scale):
     """
-    Return log of probability density of lognormal distribution.
+    Return log of probability density.
     """
     return _logpdf(x, s, loc, scale)
 
@@ -24,7 +28,7 @@ def logpdf(x, s, loc, scale):
 @_vectorize(4)
 def pdf(x, s, loc, scale):
     """
-    Return probability density of lognormal distribution.
+    Return probability density.
     """
     return np.exp(_logpdf(x, s, loc, scale))
 
@@ -32,7 +36,7 @@ def pdf(x, s, loc, scale):
 @_vectorize(4)
 def cdf(x, s, loc, scale):
     """
-    Return cumulative probability of lognormal distribution.
+    Return cumulative probability.
     """
     z = (x - loc) / scale
     if z <= 0:
@@ -43,7 +47,7 @@ def cdf(x, s, loc, scale):
 @_vectorize(4, cache=False)  # no cache because of _ppf
 def ppf(p, s, loc, scale):
     """
-    Return quantile of lognormal distribution for given probability.
+    Return quantile for given probability.
     """
     z = np.exp(s * _ppf(p))
     return scale * z + loc

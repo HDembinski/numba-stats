@@ -1,3 +1,12 @@
+"""
+Generalised Crystal Ball distribution.
+
+The generalised Crystal Ball distribution replaces the lower and upper tail of
+an asymmetric normal distribution with power-law tails. Furthermore, the scale
+is allowed to vary between the left and the right side of the peak. There is no
+discontinuity at the maximum or elsewhere.
+"""
+
 from .crystalball import _powerlaw_integral, _normal_integral, _density
 from ._util import _vectorize, _jit
 
@@ -10,12 +19,7 @@ def _norm_half(beta, m, scale):
 @_vectorize(8)
 def pdf(x, beta_left, m_left, scale_left, beta_right, m_right, scale_right, loc):
     """
-    Return probability density of generalised Crystal Ball distribution.
-
-    The generalised Crystal Ball distribution replaces the lower and upper tail of
-    an asymmetric normal distribution with power-law tails. Furthermore, the scale
-    is allowed to vary between the left and the right side of the peak. There is no
-    discontinuity at the maximum or elsewhere.
+    Return probability density.
     """
     if x < loc:
         scale = scale_left
@@ -37,7 +41,7 @@ def pdf(x, beta_left, m_left, scale_left, beta_right, m_right, scale_right, loc)
 @_vectorize(8)
 def cdf(x, beta_left, m_left, scale_left, beta_right, m_right, scale_right, loc):
     """
-    Return cumulative probability of generalised Crystal Ball distribution.
+    Return cumulative probability.
     """
     norm = _norm_half(beta_left, m_left, scale_left) + _norm_half(
         beta_right, m_right, scale_right

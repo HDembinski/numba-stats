@@ -5,15 +5,23 @@ from math import lgamma as _lgamma
 
 
 @_vectorize(4, cache=False)
-def pdf(x, df, loc, scale):
+def logpdf(x, df, loc, scale):
     """
     Return probability density of student's distribution.
     """
     z = (x - loc) / scale
     k = 0.5 * (df + 1)
-    p = np.exp(_lgamma(k) - _lgamma(0.5 * df))
-    p /= np.sqrt(df * np.pi) * (1 + (z ** 2) / df) ** k
-    return p / scale
+    logp = _lgamma(k) - _lgamma(0.5 * df)
+    logp -= 0.5 * np.log(df * np.pi) + k * np.log(1 + (z ** 2) / df) + np.log(scale)
+    return logp
+
+
+@_vectorize(4, cache=False)
+def pdf(x, df, loc, scale):
+    """
+    Return probability density of student's distribution.
+    """
+    return np.exp(logpdf(x, df, loc, scale))
 
 
 @_vectorize(4, cache=False)

@@ -1,3 +1,7 @@
+"""
+Truncated normal distribution.
+"""
+
 import numpy as np
 from .norm import _logpdf as _norm_logpdf, _cdf, _ppf
 from ._util import _jit, _vectorize
@@ -13,7 +17,7 @@ def _logpdf(z, zmin, zmax):
 @_vectorize(5)
 def logpdf(x, xmin, xmax, loc, scale):
     """
-    Return log of probability density of normal distribution.
+    Return log of probability density.
     """
     scale_inv = 1 / scale
     z = (x - loc) * scale_inv
@@ -25,7 +29,7 @@ def logpdf(x, xmin, xmax, loc, scale):
 @_vectorize(5)
 def pdf(x, xmin, xmax, loc, scale):
     """
-    Return probability density of truncated normal distribution.
+    Return probability density.
     """
     scale_inv = 1 / scale
     z = (x - loc) * scale_inv
@@ -37,7 +41,7 @@ def pdf(x, xmin, xmax, loc, scale):
 @_vectorize(5)
 def cdf(x, xmin, xmax, loc, scale):
     """
-    Return cumulative probability of truncated normal distribution.
+    Return cumulative probability.
     """
     if x < xmin:
         return 0.0
@@ -55,7 +59,7 @@ def cdf(x, xmin, xmax, loc, scale):
 @_vectorize(5, cache=False)
 def ppf(p, xmin, xmax, loc, scale):
     """
-    Return quantile of truncated normal distribution for given probability.
+    Return quantile for given probability.
     """
     scale_inv = 1 / scale
     zmin = (xmin - loc) * scale_inv
