@@ -2,7 +2,6 @@ import scipy.stats as sc
 from scipy.integrate import quad
 import numpy as np
 import numba as nb
-import pytest
 
 
 def test_njit_with_numba_stats():
@@ -65,25 +64,3 @@ def test_tsallis_cdf():
                     v, err = quad(lambda pt: tsallis.pdf(pt, m, t, n), *ptrange)
                     v2 = np.diff(tsallis.cdf(ptrange, m, t, n))
                     assert abs(v2 - v) < err
-
-
-@pytest.mark.parametrize("m", (1.001, 2, 3))
-def test_crystalball_pdf(m):
-    from numba_stats import crystalball
-
-    x = np.linspace(-10, 5, 10)
-    beta = 1
-    got = crystalball.pdf(x, beta, m, 0, 1)
-    expected = sc.crystalball.pdf(x, beta, m)
-    np.testing.assert_allclose(got, expected)
-
-
-@pytest.mark.parametrize("m", (1.001, 2, 3))
-def test_crystalball_cdf(m):
-    from numba_stats import crystalball
-
-    x = np.linspace(-10, 5, 10)
-    beta = 1
-    got = crystalball.cdf(x, beta, m, 0, 1)
-    expected = sc.crystalball.cdf(x, beta, m)
-    np.testing.assert_allclose(got, expected)

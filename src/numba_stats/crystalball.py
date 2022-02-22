@@ -4,38 +4,37 @@ from math import erf as _erf
 
 
 @nb.njit(cache=True)
-def _constants(beta, m):
+def _powerlaw(z, beta, m):
+    assert beta > 0
+    assert m > 0
+    exp_beta = np.exp(-0.5 * beta ** 2)
+    a = (m / beta) ** m * exp_beta
+    b = m / beta - beta
+    return a * (b - z) ** -m
+
+
+@nb.njit(cache=True)
+def _powerlaw_integral(z, beta, m):
     assert beta > 0
     assert m > 1
     exp_beta = np.exp(-0.5 * beta ** 2)
-    c = m / (beta * (m - 1.0)) * exp_beta
-    d = np.sqrt(0.5 * np.pi) * (1.0 + _erf(beta * np.sqrt(0.5)))
-    return exp_beta, 1.0 / (c + d)
+    a = (m / beta) ** m * exp_beta
+    b = m / beta - beta
+    m1 = m - 1
+    return a * (b - z) ** -m1 / m1
 
 
 @nb.njit(cache=True)
-def _pdf(z, beta, m):
-    exp_beta, nf = _constants(beta, m)
-
-    if z <= -beta:
-        a = (m / beta) ** m * exp_beta
-        b = m / beta - beta
-        return nf * a * (b - z) ** -m
-    return nf * np.exp(-0.5 * z ** 2)
+def _normal_integral(a, b):
+    sqrt_half = np.sqrt(0.5)
+    return sqrt_half * np.sqrt(np.pi) * (_erf(b * sqrt_half) - _erf(a * sqrt_half))
 
 
 @nb.njit(cache=True)
-def _cdf(z, beta, m):
-    exp_beta, nf = _constants(beta, m)
-
+def _density(z, beta, m):
     if z <= -beta:
-        return nf * (
-            (m / beta) ** m * exp_beta * (m / beta - beta - z) ** (1.0 - m) / (m - 1.0)
-        )
-    return nf * (
-        (m / beta) * exp_beta / (m - 1.0)
-        + np.sqrt(0.5 * np.pi) * (_erf(z * np.sqrt(0.5)) - _erf(-beta * np.sqrt(0.5)))
-    )
+        return _powerlaw(z, beta, m)
+    return np.exp(-0.5 * z ** 2)
 
 
 _signatures = [
@@ -47,10 +46,17 @@ _signatures = [
 @nb.vectorize(_signatures, cache=True)
 def pdf(x, beta, m, loc, scale):
     z = (x - loc) / scale
-    return _pdf(z, beta, m) / scale
+    dens = _density(z, beta, m)
+    norm = scale * (
+        _powerlaw_integral(-beta, beta, m) + _normal_integral(-beta, np.inf)
+    )
+    return dens / norm
 
 
 @nb.vectorize(_signatures, cache=True)
 def cdf(x, beta, m, loc, scale):
     z = (x - loc) / scale
-    return _cdf(z, beta, m)
+    norm = _powerlaw_integral(-beta, beta, m) + _normal_integral(-beta, np.inf)
+    if z <= -beta:
+        return _powerlaw_integral(z, beta, m) / norm
+    return (_powerlaw_integral(-beta, beta, m) + _normal_integral(-beta, z)) / norm
