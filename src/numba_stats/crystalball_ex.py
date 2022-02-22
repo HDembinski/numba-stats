@@ -3,14 +3,8 @@ import numba as nb
 
 
 @nb.njit
-def _norm(beta_left, m_left, beta_right, m_right, scale_left, scale_right):
-    return (
-        _powerlaw_integral(-beta_left, beta_left, m_left)
-        + _normal_integral(-beta_left, 0)
-    ) * scale_left + (
-        _normal_integral(0, beta_right)
-        + _powerlaw_integral(-beta_right, beta_right, m_right)
-    ) * scale_right
+def _norm_half(beta, m, scale):
+    return (_normal_integral(0, beta) + _powerlaw_integral(-beta, beta, m)) * scale
 
 
 @nb.vectorize(cache=True)
@@ -26,12 +20,17 @@ def pdf(x, beta_left, m_left, scale_left, beta_right, m_right, scale_right, loc)
         m = m_right
         z = (loc - x) / scale
     dens = _density(z, beta, m)
-    return dens / _norm(beta_left, m_left, beta_right, m_right, scale_left, scale_right)
+    return dens / (
+        _norm_half(beta_left, m_left, scale_left)
+        + _norm_half(beta_right, m_right, scale_right)
+    )
 
 
 @nb.vectorize(cache=True)
 def cdf(x, beta_left, m_left, scale_left, beta_right, m_right, scale_right, loc):
-    norm = _norm(beta_left, m_left, beta_right, m_right, scale_left, scale_right)
+    norm = _norm_half(beta_left, m_left, scale_left) + _norm_half(
+        beta_right, m_right, scale_right
+    )
     z = x - loc
     if z < 0:
         z /= scale_left
