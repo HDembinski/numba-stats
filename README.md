@@ -12,6 +12,7 @@ We provide numba-accelerated implementations of statistical functions for common
 * Student's t
 * Voigtian
 * Crystal Ball
+* Generalised double-sided Crystal Ball
 * Tsallis-Hagedorn, a model for the minimum bias pT distribution
 * Q-Gaussian
 * Bernstein density (not normalised to unity, use this in extended likelihood fits)
@@ -20,7 +21,11 @@ with more to come. The speed gains are huge, up to a factor of 100 compared to `
 
 ## Documentation (or lack of)
 
-Because of limited manpower, this project is poorly documented. The documentation is basically the source code. `pydoc numba_stats` does not really work at the moment, because Numba does not show the docstring of the wrapped function but the docstring of the wrapping function. The plan is to fix this (either in Numba or locally). The calling conventions for those functions which have a `scipy.stats` equivalent, are identical to those in SciPy. These conventions are sometimes a bit unusual, for example, in case of the exponential, the log-normal or the uniform distribution. See the SciPy docs for details.
+Because of a technical limitation of Numba, this project is poorly documented. Functions with equivalents in `scipy.stats` follow the Scipy calling conventions exactly. These conventions are sometimes a bit unusual, for example, in case of the exponential, the log-normal or the uniform distribution. See the SciPy docs for details.
+
+Please look into the source code for documentation of the other functions.
+
+Technical note: `pydoc numba_stats` does not show anything useful, because `numba.vectorize` creates instances of a class `DUFunc`. The wrapped functions show up as objects of that class and `help()` shows the generic documentation of that class instead of the documentation for the instances.
 
 ## Contributions
 
