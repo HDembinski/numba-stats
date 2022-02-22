@@ -1,9 +1,9 @@
-import numba as nb
 import numpy as np
 from .norm import _cdf, _ppf
+from ._util import _jit, _vectorize
 
 
-@nb.njit(cache=True)
+@_jit
 def _logpdf(x, s, loc, scale):
     z = (x - loc) / scale
     if z <= 0:
@@ -13,13 +13,7 @@ def _logpdf(x, s, loc, scale):
     return log_pdf - np.log(scale)
 
 
-_signatures = [
-    nb.float32(nb.float32, nb.float32, nb.float32, nb.float32),
-    nb.float64(nb.float64, nb.float64, nb.float64, nb.float64),
-]
-
-
-@nb.vectorize(_signatures, cache=True)
+@_vectorize(4)
 def logpdf(x, s, loc, scale):
     """
     Return log of probability density of lognormal distribution.
@@ -27,7 +21,7 @@ def logpdf(x, s, loc, scale):
     return _logpdf(x, s, loc, scale)
 
 
-@nb.vectorize(_signatures, cache=True)
+@_vectorize(4)
 def pdf(x, s, loc, scale):
     """
     Return probability density of lognormal distribution.
@@ -35,10 +29,10 @@ def pdf(x, s, loc, scale):
     return np.exp(_logpdf(x, s, loc, scale))
 
 
-@nb.vectorize(_signatures, cache=True)
+@_vectorize(4)
 def cdf(x, s, loc, scale):
     """
-    Evaluate cumulative distribution function of lognormal distribution.
+    Return cumulative probability of lognormal distribution.
     """
     z = (x - loc) / scale
     if z <= 0:
@@ -46,7 +40,7 @@ def cdf(x, s, loc, scale):
     return _cdf(np.log(z) / s)
 
 
-@nb.vectorize(_signatures)  # cannot be cached because of call to _ppf
+@_vectorize(4, cache=False)  # no cache because of _ppf
 def ppf(p, s, loc, scale):
     """
     Return quantile of lognormal distribution for given probability.

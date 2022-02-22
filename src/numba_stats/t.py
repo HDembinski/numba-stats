@@ -1,37 +1,32 @@
-import numba as nb
 import numpy as np
 from ._special import stdtr as _cdf, stdtrit as _ppf
+from ._util import _vectorize
 from math import lgamma as _lgamma
 
-_signatures = [
-    nb.float32(nb.float32, nb.float32, nb.float32, nb.float32),
-    nb.float64(nb.float64, nb.float64, nb.float64, nb.float64),
-]
 
-
-@nb.vectorize(_signatures, cache=True)
-def pdf(x, df, mu, sigma):
+@_vectorize(4, cache=False)
+def pdf(x, df, loc, scale):
     """
     Return probability density of student's distribution.
     """
-    z = (x - mu) / sigma
+    z = (x - loc) / scale
     k = 0.5 * (df + 1)
     p = np.exp(_lgamma(k) - _lgamma(0.5 * df))
     p /= np.sqrt(df * np.pi) * (1 + (z ** 2) / df) ** k
-    return p / sigma
+    return p / scale
 
 
-@nb.vectorize(_signatures)
-def cdf(x, df, mu, sigma):
+@_vectorize(4, cache=False)
+def cdf(x, df, loc, scale):
     """
-    Evaluate cumulative distribution function of student's distribution.
+    Return cumulative probability of student's distribution.
     """
-    z = (x - mu) / sigma
+    z = (x - loc) / scale
     return _cdf(df, z)
 
 
-@nb.vectorize(_signatures)
-def ppf(p, df, mu, sigma):
+@_vectorize(4, cache=False)
+def ppf(p, df, loc, scale):
     """
     Return quantile of student's distribution for given probability.
     """
@@ -40,4 +35,4 @@ def ppf(p, df, mu, sigma):
     elif p == 1:
         return np.inf
     z = _ppf(df, p)
-    return sigma * z + mu
+    return scale * z + loc

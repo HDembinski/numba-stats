@@ -1,13 +1,8 @@
-import numba as nb
 import numpy as np
-
-_signatures = [
-    nb.float32(nb.float32, nb.float32, nb.float32, nb.float32),
-    nb.float64(nb.float64, nb.float64, nb.float64, nb.float64),
-]
+from ._util import _vectorize
 
 
-@nb.vectorize(_signatures, cache=True)
+@_vectorize(4)
 def pdf(x, m, t, n):
     # Formula from CMS, Eur. Phys. J. C (2012) 72:2164
     assert n > 2
@@ -18,8 +13,11 @@ def pdf(x, m, t, n):
     return c * x * (1 + (mt - m) / nt) ** -n
 
 
-@nb.vectorize(_signatures, cache=True)
+@_vectorize(4)
 def cdf(x, m, t, n):
+    """
+    Return cumulative probability of Tsallis distribution.
+    """
     # Formula computed from tsallis_pdf with Sympy, then simplified by hand
     assert n > 2
 

@@ -1,20 +1,21 @@
-import numba as nb
-
-_signatures = [
-    nb.float32(nb.float32, nb.float32, nb.float32),
-    nb.float64(nb.float64, nb.float64, nb.float64),
-]
+from ._util import _vectorize
 
 
-@nb.vectorize(_signatures, cache=True)
+@_vectorize(3)
 def pdf(x, a, w):
+    """
+    Return probability density of uniform distribution.
+    """
     if a <= x <= a + w:
         return 1 / w
     return 0
 
 
-@nb.vectorize(_signatures, cache=True)
+@_vectorize(3)
 def cdf(x, a, w):
+    """
+    Return cumulative probability of uniform distribution.
+    """
     if a <= x:
         if x <= a + w:
             return (x - a) / w
@@ -22,6 +23,9 @@ def cdf(x, a, w):
     return 0
 
 
-@nb.vectorize(_signatures, cache=True)
+@_vectorize(3)
 def ppf(p, a, w):
+    """
+    Return quantile of uniform distribution for given probability.
+    """
     return w * p + a

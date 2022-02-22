@@ -1,10 +1,10 @@
-import numba as nb
 import numpy as np
 from math import lgamma as _lgamma
 from . import norm as _norm, t as _t
+from ._util import _jit, _vectorize
 
 
-@nb.njit
+@_jit
 def _qexp(x, q):
     if q == 1:
         return np.exp(x)
@@ -16,7 +16,7 @@ def _qexp(x, q):
     return np.exp(le)
 
 
-@nb.njit
+@_jit
 def _compute_cq(q):
     # beta = 1/2 for equivalence with normal distribution for q = 1
     const = np.sqrt(2 * np.pi)
@@ -39,7 +39,7 @@ def _compute_cq(q):
     return np.nan
 
 
-@nb.njit
+@_jit
 def _df_sigma(q, sigma):
     # https://en.wikipedia.org/wiki/Q-Gaussian_distribution
     # relation to Student's t-distribution
@@ -54,13 +54,7 @@ def _df_sigma(q, sigma):
     return df, sigma
 
 
-_signatures = [
-    nb.float32(nb.float32, nb.float32, nb.float32, nb.float32),
-    nb.float64(nb.float64, nb.float64, nb.float64, nb.float64),
-]
-
-
-@nb.vectorize(_signatures)
+@_vectorize(4)
 def pdf(x, q, mu, sigma):
     inv_scale = 1.0 / sigma
     z = (x - mu) * inv_scale
@@ -72,7 +66,7 @@ def pdf(x, q, mu, sigma):
     return _qexp(-0.5 * z ** 2, q) * inv_scale
 
 
-@nb.vectorize(_signatures)
+@_vectorize(4, cache=False)
 def cdf(x, q, mu, sigma):
     if q < 1 or q > 3:
         raise ValueError("q < 1 or q > 3 are not supported")
@@ -85,7 +79,7 @@ def cdf(x, q, mu, sigma):
     return _t.cdf(x, df, mu, sigma)
 
 
-@nb.vectorize(_signatures)
+@_vectorize(4, cache=False)
 def ppf(x, q, mu, sigma):
     if q < 1 or q > 3:
         raise ValueError("q < 1 or q > 3 are not supported")

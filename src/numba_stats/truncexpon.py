@@ -1,20 +1,10 @@
-import numba as nb
 import numpy as np
-from math import expm1 as _expm1, log1p as _log1p
-
-_signatures = [
-    nb.float32(nb.float32, nb.float32, nb.float32, nb.float32, nb.float32),
-    nb.float64(nb.float64, nb.float64, nb.float64, nb.float64, nb.float64),
-]
+from ._util import _vectorize
+from .expon import _cdf, _ppf
 
 
-@nb.njit
-def _cdf(z):
-    return -_expm1(-z)
-
-
-@nb.vectorize(_signatures, cache=True)
-def pdf(x, xmin, xmax, mu, sigma):
+@_vectorize(5)
+def pdf(x, xmin, xmax, loc, scale):
     """
     Return probability density of exponential distribution.
     """
@@ -22,43 +12,43 @@ def pdf(x, xmin, xmax, mu, sigma):
         return 0.0
     elif x > xmax:
         return 0.0
-    sigma_inv = 1 / sigma
-    z = (x - mu) * sigma_inv
-    zmin = (xmin - mu) * sigma_inv
-    zmax = (xmax - mu) * sigma_inv
-    return np.exp(-z) * sigma_inv / (_cdf(zmax) - _cdf(zmin))
+    scale_inv = 1 / scale
+    z = (x - loc) * scale_inv
+    zmin = (xmin - loc) * scale_inv
+    zmax = (xmax - loc) * scale_inv
+    return np.exp(-z) * scale_inv / (_cdf(zmax) - _cdf(zmin))
 
 
-@nb.vectorize(_signatures, cache=True)
-def cdf(x, xmin, xmax, mu, sigma):
+@_vectorize(5)
+def cdf(x, xmin, xmax, loc, scale):
     """
-    Evaluate cumulative distribution function of exponential distribution.
+    Return cumulative probability of truncated exponential distribution.
     """
     if x < xmin:
         return 0.0
     elif x > xmax:
         return 1.0
-    sigma_inv = 1 / sigma
-    z = (x - mu) * sigma_inv
+    scale_inv = 1 / scale
+    z = (x - loc) * scale_inv
     p = _cdf(z)
-    zmin = (xmin - mu) * sigma_inv
-    zmax = (xmax - mu) * sigma_inv
+    zmin = (xmin - loc) * scale_inv
+    zmax = (xmax - loc) * scale_inv
     pmin = _cdf(zmin)
     pmax = _cdf(zmax)
     return (p - pmin) / (pmax - pmin)
 
 
-@nb.vectorize(_signatures, cache=True)
-def ppf(p, xmin, xmax, mu, sigma):
+@_vectorize(5)
+def ppf(p, xmin, xmax, loc, scale):
     """
     Return quantile of exponential distribution for given probability.
     """
-    sigma_inv = 1 / sigma
-    zmin = (xmin - mu) * sigma_inv
-    zmax = (xmax - mu) * sigma_inv
+    scale_inv = 1 / scale
+    zmin = (xmin - loc) * scale_inv
+    zmax = (xmax - loc) * scale_inv
     pmin = _cdf(zmin)
     pmax = _cdf(zmax)
     pstar = p * (pmax - pmin) + pmin
-    z = -_log1p(-pstar)
-    x = z * sigma + mu
+    z = _ppf(pstar)
+    x = z * scale + loc
     return x

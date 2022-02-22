@@ -1,37 +1,13 @@
 from .crystalball import _powerlaw_integral, _normal_integral, _density
-import numba as nb
+from ._util import _vectorize, _jit
 
 
-@nb.njit
+@_jit
 def _norm_half(beta, m, scale):
     return (_normal_integral(0, beta) + _powerlaw_integral(-beta, beta, m)) * scale
 
 
-_signatures = [
-    nb.float32(
-        nb.float32,
-        nb.float32,
-        nb.float32,
-        nb.float32,
-        nb.float32,
-        nb.float32,
-        nb.float32,
-        nb.float32,
-    ),
-    nb.float64(
-        nb.float64,
-        nb.float64,
-        nb.float64,
-        nb.float64,
-        nb.float64,
-        nb.float64,
-        nb.float64,
-        nb.float64,
-    ),
-]
-
-
-@nb.vectorize(_signatures, cache=True)
+@_vectorize(8)
 def pdf(x, beta_left, m_left, scale_left, beta_right, m_right, scale_right, loc):
     """
     Return probability density of generalised Crystal Ball distribution.
@@ -58,10 +34,10 @@ def pdf(x, beta_left, m_left, scale_left, beta_right, m_right, scale_right, loc)
     )
 
 
-@nb.vectorize(_signatures, cache=True)
+@_vectorize(8)
 def cdf(x, beta_left, m_left, scale_left, beta_right, m_right, scale_right, loc):
     """
-    Return probability density of generalised Crystal Ball distribution.
+    Return cumulative probability of generalised Crystal Ball distribution.
     """
     norm = _norm_half(beta_left, m_left, scale_left) + _norm_half(
         beta_right, m_right, scale_right
