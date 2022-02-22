@@ -51,10 +51,10 @@ def test_pdf_integral(beta, m):
 def test_cdf(beta, m):
     scale = 1.5
     x = np.linspace(-10, 10, 10)
-    got = cb.cdf(x, beta, m, scale, 2 * beta, 2 * m, 2 * beta, 0)
+    got = cb.cdf(x, beta, m, scale, 2 * beta, 2 * m, 2 * scale, 0)
     expected = [
         quad(
-            lambda x: cb.pdf(x, beta, m, scale, 2 * beta, 2 * m, 2 * beta, 0),
+            lambda x: cb.pdf(x, beta, m, scale, 2 * beta, 2 * m, 2 * scale, 0),
             -np.inf,
             xi,
         )[0]
