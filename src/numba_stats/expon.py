@@ -1,36 +1,57 @@
-import numba as nb
+"""
+Exponential distribution.
+"""
 import numpy as np
 from math import expm1 as _expm1, log1p as _log1p
-
-_signatures = [
-    nb.float32(nb.float32, nb.float32, nb.float32),
-    nb.float64(nb.float64, nb.float64, nb.float64),
-]
+from ._util import _jit, _vectorize
 
 
-@nb.vectorize(_signatures, cache=True)
-def pdf(x, mu, sigma):
-    """
-    Return probability density of exponential distribution.
-    """
-    z = (x - mu) / sigma
-    return np.exp(-z) / sigma
-
-
-@nb.vectorize(_signatures, cache=True)
-def cdf(x, mu, sigma):
-    """
-    Evaluate cumulative distribution function of exponential distribution.
-    """
-    z = (x - mu) / sigma
+@_jit
+def _cdf(z):
     return -_expm1(-z)
 
 
-@nb.vectorize(_signatures, cache=True)
-def ppf(p, mu, sigma):
+@_jit
+def _ppf(p):
+    return -_log1p(-p)
+
+
+@_jit
+def _logpdf(x, loc, scale):
+    z = (x - loc) / scale
+    return -z - np.log(scale)
+
+
+@_vectorize(3)
+def logpdf(x, loc, scale):
     """
-    Return quantile of exponential distribution for given probability.
+    Return log of probability density.
     """
-    z = -_log1p(-p)
-    x = z * sigma + mu
+    return _logpdf(x, loc, scale)
+
+
+@_vectorize(3)
+def pdf(x, loc, scale):
+    """
+    Return probability density.
+    """
+    return np.exp(_logpdf(x, loc, scale))
+
+
+@_vectorize(3)
+def cdf(x, loc, scale):
+    """
+    Return cumulative probability.
+    """
+    z = (x - loc) / scale
+    return _cdf(z)
+
+
+@_vectorize(3)
+def ppf(p, loc, scale):
+    """
+    Return quantile for given probability.
+    """
+    z = _ppf(p)
+    x = z * scale + loc
     return x

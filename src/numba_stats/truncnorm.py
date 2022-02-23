@@ -1,72 +1,71 @@
-import numba as nb
+"""
+Truncated normal distribution.
+"""
+
 import numpy as np
 from .norm import _logpdf as _norm_logpdf, _cdf, _ppf
-
-_signatures = [
-    nb.float32(nb.float32, nb.float32, nb.float32, nb.float32, nb.float32),
-    nb.float64(nb.float64, nb.float64, nb.float64, nb.float64, nb.float64),
-]
+from ._util import _jit, _vectorize
 
 
-@nb.njit(cache=True)
+@_jit
 def _logpdf(z, zmin, zmax):
     if z < zmin or z > zmax:
         return -np.inf
     return _norm_logpdf(z) - np.log(_cdf(zmax) - _cdf(zmin))
 
 
-@nb.vectorize(_signatures, cache=True)
-def logpdf(x, xmin, xmax, mu, sigma):
+@_vectorize(5)
+def logpdf(x, xmin, xmax, loc, scale):
     """
-    Return log of probability density of normal distribution.
+    Return log of probability density.
     """
-    sigma_inv = 1 / sigma
-    z = (x - mu) * sigma_inv
-    zmin = (xmin - mu) * sigma_inv
-    zmax = (xmax - mu) * sigma_inv
-    return _logpdf(z, zmin, zmax) + np.log(sigma_inv)
+    scale_inv = 1 / scale
+    z = (x - loc) * scale_inv
+    zmin = (xmin - loc) * scale_inv
+    zmax = (xmax - loc) * scale_inv
+    return _logpdf(z, zmin, zmax) + np.log(scale_inv)
 
 
-@nb.vectorize(_signatures, cache=True)
-def pdf(x, xmin, xmax, mu, sigma):
+@_vectorize(5)
+def pdf(x, xmin, xmax, loc, scale):
     """
-    Return probability density of normal distribution.
+    Return probability density.
     """
-    sigma_inv = 1 / sigma
-    z = (x - mu) * sigma_inv
-    zmin = (xmin - mu) * sigma_inv
-    zmax = (xmax - mu) * sigma_inv
-    return np.exp(_logpdf(z, zmin, zmax)) * sigma_inv
+    scale_inv = 1 / scale
+    z = (x - loc) * scale_inv
+    zmin = (xmin - loc) * scale_inv
+    zmax = (xmax - loc) * scale_inv
+    return np.exp(_logpdf(z, zmin, zmax)) * scale_inv
 
 
-@nb.vectorize(_signatures, cache=True)
-def cdf(x, xmin, xmax, mu, sigma):
+@_vectorize(5)
+def cdf(x, xmin, xmax, loc, scale):
     """
-    Evaluate cumulative distribution function of normal distribution.
+    Return cumulative probability.
     """
     if x < xmin:
         return 0.0
     elif x > xmax:
         return 1.0
-    sigma_inv = 1 / sigma
-    z = (x - mu) * sigma_inv
-    zmin = (xmin - mu) * sigma_inv
-    zmax = (xmax - mu) * sigma_inv
+    scale_inv = 1 / scale
+    z = (x - loc) * scale_inv
+    zmin = (xmin - loc) * scale_inv
+    zmax = (xmax - loc) * scale_inv
     pmin = _cdf(zmin)
     pmax = _cdf(zmax)
     return (_cdf(z) - pmin) / (pmax - pmin)
 
 
-@nb.vectorize(_signatures)
-def ppf(p, xmin, xmax, mu, sigma):
+@_vectorize(5, cache=False)
+def ppf(p, xmin, xmax, loc, scale):
     """
-    Return quantile of normal distribution for given probability.
+    Return quantile for given probability.
     """
-    sigma_inv = 1 / sigma
-    zmin = (xmin - mu) * sigma_inv
-    zmax = (xmax - mu) * sigma_inv
+    scale_inv = 1 / scale
+    zmin = (xmin - loc) * scale_inv
+    zmax = (xmax - loc) * scale_inv
     pmin = _cdf(zmin)
     pmax = _cdf(zmax)
     pstar = p * (pmax - pmin) + pmin
     z = _ppf(pstar)
-    return sigma * z + mu
+    return scale * z + loc

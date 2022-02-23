@@ -1,9 +1,18 @@
-import numba as nb
+"""
+Crystal Ball distribution.
+
+The Crystal Ball distribution replaces the lower tail of a normal distribution with
+a power-law tail.
+
+https://en.wikipedia.org/wiki/Crystal_Ball_function
+"""
+
+from ._util import _jit, _vectorize
 import numpy as np
 from math import erf as _erf
 
 
-@nb.njit(cache=True)
+@_jit
 def _powerlaw(z, beta, m):
     assert beta > 0
     assert m > 0
@@ -13,7 +22,7 @@ def _powerlaw(z, beta, m):
     return a * (b - z) ** -m
 
 
-@nb.njit(cache=True)
+@_jit
 def _powerlaw_integral(z, beta, m):
     assert beta > 0
     assert m > 1
@@ -24,34 +33,23 @@ def _powerlaw_integral(z, beta, m):
     return a * (b - z) ** -m1 / m1
 
 
-@nb.njit(cache=True)
+@_jit
 def _normal_integral(a, b):
     sqrt_half = np.sqrt(0.5)
     return sqrt_half * np.sqrt(np.pi) * (_erf(b * sqrt_half) - _erf(a * sqrt_half))
 
 
-@nb.njit(cache=True)
+@_jit
 def _density(z, beta, m):
     if z <= -beta:
         return _powerlaw(z, beta, m)
     return np.exp(-0.5 * z ** 2)
 
 
-_signatures = [
-    nb.float32(nb.float32, nb.float32, nb.float32, nb.float32, nb.float32),
-    nb.float64(nb.float64, nb.float64, nb.float64, nb.float64, nb.float64),
-]
-
-
-@nb.vectorize(_signatures, cache=True)
+@_vectorize(5)
 def pdf(x, beta, m, loc, scale):
     """
-    Return probability density of Crystal Ball distribution.
-
-    The Crystal Ball distribution replaces the lower tail of a normal distribution with
-    a power-law tail.
-
-    https://en.wikipedia.org/wiki/Crystal_Ball_function
+    Return probability density.
     """
     z = (x - loc) / scale
     dens = _density(z, beta, m)
@@ -61,10 +59,10 @@ def pdf(x, beta, m, loc, scale):
     return dens / norm
 
 
-@nb.vectorize(_signatures, cache=True)
+@_vectorize(5)
 def cdf(x, beta, m, loc, scale):
     """
-    Evaluate cumulative distribution function of Crystal Ball distribution.
+    Return cumulative probability.
     """
     z = (x - loc) / scale
     norm = _powerlaw_integral(-beta, beta, m) + _normal_integral(-beta, np.inf)

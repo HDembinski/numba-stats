@@ -10,14 +10,21 @@ _signatures = [
 
 
 @nb.vectorize(_signatures)
+def logpmf(k, mu):
+    """
+    Return log of probability mass for Poisson distribution.
+    """
+    if mu == 0:
+        return 0.0 if k == 0 else -np.inf
+    return k * np.log(mu) - _lgamma(k + 1.0) - mu
+
+
+@nb.vectorize(_signatures)
 def pmf(k, mu):
     """
     Return probability mass for Poisson distribution.
     """
-    if mu == 0:
-        return 1.0 if k == 0 else 0.0
-    logp = k * np.log(mu) - _lgamma(k + 1.0) - mu
-    return np.exp(logp)
+    return np.exp(logpmf(k, mu))
 
 
 @nb.vectorize(_signatures)

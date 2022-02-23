@@ -1,17 +1,14 @@
-import numba as nb
+"""
+Continuous Poisson distribution.
+"""
 from ._special import gammaincc as _gammaincc
+from ._util import _vectorize
 
 
-_signatures = [
-    nb.float32(nb.float32, nb.float32),
-    nb.float64(nb.float64, nb.float64),
-]
-
-
-@nb.vectorize(_signatures)
+@_vectorize(2, cache=False)
 def cdf(x, mu):
     """
-    Evaluate cumulative distribution function of continuous Poisson distribution.
+    Return cumulative probability.
     """
     return _gammaincc(x + 1, mu)
 
