@@ -1,3 +1,6 @@
+"""
+Student's t distribution.
+"""
 import numpy as np
 from ._special import stdtr as _cdf, stdtrit as _ppf
 from ._util import _vectorize
@@ -7,7 +10,7 @@ from math import lgamma as _lgamma
 @_vectorize(4, cache=False)
 def logpdf(x, df, loc, scale):
     """
-    Return probability density of student's distribution.
+    Return probability density.
     """
     z = (x - loc) / scale
     k = 0.5 * (df + 1)
@@ -19,7 +22,7 @@ def logpdf(x, df, loc, scale):
 @_vectorize(4, cache=False)
 def pdf(x, df, loc, scale):
     """
-    Return probability density of student's distribution.
+    Return probability density.
     """
     return np.exp(logpdf(x, df, loc, scale))
 
@@ -27,7 +30,7 @@ def pdf(x, df, loc, scale):
 @_vectorize(4, cache=False)
 def cdf(x, df, loc, scale):
     """
-    Return cumulative probability of student's distribution.
+    Return cumulative probability.
     """
     z = (x - loc) / scale
     return _cdf(df, z)
@@ -36,7 +39,7 @@ def cdf(x, df, loc, scale):
 @_vectorize(4, cache=False)
 def ppf(p, df, loc, scale):
     """
-    Return quantile of student's distribution for given probability.
+    Return quantile for given probability.
     """
     if p == 0:
         return -np.inf

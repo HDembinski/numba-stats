@@ -1,3 +1,14 @@
+"""
+Empirical density distribution formed by a Bernstein polynomial.
+
+The Bernstein polynomial basis is better suited to model a probability distribution
+than the Chebychev basis, since it is possible to implement the constraint
+f(x; p) >= 0 with simple parameter limits p >= 0 (where p is a vector).
+
+The density function and its integral are not normalised. This is not an issue when
+the density is used in an extended maximum-likelihood fit.
+"""
+
 import numpy as np
 import numba as nb
 
