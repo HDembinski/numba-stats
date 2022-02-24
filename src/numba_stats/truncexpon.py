@@ -1,3 +1,6 @@
+"""
+Truncated exponential distribution.
+"""
 import numpy as np
 from ._util import _vectorize
 from .expon import _cdf, _ppf
@@ -6,7 +9,7 @@ from .expon import _cdf, _ppf
 @_vectorize(5)
 def logpdf(x, xmin, xmax, loc, scale):
     """
-    Return log of probability density of truncated exponential distribution.
+    Return log of probability density.
     """
     if x < xmin:
         return -np.inf
@@ -22,7 +25,7 @@ def logpdf(x, xmin, xmax, loc, scale):
 @_vectorize(5)
 def pdf(x, xmin, xmax, loc, scale):
     """
-    Return probability density of truncated exponential distribution.
+    Return probability density.
     """
     return np.exp(logpdf(x, xmin, xmax, loc, scale))
 
@@ -30,7 +33,7 @@ def pdf(x, xmin, xmax, loc, scale):
 @_vectorize(5)
 def cdf(x, xmin, xmax, loc, scale):
     """
-    Return cumulative probability of truncated exponential distribution.
+    Return cumulative probability.
     """
     if x < xmin:
         return 0.0
@@ -49,7 +52,7 @@ def cdf(x, xmin, xmax, loc, scale):
 @_vectorize(5)
 def ppf(p, xmin, xmax, loc, scale):
     """
-    Return quantile of truncated exponential distribution for given probability.
+    Return quantile for given probability.
     """
     scale_inv = 1 / scale
     zmin = (xmin - loc) * scale_inv

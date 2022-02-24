@@ -1,3 +1,15 @@
+"""
+Q-Gaussian distribution.
+
+A generalisation (q-analog) of the normal distribution based on Tsallis entropy. It
+can be used an alternative model for the normal distribution to check for model bias.
+
+It is equivalent to Student's t distribution and can be computed from the latter via
+a change of variables, which is exploited in this implementation.
+
+https://en.wikipedia.org/wiki/Q-Gaussian_distribution
+"""
+
 import numpy as np
 from math import lgamma as _lgamma
 from . import norm as _norm, t as _t

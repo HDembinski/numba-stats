@@ -1,3 +1,11 @@
+"""
+Tsallis-Hagedorn distribution.
+
+A generalisation (q-analog) of the exponential distribution based on Tsallis entropy. It
+approximately describes the pT distribution charged particles produced in high-energy
+minimum bias particle collisions.
+"""
+
 import numpy as np
 from ._util import _vectorize
 

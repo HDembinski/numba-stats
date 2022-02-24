@@ -1,3 +1,7 @@
+"""
+Poisson distribution.
+"""
+
 import numba as nb
 import numpy as np
 from ._special import gammaincc as _gammaincc
@@ -12,7 +16,7 @@ _signatures = [
 @nb.vectorize(_signatures)
 def logpmf(k, mu):
     """
-    Return log of probability mass for Poisson distribution.
+    Return log of probability mass.
     """
     if mu == 0:
         return 0.0 if k == 0 else -np.inf
@@ -22,7 +26,7 @@ def logpmf(k, mu):
 @nb.vectorize(_signatures)
 def pmf(k, mu):
     """
-    Return probability mass for Poisson distribution.
+    Return probability mass.
     """
     return np.exp(logpmf(k, mu))
 
@@ -30,6 +34,6 @@ def pmf(k, mu):
 @nb.vectorize(_signatures)
 def cdf(k, mu):
     """
-    Evaluate cumulative distribution function of Poisson distribution.
+    Evaluate cumulative distribution function.
     """
     return _gammaincc(k + 1, mu)
