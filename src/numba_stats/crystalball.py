@@ -16,7 +16,7 @@ from math import erf as _erf
 def _powerlaw(z, beta, m):
     assert beta > 0
     assert m > 0
-    exp_beta = np.exp(-0.5 * beta ** 2)
+    exp_beta = np.exp(-0.5 * beta**2)
     a = (m / beta) ** m * exp_beta
     b = m / beta - beta
     return a * (b - z) ** -m
@@ -26,7 +26,7 @@ def _powerlaw(z, beta, m):
 def _powerlaw_integral(z, beta, m):
     assert beta > 0
     assert m > 1
-    exp_beta = np.exp(-0.5 * beta ** 2)
+    exp_beta = np.exp(-0.5 * beta**2)
     a = (m / beta) ** m * exp_beta
     b = m / beta - beta
     m1 = m - 1
@@ -43,7 +43,7 @@ def _normal_integral(a, b):
 def _density(z, beta, m):
     if z <= -beta:
         return _powerlaw(z, beta, m)
-    return np.exp(-0.5 * z ** 2)
+    return np.exp(-0.5 * z**2)
 
 
 @_vectorize(5)

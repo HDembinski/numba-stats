@@ -74,8 +74,8 @@ def pdf(x, q, mu, sigma):
     inv_scale /= c_q
     # beta = 1/2 for equivalence with normal distribution for q = 1
     if q == 1.0:
-        return np.exp(-0.5 * z ** 2) * inv_scale
-    return _qexp(-0.5 * z ** 2, q) * inv_scale
+        return np.exp(-0.5 * z**2) * inv_scale
+    return _qexp(-0.5 * z**2, q) * inv_scale
 
 
 @_vectorize(4, cache=False)

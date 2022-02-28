@@ -19,7 +19,7 @@ def pdf(x, m, t, n):
     if n <= 2:
         raise ValueError("n > 2 is required")
 
-    mt = np.sqrt(m ** 2 + x ** 2)
+    mt = np.sqrt(m**2 + x**2)
     nt = n * t
     c = (n - 1) * (n - 2) / (nt * (nt + (n - 2) * m))
     return c * x * (1 + (mt - m) / nt) ** -n
@@ -34,6 +34,6 @@ def cdf(x, m, t, n):
     if n <= 2:
         raise ValueError("n > 2 is required")
 
-    mt = np.sqrt(m ** 2 + x ** 2)
+    mt = np.sqrt(m**2 + x**2)
     nt = n * t
     return ((mt - m) / nt + 1) ** (1 - n) * (m + mt - n * (mt + t)) / (m * (n - 2) + nt)
