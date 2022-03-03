@@ -61,33 +61,48 @@ def _prepare_z_beta(x, xmin, xmax, beta):
     return z, beta
 
 
-@nb.njit(cache=True)
-def _density(x, beta, xmin, xmax, res):
-    z, beta = _prepare_z_beta(x, xmin, xmax, beta)
-    _de_castlejau(z, beta, res)
-
-
-@nb.njit(cache=True)
-def _integral(x, beta, xmin, xmax, res):
-    z, beta = _prepare_z_beta(x, xmin, xmax, beta)
-    beta = _beta_int(beta) * (xmax - xmin)
-    _de_castlejau(z, beta, res)
-
-
 _signatures = [
-    (nb.float32[:], nb.float32[:], nb.float32[:], nb.float32[:], nb.float32[:]),
-    (nb.float64[:], nb.float64[:], nb.float64[:], nb.float64[:], nb.float64[:]),
+    nb.float32[:](nb.float32[:], nb.float32[:], nb.float32, nb.float32),
+    nb.float64[:](nb.float64[:], nb.float64[:], nb.float64, nb.float64),
 ]
 
 
-@nb.guvectorize(_signatures, "(),(n),(),()->()", cache=True)
-def density(x, beta, xmin, xmax, res):
-    _density(x, beta, xmin, xmax, res)
+@nb.njit(_signatures, cache=True)
+def _density(x, beta, xmin, xmax):
+    z, beta = _prepare_z_beta(x, xmin, xmax, beta)
+    res = np.empty_like(x)
+    _de_castlejau(z, beta, res)
+    return res
 
 
-@nb.guvectorize(_signatures, "(),(n),(),()->()", cache=True)
-def integral(x, beta, xmin, xmax, res):
-    _integral(x, beta, xmin, xmax, res)
+@nb.njit(_signatures, cache=True)
+def _integral(x, beta, xmin, xmax):
+    z, beta = _prepare_z_beta(x, xmin, xmax, beta)
+    beta = _beta_int(beta) * (xmax - xmin)
+    res = np.empty_like(x)
+    _de_castlejau(z, beta, res)
+    return res
+
+
+def _normalize(x):
+    x = np.atleast_1d(x)
+    if x.dtype.kind != "f":
+        return x.astype(float)
+    return x
+
+
+def density(x, beta, xmin, xmax):
+    r = _density(_normalize(x), _normalize(beta), xmin, xmax)
+    if np.ndim(x) == 0:
+        return np.squeeze(r)
+    return r
+
+
+def integral(x, beta, xmin, xmax):
+    r = _integral(_normalize(x), _normalize(beta), xmin, xmax)
+    if np.ndim(x) == 0:
+        return np.squeeze(r)
+    return r
 
 
 @nb.extending.overload(density)
@@ -104,12 +119,7 @@ def density_ol(x, beta, xmin, xmax):
     if not isinstance(xmax, Float):
         raise TypingError("xmax must be float")
 
-    def wrap(x, beta, xmin, xmax):
-        res = np.empty_like(x)
-        _density(x, beta, xmin, xmax, res)
-        return res
-
-    return wrap
+    return _density.__wrapped__
 
 
 @nb.extending.overload(integral)
@@ -126,12 +136,7 @@ def integral_ol(x, beta, xmin, xmax):
     if not isinstance(xmax, Float):
         raise TypingError("xmax must be float")
 
-    def wrap(x, beta, xmin, xmax):
-        res = np.empty_like(x)
-        _integral(x, beta, xmin, xmax, res)
-        return res
-
-    return wrap
+    return _integral.__wrapped__
 
 
 def __getattr__(key):
