@@ -10,7 +10,7 @@ from numpy.testing import assert_allclose
 @pytest.mark.parametrize(
     "beta", [[1.0], [1.0, 1.0], [1.0, 1.0, 1.0], [1.0, 2.0, 3.0], [1.0, 3.0, 2.0]]
 )
-def test_bernstein_density(beta):
+def test_density(beta):
     x = np.linspace(1, 3)
     got = bernstein.density(x, beta, x[0], x[-1])
     expected = BPoly(np.array(beta)[:, np.newaxis], [x[0], x[-1]])(x)
@@ -22,7 +22,7 @@ def test_bernstein_density(beta):
 
 
 @pytest.mark.parametrize("beta", [[1], [1, 1], [1, 1, 1]])
-def test_bernstein_integral(beta):
+def test_integral(beta):
     xrange = 1.5, 3.4
     got = bernstein.integral(xrange[1], beta, *xrange)
     expected = np.diff(xrange)
@@ -30,7 +30,7 @@ def test_bernstein_integral(beta):
 
 
 @pytest.mark.parametrize("beta", [[1], [1, 1], [1, 1, 1], [1, 2, 3], [1, 3, 2]])
-def test_bernstein_integral_2(beta):
+def test_integral_2(beta):
     x = np.linspace(1, 2.5)
 
     got = bernstein.integral(x, beta, x[0], x[-1])
@@ -40,7 +40,7 @@ def test_bernstein_integral_2(beta):
     assert_allclose(got, expected)
 
 
-def test_numba_bernstein_density():
+def test_numba_density():
     @nb.njit
     def f():
         return bernstein.density(
@@ -62,7 +62,7 @@ def test_numba_bernstein_density():
     f()
 
 
-def test_numba_bernstein_integral():
+def test_numba_integral():
     @nb.njit
     def f():
         return bernstein.integral(
