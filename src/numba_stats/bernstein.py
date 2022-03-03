@@ -134,6 +134,18 @@ def integral_ol(x, beta, xmin, xmax):
     return wrap
 
 
-# for backward compatibility, avoid in new code
-scaled_pdf = density
-scaled_cdf = integral
+def __getattr__(key):
+    # Temporary hack to maintain backward compatibility
+    import warnings
+    from numpy import VisibleDeprecationWarning
+
+    if key in ("scaled_pdf", "scaled_cdf"):
+        r = {"scaled_pdf": "density", "scaled_cdf": "integral"}
+        warnings.warn(
+            f"bernstein.{key} is deprecated and will be removed in v1.2, "
+            f"use bernstein.{r[key]} instead",
+            VisibleDeprecationWarning,
+            1,
+        )
+        return globals()[r[key]]
+    raise AttributeError

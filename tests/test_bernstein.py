@@ -81,3 +81,13 @@ def test_numba_bernstein_integral():
             2.5,
         ),
     )
+
+
+def test_deprecation():
+    with pytest.warns(np.VisibleDeprecationWarning):
+        got = bernstein.scaled_pdf(1, [1, 2], 0, 1)
+    assert_allclose(got, bernstein.density(1, [1, 2], 0, 1))
+
+    with pytest.warns(np.VisibleDeprecationWarning):
+        got = bernstein.scaled_cdf(1, [1, 2], 0, 1)
+    assert_allclose(got, bernstein.integral(1, [1, 2], 0, 1))
