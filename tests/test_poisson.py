@@ -3,7 +3,7 @@ from numba_stats import poisson
 import scipy.stats as sc
 
 
-def test_poisson_pmf():
+def test_pmf():
     m = np.linspace(0, 3, 20)[:, np.newaxis]
     k = np.arange(10)
     got = poisson.pmf(k, m)
@@ -11,7 +11,7 @@ def test_poisson_pmf():
     np.testing.assert_allclose(got, expected)
 
 
-def test_poisson_cdf():
+def test_cdf():
     m = np.linspace(0, 3, 20)[:, np.newaxis]
     k = np.arange(10)
     got = poisson.cdf(k, m)

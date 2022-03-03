@@ -15,7 +15,7 @@ def q_sigma(nu, sigma):
     return q, sigma * np.sqrt(0.5 * (3.0 - q))
 
 
-def test_qgaussian_pdf_vs_norm():
+def test_pdf_vs_norm():
     x = np.linspace(-5, 5)
 
     expected = norm.pdf(x, 0.5, 1.2)
@@ -24,7 +24,7 @@ def test_qgaussian_pdf_vs_norm():
     np.testing.assert_allclose(got, expected)
 
 
-def test_qgaussian_cdf_vs_norm():
+def test_cdf_vs_norm():
     x = np.linspace(-5, 5)
 
     expected = norm.cdf(x, 0.5, 1.2)
@@ -34,7 +34,7 @@ def test_qgaussian_cdf_vs_norm():
 
 
 @pytest.mark.parametrize("nu", np.arange(1, 11))
-def test_qgaussian_pdf_vs_t(nu):
+def test_pdf_vs_t(nu):
     x = np.linspace(-5, 5)
     q, sigma = q_sigma(nu, 1.2)
 
@@ -45,7 +45,7 @@ def test_qgaussian_pdf_vs_t(nu):
 
 
 @pytest.mark.parametrize("q", (1, 1.1, 1.2, 1.3, 1.4, 1.5, 1.9, 2.0, 2.5, 2.9))
-def test_qgaussian_cdf(q):
+def test_cdf(q):
     x = np.linspace(-5, 5, 10)
 
     expected = [quad(lambda y: qgaussian.pdf(y, q, 0.1, 1.2), 0, xi)[0] for xi in x]
@@ -55,7 +55,7 @@ def test_qgaussian_cdf(q):
 
 
 @pytest.mark.parametrize("q", (1, 1.1, 1.2, 1.3, 1.4, 1.5, 1.9, 2.0, 2.5, 2.9))
-def test_qgaussian_ppf(q):
+def test_ppf(q):
     x = np.linspace(-5, 5, 10)
 
     def f(x):

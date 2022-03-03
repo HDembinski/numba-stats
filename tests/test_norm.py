@@ -2,7 +2,7 @@ import scipy.stats as sc
 import numpy as np
 
 
-def test_norm_pdf():
+def test_pdf():
     from numba_stats import norm
 
     x = np.linspace(-5, 5, 10)
@@ -11,7 +11,7 @@ def test_norm_pdf():
     np.testing.assert_allclose(got, expected)
 
 
-def test_norm_logpdf():
+def test_logpdf():
     from numba_stats import norm
 
     x = np.linspace(-5, 5, 10)
@@ -20,7 +20,7 @@ def test_norm_logpdf():
     np.testing.assert_allclose(got, expected)
 
 
-def test_norm_cdf():
+def test_cdf():
     from numba_stats import norm
 
     x = np.linspace(-5, 5, 10)
@@ -29,7 +29,7 @@ def test_norm_cdf():
     np.testing.assert_allclose(got, expected)
 
 
-def test_norm_ppf():
+def test_ppf():
     from numba_stats import norm
 
     p = np.linspace(0, 1, 10)

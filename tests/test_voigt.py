@@ -3,7 +3,7 @@ from numba_stats import voigt
 import numpy as np
 
 
-def test_voigt_pdf():
+def test_pdf():
     gamma = 2
     sigma = 1
     mu = -1
