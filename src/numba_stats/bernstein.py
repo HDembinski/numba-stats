@@ -56,21 +56,22 @@ def _beta_int(beta):
 
 @nb.njit(cache=True)
 def _prepare_z_beta(x, xmin, xmax, beta):
-    inverse_scale = 1 / (xmax - xmin)
-    z = x.copy()
-    z -= xmin
-    z *= inverse_scale
-    # beta = beta.copy()
-    # inverse_scale /= len(beta) + 1
-    # beta *= inverse_scale
+    z = x - xmin
+    z *= 1 / (xmax - xmin)
     return z, beta
 
 
-def _prepare_array(x):
-    x = np.atleast_1d(x)
-    if x.dtype.kind != "f":
-        x = x.astype(np.float64)
-    return x
+@nb.njit(cache=True)
+def _density(x, beta, xmin, xmax, res):
+    z, beta = _prepare_z_beta(x, xmin, xmax, beta)
+    _de_castlejau(z, beta, res)
+
+
+@nb.njit(cache=True)
+def _integral(x, beta, xmin, xmax, res):
+    z, beta = _prepare_z_beta(x, xmin, xmax, beta)
+    beta = _beta_int(beta) * (xmax - xmin)
+    _de_castlejau(z, beta, res)
 
 
 _signatures = [
@@ -80,20 +81,17 @@ _signatures = [
 
 
 @nb.guvectorize(_signatures, "(),(n),(),()->()", cache=True)
-def scaled_pdf(x, beta, xmin, xmax, res):
-    z, beta = _prepare_z_beta(x, xmin, xmax, beta)
-    _de_castlejau(z, beta, res)
+def density(x, beta, xmin, xmax, res):
+    _density(x, beta, xmin, xmax, res)
 
 
 @nb.guvectorize(_signatures, "(),(n),(),()->()", cache=True)
-def scaled_cdf(x, beta, xmin, xmax, res):
-    z, beta = _prepare_z_beta(x, xmin, xmax, beta)
-    beta = _beta_int(beta)
-    _de_castlejau(z, beta, res)
+def integral(x, beta, xmin, xmax, res):
+    _integral(x, beta, xmin, xmax, res)
 
 
-@nb.extending.overload(scaled_pdf)
-def bernstein_scaled_pdf_ol(x, beta, xmin, xmax):
+@nb.extending.overload(density)
+def density_ol(x, beta, xmin, xmax):
     from numba.core.errors import TypingError
     from numba.types import Array, Float
 
@@ -106,17 +104,16 @@ def bernstein_scaled_pdf_ol(x, beta, xmin, xmax):
     if not isinstance(xmax, Float):
         raise TypingError("xmax must be float")
 
-    def impl(x, beta, xmin, xmax):
-        z, beta = _prepare_z_beta(x, xmin, xmax, beta)
-        res = np.empty_like(z)
-        _de_castlejau(z, beta, res)
+    def wrap(x, beta, xmin, xmax):
+        res = np.empty_like(x)
+        _density(x, beta, xmin, xmax, res)
         return res
 
-    return impl
+    return wrap
 
 
-@nb.extending.overload(scaled_cdf)
-def bernstein_scaled_cdf_ol(x, beta, xmin, xmax):
+@nb.extending.overload(integral)
+def integral_ol(x, beta, xmin, xmax):
     from numba.core.errors import TypingError
     from numba.types import Array, Float
 
@@ -129,14 +126,14 @@ def bernstein_scaled_cdf_ol(x, beta, xmin, xmax):
     if not isinstance(xmax, Float):
         raise TypingError("xmax must be float")
 
-    def impl(x, beta, xmin, xmax):
-        z, beta = _prepare_z_beta(x, xmin, xmax, beta)
-        beta = _beta_int(beta)
-        res = np.empty_like(z)
-        _de_castlejau(z, beta, res)
+    def wrap(x, beta, xmin, xmax):
+        res = np.empty_like(x)
+        _integral(x, beta, xmin, xmax, res)
         return res
 
-    return impl
+    return wrap
 
 
-density = scaled_pdf
+# for backward compatibility, avoid in new code
+scaled_pdf = density
+scaled_cdf = integral
