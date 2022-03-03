@@ -106,7 +106,7 @@ def integral(x, beta, xmin, xmax):
 
 
 @nb.extending.overload(density)
-def density_ol(x, beta, xmin, xmax):
+def _density_ol(x, beta, xmin, xmax):
     from numba.core.errors import TypingError
     from numba.types import Array, Float
 
@@ -123,7 +123,7 @@ def density_ol(x, beta, xmin, xmax):
 
 
 @nb.extending.overload(integral)
-def integral_ol(x, beta, xmin, xmax):
+def _integral_ol(x, beta, xmin, xmax):
     from numba.core.errors import TypingError
     from numba.types import Array, Float
 
