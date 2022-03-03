@@ -147,7 +147,7 @@ def __getattr__(key):
     if key in ("scaled_pdf", "scaled_cdf"):
         r = {"scaled_pdf": "density", "scaled_cdf": "integral"}
         warnings.warn(
-            f"bernstein.{key} is deprecated and will be removed in v1.2, "
+            f"bernstein.{key} is deprecated and will be removed in a future release, "
             f"use bernstein.{r[key]} instead",
             VisibleDeprecationWarning,
             1,
