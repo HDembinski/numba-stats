@@ -55,7 +55,7 @@ def _logpdf(x, beta, m, loc, scale):
 @_vectorize(5)
 def logpdf(x, beta, m, loc, scale):
     """
-    Return log probability density.
+    Return log of probability density.
     """
     return _logpdf(x, beta, m, loc, scale)
 
