@@ -38,6 +38,7 @@ The functions are fully vectorised, which means that `mu` and `sigma` can be vec
 * `pdf`
 * `cdf`
 * `ppf`
+
 `logpdf` is only implemented if it is more efficient and accurate compared to computing `log(dist.pdf(...))`. `cdf` and `ppf` are missing for some distributions (e.g. `voigt`), if there is no known way to compute them accurately.
 
 ## Documentation (or lack of)
