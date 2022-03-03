@@ -7,8 +7,9 @@ is allowed to vary between the left and the right side of the peak. There is no
 discontinuity at the maximum or elsewhere.
 """
 
-from .crystalball import _powerlaw_integral, _normal_integral, _density
+from .crystalball import _powerlaw_integral, _normal_integral, _log_density
 from ._util import _vectorize, _jit
+import numpy as np
 
 
 @_jit
@@ -16,25 +17,43 @@ def _norm_half(beta, m, scale):
     return (_normal_integral(0, beta) + _powerlaw_integral(-beta, beta, m)) * scale
 
 
+@_jit
+def _logpdf(x, beta_left, m_left, scale_left, beta_right, m_right, scale_right, loc):
+    if x < loc:
+        inv_scale = 1 / scale_left
+        beta = beta_left
+        m = m_left
+        z = x - loc
+    else:
+        inv_scale = 1 / scale_right
+        beta = beta_right
+        m = m_right
+        z = loc - x
+    z *= inv_scale
+    log_dens = _log_density(z, beta, m)
+    return log_dens - np.log(
+        _norm_half(beta_left, m_left, scale_left)
+        + _norm_half(beta_right, m_right, scale_right)
+    )
+
+
+@_vectorize(8)
+def logpdf(x, beta_left, m_left, scale_left, beta_right, m_right, scale_right, loc):
+    """
+    Return log of probability density.
+    """
+    return _logpdf(
+        x, beta_left, m_left, scale_left, beta_right, m_right, scale_right, loc
+    )
+
+
 @_vectorize(8)
 def pdf(x, beta_left, m_left, scale_left, beta_right, m_right, scale_right, loc):
     """
     Return probability density.
     """
-    if x < loc:
-        scale = scale_left
-        beta = beta_left
-        m = m_left
-        z = (x - loc) / scale
-    else:
-        scale = scale_right
-        beta = beta_right
-        m = m_right
-        z = (loc - x) / scale
-    dens = _density(z, beta, m)
-    return dens / (
-        _norm_half(beta_left, m_left, scale_left)
-        + _norm_half(beta_right, m_right, scale_right)
+    return np.exp(
+        _logpdf(x, beta_left, m_left, scale_left, beta_right, m_right, scale_right, loc)
     )
 
 

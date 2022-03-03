@@ -9,7 +9,7 @@ from numpy.testing import assert_allclose
 @pytest.mark.parametrize("beta", (5, 1, 0.1))
 @pytest.mark.parametrize("m", (1.1, 2, 3))
 def test_powerlaw_integral(beta, m):
-    expected = quad(lambda z: cb._powerlaw(z, beta, m), -np.inf, -beta)[0]
+    expected = quad(lambda z: np.exp(cb._log_powerlaw(z, beta, m)), -np.inf, -beta)[0]
     got = cb._powerlaw_integral(-beta, beta, m)
     assert_allclose(got, expected)
 
@@ -19,6 +19,16 @@ def test_powerlaw_integral(beta, m):
 def test_normal_integral(beta, z):
     expected = quad(lambda z: np.exp(-0.5 * z**2), -beta, z)[0]
     got = cb._normal_integral(-beta, z)
+    assert_allclose(got, expected)
+
+
+@pytest.mark.parametrize("beta", (5, 1, 0.1))
+@pytest.mark.parametrize("m", (1.001, 2, 3))
+def test_logpdf(beta, m):
+    scale = 1.5
+    x = np.linspace(-10, 5, 10)
+    got = cb.logpdf(x, beta, m, 0, scale)
+    expected = sc.crystalball.logpdf(x, beta, m, 0, scale)
     assert_allclose(got, expected)
 
 

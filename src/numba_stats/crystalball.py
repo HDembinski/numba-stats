@@ -13,19 +13,15 @@ from math import erf as _erf
 
 
 @_jit
-def _powerlaw(z, beta, m):
-    assert beta > 0
-    assert m > 0
-    exp_beta = np.exp(-0.5 * beta**2)
-    a = (m / beta) ** m * exp_beta
+def _log_powerlaw(z, beta, m):
+    c = -0.5 * beta * beta
+    log_a = m * np.log(m / beta) + c
     b = m / beta - beta
-    return a * (b - z) ** -m
+    return log_a - m * np.log(b - z)
 
 
 @_jit
 def _powerlaw_integral(z, beta, m):
-    assert beta > 0
-    assert m > 1
     exp_beta = np.exp(-0.5 * beta**2)
     a = (m / beta) ** m * exp_beta
     b = m / beta - beta
@@ -40,10 +36,28 @@ def _normal_integral(a, b):
 
 
 @_jit
-def _density(z, beta, m):
-    if z <= -beta:
-        return _powerlaw(z, beta, m)
-    return np.exp(-0.5 * z**2)
+def _log_density(z, beta, m):
+    if z < -beta:
+        return _log_powerlaw(z, beta, m)
+    return -0.5 * z**2
+
+
+@_jit
+def _logpdf(x, beta, m, loc, scale):
+    z = (x - loc) / scale
+    log_dens = _log_density(z, beta, m)
+    norm = scale * (
+        _powerlaw_integral(-beta, beta, m) + _normal_integral(-beta, np.inf)
+    )
+    return log_dens - np.log(norm)
+
+
+@_vectorize(5)
+def logpdf(x, beta, m, loc, scale):
+    """
+    Return log of probability density.
+    """
+    return _logpdf(x, beta, m, loc, scale)
 
 
 @_vectorize(5)
@@ -51,12 +65,7 @@ def pdf(x, beta, m, loc, scale):
     """
     Return probability density.
     """
-    z = (x - loc) / scale
-    dens = _density(z, beta, m)
-    norm = scale * (
-        _powerlaw_integral(-beta, beta, m) + _normal_integral(-beta, np.inf)
-    )
-    return dens / norm
+    return np.exp(_logpdf(x, beta, m, loc, scale))
 
 
 @_vectorize(5)
@@ -66,6 +75,6 @@ def cdf(x, beta, m, loc, scale):
     """
     z = (x - loc) / scale
     norm = _powerlaw_integral(-beta, beta, m) + _normal_integral(-beta, np.inf)
-    if z <= -beta:
+    if z < -beta:
         return _powerlaw_integral(z, beta, m) / norm
     return (_powerlaw_integral(-beta, beta, m) + _normal_integral(-beta, z)) / norm
