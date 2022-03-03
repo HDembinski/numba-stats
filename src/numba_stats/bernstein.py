@@ -5,8 +5,11 @@ The Bernstein polynomial basis is better suited to model a probability distribut
 than the Chebychev basis, since it is possible to implement the constraint
 f(x; p) >= 0 with simple parameter limits p >= 0 (where p is a vector).
 
-The density function and its integral are not normalised. This is not an issue when
-the density is used in an extended maximum-likelihood fit.
+The density function and its integral are not normalised. Normalising would create
+several issues while providing no practical benefit. Use this function in an extended
+maximum-likelihood fit and do not multiply it with a scale. The scale is implicit in the
+parameter vector beta. If you really need to know the scale after the fit (usually you
+do not), use :func:`integral` to compute it.
 """
 
 import numpy as np
@@ -92,6 +95,31 @@ def _normalize(x):
 
 
 def density(x, beta, xmin, xmax):
+    """
+    Return density described by a Bernstein polynomial.
+
+    The function is non-negative, if each element of the parameter vector beta is non-
+    negative, see module description.
+
+    This function is by design equivalent to
+    ``scipy.interpolate.BPoly(np.array(beta)[:, np.newaxis], [x[0], x[-1]])(x)``.
+
+    Parameters
+    ----------
+    x : ArrayLike
+        Values where the density is evaluated.
+    beta : ArrayLike
+        Vector of parameters (1D).
+    xmin : float
+        Lower edge of the domain of x.
+    xmax : float
+        Upper edge of the domain of x.
+
+    Returns
+    -------
+    ndarray
+        Function values.
+    """
     r = _density(_normalize(x), _normalize(beta), xmin, xmax)
     if np.ndim(x) == 0:
         return np.squeeze(r)
@@ -99,6 +127,25 @@ def density(x, beta, xmin, xmax):
 
 
 def integral(x, beta, xmin, xmax):
+    """
+    Return integral of a Bernstein polynomial from xmin to x.
+
+    Parameters
+    ----------
+    x : ArrayLike
+        Values up to which the integral is computed, starting from xmin.
+    beta : ArrayLike
+        Vector of parameters (1D).
+    xmin : float
+        Lower edge of the domain of x.
+    xmax : float
+        Upper edge of the domain of x.
+
+    Returns
+    -------
+    ndarray
+        Integral values.
+    """
     r = _integral(_normalize(x), _normalize(beta), xmin, xmax)
     if np.ndim(x) == 0:
         return np.squeeze(r)
