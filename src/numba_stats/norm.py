@@ -9,7 +9,7 @@ from math import erf as _erf
 
 @_jit
 def _logpdf(z):
-    return -0.5 * (z ** 2 + np.log(2 * np.pi))
+    return -0.5 * (z**2 + np.log(2 * np.pi))
 
 
 @_jit

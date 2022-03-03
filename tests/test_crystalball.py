@@ -17,7 +17,7 @@ def test_powerlaw_integral(beta, m):
 @pytest.mark.parametrize("beta", (5, 1, 0.1))
 @pytest.mark.parametrize("z", (0, 1, 10, np.inf))
 def test_normal_integral(beta, z):
-    expected = quad(lambda z: np.exp(-0.5 * z ** 2), -beta, z)[0]
+    expected = quad(lambda z: np.exp(-0.5 * z**2), -beta, z)[0]
     got = cb._normal_integral(-beta, z)
     assert_allclose(got, expected)
 

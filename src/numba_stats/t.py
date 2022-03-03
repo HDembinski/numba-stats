@@ -15,7 +15,7 @@ def logpdf(x, df, loc, scale):
     z = (x - loc) / scale
     k = 0.5 * (df + 1)
     logp = _lgamma(k) - _lgamma(0.5 * df)
-    logp -= 0.5 * np.log(df * np.pi) + k * np.log(1 + (z ** 2) / df) + np.log(scale)
+    logp -= 0.5 * np.log(df * np.pi) + k * np.log(1 + (z**2) / df) + np.log(scale)
     return logp
 
 
