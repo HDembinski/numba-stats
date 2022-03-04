@@ -13,10 +13,10 @@ https://en.wikipedia.org/wiki/Q-Gaussian_distribution
 import numpy as np
 from math import lgamma as _lgamma
 from . import norm as _norm, t as _t
-from ._util import _jit, _vectorize
+from ._util import _jit, _cast
 
 
-@_jit
+@_jit(-2)
 def _qexp(x, q):
     if q == 1:
         return np.exp(x)
@@ -28,7 +28,7 @@ def _qexp(x, q):
     return np.exp(le)
 
 
-@_jit
+@_jit(-1)
 def _compute_cq(q):
     # beta = 1/2 for equivalence with normal distribution for q = 1
     const = np.sqrt(2 * np.pi)
@@ -51,7 +51,7 @@ def _compute_cq(q):
     return np.nan
 
 
-@_jit
+@_jit(-2)
 def _df_sigma(q, sigma):
     # https://en.wikipedia.org/wiki/Q-Gaussian_distribution
     # relation to Student's t-distribution
@@ -66,20 +66,24 @@ def _df_sigma(q, sigma):
     return df, sigma
 
 
-@_vectorize(4)
-def pdf(x, q, mu, sigma):
+@_jit(3)
+def _pdf(x, q, mu, sigma):
     inv_scale = 1.0 / sigma
     z = (x - mu) * inv_scale
     c_q = _compute_cq(q)
     inv_scale /= c_q
     # beta = 1/2 for equivalence with normal distribution for q = 1
     if q == 1.0:
-        return np.exp(-0.5 * z**2) * inv_scale
-    return _qexp(-0.5 * z**2, q) * inv_scale
+        for i, zi in enumerate(z):
+            z[i] = np.exp(-0.5 * zi**2) * inv_scale
+    else:
+        for i, zi in enumerate(z):
+            z[i] = _qexp(-0.5 * zi**2, q) * inv_scale
+    return z
 
 
-@_vectorize(4, cache=False)
-def cdf(x, q, mu, sigma):
+@_jit(3, cache=False)
+def _cdf(x, q, mu, sigma):
     if q < 1 or q > 3:
         raise ValueError("q < 1 or q > 3 are not supported")
 
@@ -91,8 +95,8 @@ def cdf(x, q, mu, sigma):
     return _t.cdf(x, df, mu, sigma)
 
 
-@_vectorize(4, cache=False)
-def ppf(x, q, mu, sigma):
+@_jit(3, cache=False)
+def _ppf(x, q, mu, sigma):
     if q < 1 or q > 3:
         raise ValueError("q < 1 or q > 3 are not supported")
 
@@ -102,3 +106,15 @@ def ppf(x, q, mu, sigma):
     df, sigma = _df_sigma(q, sigma)
 
     return _t.ppf(x, df, mu, sigma)
+
+
+def pdf(x, q, mu, sigma):
+    return _pdf(_cast(x), q, mu, sigma)
+
+
+def cdf(x, q, mu, sigma):
+    return _cdf(_cast(x), q, mu, sigma)
+
+
+def ppf(p, q, mu, sigma):
+    return _ppf(_cast(p), q, mu, sigma)

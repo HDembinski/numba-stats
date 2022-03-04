@@ -1,6 +1,6 @@
 import numba as nb
 import functools
-from typing import Callable
+import numpy as np
 
 
 def _vectorize(narg, cache=True, **kwargs):
@@ -21,14 +21,51 @@ def _vectorize(narg, cache=True, **kwargs):
     return outer
 
 
-def _jit(*args, **kwargs):
+def _jit(narg, cache=True, **kwargs):
     if "error_model" not in kwargs:
         kwargs["error_model"] = "numpy"
 
-    if len(args) == 1 and isinstance(args[0], Callable):
-        return nb.njit(**kwargs)(args[0])
+    if "cache" not in kwargs:
+        kwargs["cache"] = cache
 
-    def outer(func):
-        return nb.njit(**kwargs)(func)
+    return nb.njit(**kwargs)
 
-    return outer
+    signatures = []
+    for arg in (nb.float32, nb.float64):
+        if narg < 0:
+            sig = arg(*([arg] * -narg))
+        elif narg == 0:
+            sig = arg[:](arg[:])
+        else:
+            sig = arg[:](arg[:], *([arg] * narg))
+        signatures.append(sig)
+
+    return nb.njit(signatures, **kwargs)
+
+
+def _cast(x):
+    x = np.atleast_1d(x)
+    if x.dtype.kind != "f":
+        return x.astype(float)
+    return x
+
+
+@_jit(2)
+def _trans(x, loc, scale):
+    inv_scale = 1 / scale
+    return (x - loc) * inv_scale
+
+
+def _type_check(fn, *types):
+    import inspect
+    from numba.core.errors import TypingError
+    from numba.types import Array, Number
+
+    signature = inspect.signature(fn)
+    for i, (tp, par) in enumerate(zip(types, signature.parameters)):
+        if i == 0:
+            if not isinstance(tp, Array):
+                raise TypingError(f"{par} must be an array")
+        else:
+            if not isinstance(tp, Number):
+                raise TypingError(f"{par} must be number")

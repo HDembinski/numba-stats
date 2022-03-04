@@ -3,69 +3,84 @@ Truncated normal distribution.
 """
 
 import numpy as np
-from .norm import _logpdf as _norm_logpdf, _cdf, _ppf
-from ._util import _jit, _vectorize
+from . import norm as _norm
+from ._util import _jit, _cast
 
 
-@_jit
-def _logpdf(z, zmin, zmax):
-    if z < zmin or z > zmax:
-        return -np.inf
-    return _norm_logpdf(z) - np.log(_cdf(zmax) - _cdf(zmin))
+@_jit(4)
+def _logpdf(x, xmin, xmax, loc, scale):
+    scale_inv = 1 / scale
+    z = (x - loc) * scale_inv
+    zmin = (xmin - loc) * scale_inv
+    zmax = (xmax - loc) * scale_inv
+    scale *= _norm._cdfz(zmax) - _norm._cdfz(zmin)
+    for i, zi in enumerate(z):
+        if zmin <= zi < zmax:
+            z[i] = _norm._logpdfz(zi) - np.log(scale)
+        else:
+            z[i] = -np.inf
+    return z
 
 
-@_vectorize(5)
+@_jit(4)
+def _pdf(x, xmin, xmax, loc, scale):
+    return np.exp(_logpdf(x, xmin, xmax, loc, scale))
+
+
+@_jit(4)
+def _cdf(x, xmin, xmax, loc, scale):
+    scale_inv = 1 / scale
+    r = (x - loc) * scale_inv
+    zmin = (xmin - loc) * scale_inv
+    zmax = (xmax - loc) * scale_inv
+    pmin = _norm._cdfz(zmin)
+    pmax = _norm._cdfz(zmax)
+    for i, ri in enumerate(r):
+        if zmin <= ri < zmax:
+            r[i] = (_norm._cdfz(ri) - pmin) / (pmax - pmin)
+        elif ri < zmin:
+            r[i] = 0.0
+        else:
+            r[i] = 1.0
+    return r
+
+
+@_jit(4, cache=False)
+def _ppf(p, xmin, xmax, loc, scale):
+    scale_inv = 1 / scale
+    zmin = (xmin - loc) * scale_inv
+    zmax = (xmax - loc) * scale_inv
+    pmin = _norm._cdfz(zmin)
+    pmax = _norm._cdfz(zmax)
+    r = p * (pmax - pmin) + pmin
+    for i, ri in enumerate(r):
+        r[i] = scale * _norm._ppfz(ri) + loc
+    return r
+
+
 def logpdf(x, xmin, xmax, loc, scale):
     """
     Return log of probability density.
     """
-    scale_inv = 1 / scale
-    z = (x - loc) * scale_inv
-    zmin = (xmin - loc) * scale_inv
-    zmax = (xmax - loc) * scale_inv
-    return _logpdf(z, zmin, zmax) + np.log(scale_inv)
+    return _logpdf(_cast(x), xmin, xmax, loc, scale)
 
 
-@_vectorize(5)
 def pdf(x, xmin, xmax, loc, scale):
     """
     Return probability density.
     """
-    scale_inv = 1 / scale
-    z = (x - loc) * scale_inv
-    zmin = (xmin - loc) * scale_inv
-    zmax = (xmax - loc) * scale_inv
-    return np.exp(_logpdf(z, zmin, zmax)) * scale_inv
+    return _pdf(_cast(x), xmin, xmax, loc, scale)
 
 
-@_vectorize(5)
 def cdf(x, xmin, xmax, loc, scale):
     """
     Return cumulative probability.
     """
-    if x < xmin:
-        return 0.0
-    elif x > xmax:
-        return 1.0
-    scale_inv = 1 / scale
-    z = (x - loc) * scale_inv
-    zmin = (xmin - loc) * scale_inv
-    zmax = (xmax - loc) * scale_inv
-    pmin = _cdf(zmin)
-    pmax = _cdf(zmax)
-    return (_cdf(z) - pmin) / (pmax - pmin)
+    return _cdf(_cast(x), xmin, xmax, loc, scale)
 
 
-@_vectorize(5, cache=False)
 def ppf(p, xmin, xmax, loc, scale):
     """
     Return quantile for given probability.
     """
-    scale_inv = 1 / scale
-    zmin = (xmin - loc) * scale_inv
-    zmax = (xmax - loc) * scale_inv
-    pmin = _cdf(zmin)
-    pmax = _cdf(zmax)
-    pstar = p * (pmax - pmin) + pmin
-    z = _ppf(pstar)
-    return scale * z + loc
+    return _ppf(_cast(p), xmin, xmax, loc, scale)

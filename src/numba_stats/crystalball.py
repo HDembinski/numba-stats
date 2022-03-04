@@ -12,7 +12,7 @@ import numpy as np
 from math import erf as _erf
 
 
-@_jit
+@_jit(2)
 def _log_powerlaw(z, beta, m):
     c = -0.5 * beta * beta
     log_a = m * np.log(m / beta) + c
@@ -20,7 +20,7 @@ def _log_powerlaw(z, beta, m):
     return log_a - m * np.log(b - z)
 
 
-@_jit
+@_jit(2)
 def _powerlaw_integral(z, beta, m):
     exp_beta = np.exp(-0.5 * beta**2)
     a = (m / beta) ** m * exp_beta
@@ -29,20 +29,20 @@ def _powerlaw_integral(z, beta, m):
     return a * (b - z) ** -m1 / m1
 
 
-@_jit
+@_jit(-2)
 def _normal_integral(a, b):
     sqrt_half = np.sqrt(0.5)
     return sqrt_half * np.sqrt(np.pi) * (_erf(b * sqrt_half) - _erf(a * sqrt_half))
 
 
-@_jit
+@_jit(2)
 def _log_density(z, beta, m):
     if z < -beta:
         return _log_powerlaw(z, beta, m)
     return -0.5 * z**2
 
 
-@_jit
+@_jit(4)
 def _logpdf(x, beta, m, loc, scale):
     z = (x - loc) / scale
     log_dens = _log_density(z, beta, m)

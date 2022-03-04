@@ -14,6 +14,7 @@ do not), use :func:`integral` to compute it.
 
 import numpy as np
 import numba as nb
+from ._util import _cast
 
 
 _signatures = [
@@ -87,13 +88,6 @@ def _integral(x, beta, xmin, xmax):
     return res
 
 
-def _normalize(x):
-    x = np.atleast_1d(x)
-    if x.dtype.kind != "f":
-        return x.astype(float)
-    return x
-
-
 def density(x, beta, xmin, xmax):
     """
     Return density described by a Bernstein polynomial.
@@ -120,7 +114,7 @@ def density(x, beta, xmin, xmax):
     ndarray
         Function values.
     """
-    r = _density(_normalize(x), _normalize(beta), xmin, xmax)
+    r = _density(_cast(x), _cast(beta), xmin, xmax)
     if np.ndim(x) == 0:
         return np.squeeze(r)
     return r
@@ -146,7 +140,7 @@ def integral(x, beta, xmin, xmax):
     ndarray
         Integral values.
     """
-    r = _integral(_normalize(x), _normalize(beta), xmin, xmax)
+    r = _integral(_cast(x), _cast(beta), xmin, xmax)
     if np.ndim(x) == 0:
         return np.squeeze(r)
     return r
