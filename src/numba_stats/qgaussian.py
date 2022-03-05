@@ -11,6 +11,7 @@ https://en.wikipedia.org/wiki/Q-Gaussian_distribution
 """
 
 import numpy as np
+import numba as nb
 from math import lgamma as _lgamma
 from . import norm as _norm, t as _t
 from ._util import _jit, _cast
@@ -51,7 +52,7 @@ def _compute_cq(q):
     return np.nan
 
 
-@_jit(-2)
+@nb.njit
 def _df_sigma(q, sigma):
     # https://en.wikipedia.org/wiki/Q-Gaussian_distribution
     # relation to Student's t-distribution
@@ -59,26 +60,27 @@ def _df_sigma(q, sigma):
     # 1/(2 sigma^2) = 1 / (3 - q)
     # 2 sigma^2 = 3 - q
     # sigma = sqrt((3 - q)/2)
-
-    df = (3 - q) / (q - 1)
-    sigma /= np.sqrt(0.5 * (3 - q))
+    T = type(q)
+    df = (T(3) - q) / (q - T(1))
+    sigma /= np.sqrt(T(0.5) * (T(3) - q))
 
     return df, sigma
 
 
 @_jit(3)
 def _pdf(x, q, mu, sigma):
-    inv_scale = 1.0 / sigma
-    z = (x - mu) * inv_scale
+    T = type(q)
+    scale2 = T(1) / sigma
+    z = (x - mu) * scale2
     c_q = _compute_cq(q)
-    inv_scale /= c_q
+    scale2 /= c_q
     # beta = 1/2 for equivalence with normal distribution for q = 1
-    if q == 1.0:
+    if q == 1:
         for i, zi in enumerate(z):
-            z[i] = np.exp(-0.5 * zi**2) * inv_scale
+            z[i] = np.exp(-T(0.5) * zi * zi) * scale2
     else:
         for i, zi in enumerate(z):
-            z[i] = _qexp(-0.5 * zi**2, q) * inv_scale
+            z[i] = _qexp(-T(0.5) * zi * zi, q) * scale2
     return z
 
 
@@ -88,11 +90,11 @@ def _cdf(x, q, mu, sigma):
         raise ValueError("q < 1 or q > 3 are not supported")
 
     if q == 1:
-        return _norm.cdf(x, mu, sigma)
+        return _norm._cdf(x, mu, sigma)
 
     df, sigma = _df_sigma(q, sigma)
 
-    return _t.cdf(x, df, mu, sigma)
+    return _t._cdf(x, df, mu, sigma)
 
 
 @_jit(3, cache=False)
@@ -101,11 +103,11 @@ def _ppf(x, q, mu, sigma):
         raise ValueError("q < 1 or q > 3 are not supported")
 
     if q == 1:
-        return _norm.ppf(x, mu, sigma)
+        return _norm._ppf(x, mu, sigma)
 
     df, sigma = _df_sigma(q, sigma)
 
-    return _t.ppf(x, df, mu, sigma)
+    return _t._ppf(x, df, mu, sigma)
 
 
 def pdf(x, q, mu, sigma):

@@ -1,46 +1,24 @@
 import numba as nb
-import functools
 import numpy as np
 
-
-def _vectorize(narg, cache=True, **kwargs):
-    def outer(func):
-        if "cache" not in kwargs:
-            kwargs["cache"] = cache
-        # if "error_model" not in kwargs:
-        #     kwargs["error_model"] = "numpy"
-
-        signatures = [arg(*([arg] * narg)) for arg in (nb.float32, nb.float64)]
-
-        wrapped = nb.vectorize(signatures, **kwargs)(func)
-        # this does not help with the docs, unfortunately
-        functools.update_wrapper(wrapped, func)
-
-        return wrapped
-
-    return outer
+_Floats = (nb.float32, nb.float64)
 
 
-def _jit(narg, cache=True, **kwargs):
-    if "error_model" not in kwargs:
-        kwargs["error_model"] = "numpy"
-
-    if "cache" not in kwargs:
-        kwargs["cache"] = cache
-
-    return nb.njit(**kwargs)
+def _jit(arg, cache=True):
+    if isinstance(arg, list):
+        return nb.njit(arg, cache=cache, error_model="numpy")
 
     signatures = []
-    for arg in (nb.float32, nb.float64):
-        if narg < 0:
-            sig = arg(*([arg] * -narg))
-        elif narg == 0:
-            sig = arg[:](arg[:])
+    for T in (nb.float32, nb.float64):
+        if arg < 0:
+            sig = T(*([T] * -arg))
+        elif arg == 0:
+            sig = T[:](T[:])
         else:
-            sig = arg[:](arg[:], *([arg] * narg))
+            sig = T[:](T[:], *([T] * arg))
         signatures.append(sig)
 
-    return nb.njit(signatures, **kwargs)
+    return nb.njit(signatures, cache=cache, error_model="numpy")
 
 
 def _cast(x):
@@ -52,7 +30,7 @@ def _cast(x):
 
 @_jit(2)
 def _trans(x, loc, scale):
-    inv_scale = 1 / scale
+    inv_scale = type(scale)(1) / scale
     return (x - loc) * inv_scale
 
 

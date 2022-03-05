@@ -7,52 +7,73 @@ a power-law tail.
 https://en.wikipedia.org/wiki/Crystal_Ball_function
 """
 
-from ._util import _jit, _vectorize
+from ._util import _jit, _trans
 import numpy as np
 from math import erf as _erf
 
 
-@_jit(2)
+@_jit(-3)
 def _log_powerlaw(z, beta, m):
-    c = -0.5 * beta * beta
+    c = -type(beta)(0.5) * beta * beta
     log_a = m * np.log(m / beta) + c
     b = m / beta - beta
     return log_a - m * np.log(b - z)
 
 
-@_jit(2)
+@_jit(-3)
 def _powerlaw_integral(z, beta, m):
-    exp_beta = np.exp(-0.5 * beta**2)
+    exp_beta = np.exp(-type(beta)(0.5) * beta * beta)
     a = (m / beta) ** m * exp_beta
     b = m / beta - beta
-    m1 = m - 1
+    m1 = m - type(m)(1)
     return a * (b - z) ** -m1 / m1
 
 
 @_jit(-2)
 def _normal_integral(a, b):
-    sqrt_half = np.sqrt(0.5)
-    return sqrt_half * np.sqrt(np.pi) * (_erf(b * sqrt_half) - _erf(a * sqrt_half))
+    sqrt_half = np.sqrt(type(a)(0.5))
+    return (
+        sqrt_half
+        * np.sqrt(type(a)(np.pi))
+        * (_erf(b * sqrt_half) - _erf(a * sqrt_half))
+    )
 
 
-@_jit(2)
+@_jit(-3)
 def _log_density(z, beta, m):
     if z < -beta:
         return _log_powerlaw(z, beta, m)
-    return -0.5 * z**2
+    return -0.5 * z * z
 
 
 @_jit(4)
 def _logpdf(x, beta, m, loc, scale):
-    z = (x - loc) / scale
-    log_dens = _log_density(z, beta, m)
+    z = _trans(x, loc, scale)
     norm = scale * (
-        _powerlaw_integral(-beta, beta, m) + _normal_integral(-beta, np.inf)
+        _powerlaw_integral(-beta, beta, m) + _normal_integral(-beta, type(beta)(np.inf))
     )
-    return log_dens - np.log(norm)
+    c = np.log(norm)
+    for i, zi in enumerate(z):
+        z[i] = _log_density(zi, beta, m) - c
+    return z
 
 
-@_vectorize(5)
+@_jit(4)
+def _cdf(x, beta, m, loc, scale):
+    z = _trans(x, loc, scale)
+    norm = _powerlaw_integral(-beta, beta, m) + _normal_integral(
+        -beta, type(beta)(np.inf)
+    )
+    for i, zi in enumerate(z):
+        if zi < -beta:
+            z[i] = _powerlaw_integral(zi, beta, m) / norm
+        else:
+            z[i] = (
+                _powerlaw_integral(-beta, beta, m) + _normal_integral(-beta, zi)
+            ) / norm
+    return z
+
+
 def logpdf(x, beta, m, loc, scale):
     """
     Return log of probability density.
@@ -60,7 +81,6 @@ def logpdf(x, beta, m, loc, scale):
     return _logpdf(x, beta, m, loc, scale)
 
 
-@_vectorize(5)
 def pdf(x, beta, m, loc, scale):
     """
     Return probability density.
@@ -68,13 +88,8 @@ def pdf(x, beta, m, loc, scale):
     return np.exp(_logpdf(x, beta, m, loc, scale))
 
 
-@_vectorize(5)
 def cdf(x, beta, m, loc, scale):
     """
     Return cumulative probability.
     """
-    z = (x - loc) / scale
-    norm = _powerlaw_integral(-beta, beta, m) + _normal_integral(-beta, np.inf)
-    if z < -beta:
-        return _powerlaw_integral(z, beta, m) / norm
-    return (_powerlaw_integral(-beta, beta, m) + _normal_integral(-beta, z)) / norm
+    return _cdf(x, beta, m, loc, scale)

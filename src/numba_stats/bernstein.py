@@ -14,40 +14,35 @@ do not), use :func:`integral` to compute it.
 
 import numpy as np
 import numba as nb
-from ._util import _cast
+from ._util import _cast, _jit
 
 
 _signatures = [
-    (nb.float32[:], nb.float32[:], nb.float32[:]),
-    (nb.float64[:], nb.float64[:], nb.float64[:]),
+    nb.float32[:](nb.float32[:], nb.float32[:]),
+    nb.float64[:](nb.float64[:], nb.float64[:]),
 ]
 
 
-@nb.njit(_signatures, cache=True)
-def _de_castlejau(z, beta, res):
+@_jit(_signatures)
+def _de_castlejau(z, beta):
     # De Casteljau algorithm, numerically stable
     n = len(beta)
+    res = np.empty_like(z)
     if n == 0:
         res[:] = np.nan
     else:
         betai = np.empty_like(beta)
-        for iz, zi in enumerate(z):
+        for i, zi in enumerate(z):
             azi = 1.0 - zi
             betai[:] = beta
             for j in range(1, n):
                 for k in range(n - j):
                     betai[k] = betai[k] * azi + betai[k + 1] * zi
-            res[iz] = betai[0]
+            res[i] = betai[0]
     return res
 
 
-_signatures = [
-    nb.float32[:](nb.float32[:]),
-    nb.float64[:](nb.float64[:]),
-]
-
-
-@nb.njit(_signatures, cache=True)
+@_jit(0)
 def _beta_int(beta):
     n = len(beta)
     r = np.zeros(n + 1, dtype=beta.dtype)
@@ -58,11 +53,10 @@ def _beta_int(beta):
     return r
 
 
-@nb.njit(cache=True)
-def _prepare_z_beta(x, xmin, xmax, beta):
-    z = x - xmin
-    z *= 1 / (xmax - xmin)
-    return z, beta
+@_jit(2)
+def _trans(x, xmin, xmax):
+    scale = type(xmin)(1) / (xmax - xmin)
+    return (x - xmin) * scale
 
 
 _signatures = [
@@ -71,21 +65,17 @@ _signatures = [
 ]
 
 
-@nb.njit(_signatures, cache=True)
+@_jit(_signatures)
 def _density(x, beta, xmin, xmax):
-    z, beta = _prepare_z_beta(x, xmin, xmax, beta)
-    res = np.empty_like(x)
-    _de_castlejau(z, beta, res)
-    return res
+    z = _trans(x, xmin, xmax)
+    return _de_castlejau(z, beta)
 
 
-@nb.njit(_signatures, cache=True)
+@_jit(_signatures, cache=True)
 def _integral(x, beta, xmin, xmax):
-    z, beta = _prepare_z_beta(x, xmin, xmax, beta)
+    z = _trans(x, xmin, xmax)
     beta = _beta_int(beta) * (xmax - xmin)
-    res = np.empty_like(x)
-    _de_castlejau(z, beta, res)
-    return res
+    return _de_castlejau(z, beta)
 
 
 def density(x, beta, xmin, xmax):

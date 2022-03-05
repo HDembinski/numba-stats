@@ -2,48 +2,69 @@
 Student's t distribution.
 """
 import numpy as np
-from ._special import stdtr as _cdf, stdtrit as _ppf
-from ._util import _vectorize
+from ._special import stdtr as _stdtr, stdtrit as _stdtrit
+from ._util import _jit, _trans
 from math import lgamma as _lgamma
 
 
-@_vectorize(4, cache=False)
+@_jit(3, cache=False)
+def _logpdf(x, df, loc, scale):
+    T = type(df)
+    z = _trans(x, loc, scale)
+    k = T(0.5) * (df + T(1))
+    c = _lgamma(k) - _lgamma(T(0.5) * df)
+    c -= T(0.5) * np.log(df * T(np.pi))
+    c += np.log(scale)
+    for i, zi in enumerate(z):
+        z[i] = -k * np.log(T(1) + (zi * zi) / df) + c
+    return z
+
+
+@_jit(3, cache=False)
+def _cdf(x, df, loc, scale):
+    z = _trans(x, loc, scale)
+    for i, zi in enumerate(z):
+        z[i] = _stdtr(df, zi)
+    return z
+
+
+@_jit(3, cache=False)
+def _ppf(p, df, loc, scale):
+    T = type(df)
+    r = np.empty_like(p)
+    for i, pi in enumerate(p):
+        if pi == 0:
+            r[i] = -T(np.inf)
+        elif pi == 1:
+            r[i] = T(np.inf)
+        else:
+            r[i] = scale * _stdtrit(df, pi) + loc
+    return r
+
+
 def logpdf(x, df, loc, scale):
     """
     Return probability density.
     """
-    z = (x - loc) / scale
-    k = 0.5 * (df + 1)
-    logp = _lgamma(k) - _lgamma(0.5 * df)
-    logp -= 0.5 * np.log(df * np.pi) + k * np.log(1 + (z**2) / df) + np.log(scale)
-    return logp
+    return _logpdf(x, df, loc, scale)
 
 
-@_vectorize(4, cache=False)
 def pdf(x, df, loc, scale):
     """
     Return probability density.
     """
-    return np.exp(logpdf(x, df, loc, scale))
+    return np.exp(_logpdf(x, df, loc, scale))
 
 
-@_vectorize(4, cache=False)
 def cdf(x, df, loc, scale):
     """
     Return cumulative probability.
     """
-    z = (x - loc) / scale
-    return _cdf(df, z)
+    return _cdf(x, df, loc, scale)
 
 
-@_vectorize(4, cache=False)
 def ppf(p, df, loc, scale):
     """
     Return quantile for given probability.
     """
-    if p == 0:
-        return -np.inf
-    elif p == 1:
-        return np.inf
-    z = _ppf(df, p)
-    return scale * z + loc
+    return _ppf(p, df, loc, scale)

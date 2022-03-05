@@ -10,12 +10,20 @@ https://en.wikipedia.org/wiki/Voigt_profile
 """
 
 from ._special import voigt_profile as _voigt
-from ._util import _vectorize
+from ._util import _jit
+import numpy as np
 
 
-@_vectorize(4, cache=False)
+@_jit(3, cache=False)
+def _pdf(x, gamma, loc, scale):
+    r = np.empty_like(x)
+    for i, xi in enumerate(x):
+        r[i] = _voigt(xi - loc, scale, gamma)
+    return r
+
+
 def pdf(x, gamma, loc, scale):
     """
     Return probability density.
     """
-    return _voigt(x - loc, scale, gamma)
+    return _pdf(x, gamma, loc, scale)

@@ -2,15 +2,23 @@
 Continuous Poisson distribution.
 """
 from ._special import gammaincc as _gammaincc
-from ._util import _vectorize
+from ._util import _jit, _cast
+import numpy as np
 
 
-@_vectorize(2, cache=False)
+@_jit(1, cache=False)
+def _cdf(x, mu):
+    r = np.empty_like(x)
+    for i, xi in enumerate(x):
+        r[i] = _gammaincc(xi + type(xi)(1), mu)
+    return r
+
+
 def cdf(x, mu):
     """
     Return cumulative probability.
     """
-    return _gammaincc(x + 1, mu)
+    return _cdf(_cast(x), mu)
 
 
 # The pdf, d cdf(x, mu)/ dx, cannot be expressed in tabulated functions:

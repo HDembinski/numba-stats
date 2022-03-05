@@ -9,10 +9,10 @@ from ._util import _jit, _cast
 
 @_jit(4)
 def _logpdf(x, xmin, xmax, loc, scale):
-    scale_inv = 1 / scale
-    z = (x - loc) * scale_inv
-    zmin = (xmin - loc) * scale_inv
-    zmax = (xmax - loc) * scale_inv
+    scale2 = type(scale)(1) / scale
+    z = (x - loc) * scale2
+    zmin = (xmin - loc) * scale2
+    zmax = (xmax - loc) * scale2
     scale *= _norm._cdfz(zmax) - _norm._cdfz(zmin)
     for i, zi in enumerate(z):
         if zmin <= zi < zmax:
@@ -29,10 +29,10 @@ def _pdf(x, xmin, xmax, loc, scale):
 
 @_jit(4)
 def _cdf(x, xmin, xmax, loc, scale):
-    scale_inv = 1 / scale
-    r = (x - loc) * scale_inv
-    zmin = (xmin - loc) * scale_inv
-    zmax = (xmax - loc) * scale_inv
+    scale = type(scale)(1) / scale
+    r = (x - loc) * scale
+    zmin = (xmin - loc) * scale
+    zmax = (xmax - loc) * scale
     pmin = _norm._cdfz(zmin)
     pmax = _norm._cdfz(zmax)
     for i, ri in enumerate(r):
@@ -47,9 +47,9 @@ def _cdf(x, xmin, xmax, loc, scale):
 
 @_jit(4, cache=False)
 def _ppf(p, xmin, xmax, loc, scale):
-    scale_inv = 1 / scale
-    zmin = (xmin - loc) * scale_inv
-    zmax = (xmax - loc) * scale_inv
+    scale2 = type(scale)(1) / scale
+    zmin = (xmin - loc) * scale2
+    zmax = (xmax - loc) * scale2
     pmin = _norm._cdfz(zmin)
     pmax = _norm._cdfz(zmax)
     r = p * (pmax - pmin) + pmin
