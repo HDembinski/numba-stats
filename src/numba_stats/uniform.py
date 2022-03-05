@@ -9,7 +9,7 @@ import numpy as np
 def _logpdf(x, a, w):
     r = np.empty_like(x)
     for i, xi in enumerate(x):
-        if a <= x <= a + w:
+        if a <= xi <= a + w:
             r[i] = -np.log(w)
         else:
             r[i] = -np.inf
@@ -23,8 +23,10 @@ def _cdf(x, a, w):
         if a <= xi:
             if xi <= a + w:
                 r[i] = (xi - a) / w
-            r[i] = 1
-        r[i] = 0
+            else:
+                r[i] = 1
+        else:
+            r[i] = 0
     return r
 
 
