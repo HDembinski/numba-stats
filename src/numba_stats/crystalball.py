@@ -7,7 +7,7 @@ a power-law tail.
 https://en.wikipedia.org/wiki/Crystal_Ball_function
 """
 
-from ._util import _jit, _trans, _wrap
+from ._util import _jit, _trans
 import numpy as np
 from math import erf as _erf
 
@@ -47,7 +47,10 @@ def _log_density(z, beta, m):
 
 
 @_jit(4)
-def _logpdf(x, beta, m, loc, scale):
+def logpdf(x, beta, m, loc, scale):
+    """
+    Return log of probability density.
+    """
     z = _trans(x, loc, scale)
     norm = scale * (
         _powerlaw_integral(-beta, beta, m) + _normal_integral(-beta, type(beta)(np.inf))
@@ -59,7 +62,18 @@ def _logpdf(x, beta, m, loc, scale):
 
 
 @_jit(4)
-def _cdf(x, beta, m, loc, scale):
+def pdf(x, beta, m, loc, scale):
+    """
+    Return probability density.
+    """
+    return np.exp(logpdf(x, beta, m, loc, scale))
+
+
+@_jit(4)
+def cdf(x, beta, m, loc, scale):
+    """
+    Return cumulative probability.
+    """
     z = _trans(x, loc, scale)
     norm = _powerlaw_integral(-beta, beta, m) + _normal_integral(
         -beta, type(beta)(np.inf)
@@ -72,24 +86,3 @@ def _cdf(x, beta, m, loc, scale):
                 _powerlaw_integral(-beta, beta, m) + _normal_integral(-beta, zi)
             ) / norm
     return z
-
-
-def logpdf(x, beta, m, loc, scale):
-    """
-    Return log of probability density.
-    """
-    return _wrap(_logpdf)(x, beta, m, loc, scale)
-
-
-def pdf(x, beta, m, loc, scale):
-    """
-    Return probability density.
-    """
-    return np.exp(logpdf(x, beta, m, loc, scale))
-
-
-def cdf(x, beta, m, loc, scale):
-    """
-    Return cumulative probability.
-    """
-    return _wrap(_cdf)(x, beta, m, loc, scale)

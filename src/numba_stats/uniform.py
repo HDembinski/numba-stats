@@ -6,7 +6,10 @@ import numpy as np
 
 
 @_jit(2)
-def _logpdf(x, a, w):
+def logpdf(x, a, w):
+    """
+    Return log of probability density.
+    """
     r = np.empty_like(x)
     for i, xi in enumerate(x):
         if a <= xi <= a + w:
@@ -17,7 +20,18 @@ def _logpdf(x, a, w):
 
 
 @_jit(2)
-def _cdf(x, a, w):
+def pdf(x, a, w):
+    """
+    Return probability density.
+    """
+    return np.exp(logpdf(x, a, w))
+
+
+@_jit(2)
+def cdf(x, a, w):
+    """
+    Return cumulative probability.
+    """
     r = np.empty_like(x)
     for i, xi in enumerate(x):
         if a <= xi:
@@ -31,33 +45,8 @@ def _cdf(x, a, w):
 
 
 @_jit(2)
-def _ppf(p, a, w):
-    return w * p + a
-
-
-def logpdf(x, a, w):
-    """
-    Return probability density.
-    """
-    return _logpdf(x, a, w)
-
-
-def pdf(x, a, w):
-    """
-    Return probability density.
-    """
-    return np.exp(_logpdf(x, a, w))
-
-
-def cdf(x, a, w):
-    """
-    Return cumulative probability.
-    """
-    return _cdf(x, a, w)
-
-
 def ppf(p, a, w):
     """
     Return quantile for given probability.
     """
-    return _ppf(p, a, w)
+    return w * p + a

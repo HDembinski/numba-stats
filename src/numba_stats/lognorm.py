@@ -2,14 +2,15 @@
 Lognormal distribution.
 """
 import numpy as np
-from .norm import _ppfz
-from ._util import _jit, _wrap, _trans, _type_check
-from math import erf as _erf
-from numba.extending import overload as _overload
+from . import norm as _norm
+from ._util import _jit, _trans
 
 
 @_jit(3)
-def _logpdf(x, s, loc, scale):
+def logpdf(x, s, loc, scale):
+    """
+    Return log of probability density.
+    """
     r = _trans(x, loc, scale)
     for i, ri in enumerate(r):
         if ri > 0:
@@ -22,78 +23,35 @@ def _logpdf(x, s, loc, scale):
 
 
 @_jit(3)
-def _pdf(x, s, loc, scale):
-    return np.exp(_logpdf(x, s, loc, scale))
+def pdf(x, s, loc, scale):
+    """
+    Return probability density.
+    """
+    return np.exp(logpdf(x, s, loc, scale))
 
 
 @_jit(3)
-def _cdf(x, s, loc, scale):
+def cdf(x, s, loc, scale):
+    """
+    Return cumulative probability.
+    """
     r = _trans(x, loc, scale)
     for i, ri in enumerate(r):
         if ri <= 0:
             r[i] = 0.0
         else:
             ri = np.log(ri) / s
-            r[i] = 0.5 * (1.0 + _erf(ri * np.sqrt(0.5)))
+            r[i] = _norm._cdf(ri)
     return r
 
 
-@_jit(3, cache=False)  # no cache because of _ppfz
-def _ppf(p, s, loc, scale):
-    r = np.empty_like(p)
-    for i in range(len(p)):
-        zi = np.exp(s * _ppfz(p[i]))
-        r[i] = scale * zi + loc
-    return r
-
-
-def logpdf(x, s, loc, scale):
-    """
-    Return log of probability density.
-    """
-    return _wrap(_logpdf)(x, s, loc, scale)
-
-
-def pdf(x, s, loc, scale):
-    """
-    Return probability density.
-    """
-    return _wrap(_pdf)(x, s, loc, scale)
-
-
-def cdf(x, s, loc, scale):
-    """
-    Return cumulative probability.
-    """
-    return _wrap(_cdf)(x, s, loc, scale)
-
-
+@_jit(3, cache=False)  # no cache because of norm._ppf
 def ppf(p, s, loc, scale):
     """
     Return quantile for given probability.
     """
-    return _wrap(_ppf)(p, s, loc, scale)
-
-
-@_overload(logpdf)
-def _logpdf_ol(x, s, loc, scale):
-    _type_check(logpdf, x, s, loc, scale)
-    return _logpdf.__wrapped__
-
-
-@_overload(pdf)
-def _pdf_ol(x, s, loc, scale):
-    _type_check(pdf, x, s, loc, scale)
-    return _pdf.__wrapped__
-
-
-@_overload(cdf)
-def _cdf_ol(x, s, loc, scale):
-    _type_check(ppf, x, s, loc, scale)
-    return _cdf.__wrapped__
-
-
-@_overload(ppf)
-def _ppf_ol(p, s, loc, scale):
-    _type_check(ppf, p, s, loc, scale)
-    return _ppf.__wrapped__
+    r = np.empty_like(p)
+    for i in range(len(p)):
+        zi = np.exp(s * _norm._ppf(p[i]))
+        r[i] = scale * zi + loc
+    return r

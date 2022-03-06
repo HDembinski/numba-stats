@@ -3,12 +3,15 @@ Student's t distribution.
 """
 import numpy as np
 from ._special import stdtr as _stdtr, stdtrit as _stdtrit
-from ._util import _jit, _trans, _wrap
+from ._util import _jit, _trans
 from math import lgamma as _lgamma
 
 
 @_jit(3, cache=False)
-def _logpdf(x, df, loc, scale):
+def logpdf(x, df, loc, scale):
+    """
+    Return log of probability density.
+    """
     T = type(df)
     z = _trans(x, loc, scale)
     k = T(0.5) * (df + T(1))
@@ -21,7 +24,18 @@ def _logpdf(x, df, loc, scale):
 
 
 @_jit(3, cache=False)
-def _cdf(x, df, loc, scale):
+def pdf(x, df, loc, scale):
+    """
+    Return probability density.
+    """
+    return np.exp(logpdf(x, df, loc, scale))
+
+
+@_jit(3, cache=False)
+def cdf(x, df, loc, scale):
+    """
+    Return cumulative probability.
+    """
     z = _trans(x, loc, scale)
     for i, zi in enumerate(z):
         z[i] = _stdtr(df, zi)
@@ -29,7 +43,10 @@ def _cdf(x, df, loc, scale):
 
 
 @_jit(3, cache=False)
-def _ppf(p, df, loc, scale):
+def ppf(p, df, loc, scale):
+    """
+    Return quantile for given probability.
+    """
     T = type(df)
     r = np.empty_like(p)
     for i, pi in enumerate(p):
@@ -40,31 +57,3 @@ def _ppf(p, df, loc, scale):
         else:
             r[i] = scale * _stdtrit(df, pi) + loc
     return r
-
-
-def logpdf(x, df, loc, scale):
-    """
-    Return probability density.
-    """
-    return _wrap(_logpdf)(x, df, loc, scale)
-
-
-def pdf(x, df, loc, scale):
-    """
-    Return probability density.
-    """
-    return np.exp(logpdf(x, df, loc, scale))
-
-
-def cdf(x, df, loc, scale):
-    """
-    Return cumulative probability.
-    """
-    return _wrap(_cdf)(x, df, loc, scale)
-
-
-def ppf(p, df, loc, scale):
-    """
-    Return quantile for given probability.
-    """
-    return _wrap(_ppf)(p, df, loc, scale)

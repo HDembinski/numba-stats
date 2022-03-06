@@ -39,6 +39,10 @@ def test_ppf():
     expected = sc.norm.ppf(p)
     assert_allclose(got, expected)
 
+    got = norm.ppf(0.5, 0, 1)
+    expected = sc.norm.ppf(0.5, 0, 1)
+    assert_allclose(got, expected)
+
 
 def test_njit():
     @nb.njit

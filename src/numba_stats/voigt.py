@@ -15,15 +15,11 @@ import numpy as np
 
 
 @_jit(3, cache=False)
-def _pdf(x, gamma, loc, scale):
-    r = np.empty_like(x)
-    for i, xi in enumerate(x):
-        r[i] = _voigt(xi - loc, scale, gamma)
-    return r
-
-
 def pdf(x, gamma, loc, scale):
     """
     Return probability density.
     """
-    return _pdf(x, gamma, loc, scale)
+    r = np.empty_like(x)
+    for i, xi in enumerate(x):
+        r[i] = _voigt(xi - loc, scale, gamma)
+    return r

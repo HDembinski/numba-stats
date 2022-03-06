@@ -48,8 +48,15 @@ def test_pdf_vs_t(nu):
 def test_cdf(q):
     x = np.linspace(-5, 5, 10)
 
-    expected = [quad(lambda y: qgaussian.pdf(y, q, 0.1, 1.2), 0, xi)[0] for xi in x]
-    got = qgaussian.cdf(x, q, 0.1, 1.2) - qgaussian.cdf(0, q, 0.1, 1.2)
+    expected = [
+        quad(
+            lambda y: qgaussian.pdf(np.array([y]), q, 0.1, 1.2)[0],
+            0,
+            xi,
+        )[0]
+        for xi in x
+    ]
+    got = qgaussian.cdf(x, q, 0.1, 1.2) - qgaussian.cdf(np.array([0.0]), q, 0.1, 1.2)[0]
 
     np.testing.assert_allclose(got, expected)
 

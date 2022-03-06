@@ -8,7 +8,7 @@ discontinuity at the maximum or elsewhere.
 """
 
 from .crystalball import _powerlaw_integral, _normal_integral, _log_density
-from ._util import _jit, _wrap
+from ._util import _jit
 import numpy as np
 
 
@@ -20,7 +20,10 @@ def _norm_half(beta, m, scale):
 
 
 @_jit(7)
-def _logpdf(x, beta_left, m_left, scale_left, beta_right, m_right, scale_right, loc):
+def logpdf(x, beta_left, m_left, scale_left, beta_right, m_right, scale_right, loc):
+    """
+    Return log of probability density.
+    """
     norm = _norm_half(beta_left, m_left, scale_left) + _norm_half(
         beta_right, m_right, scale_right
     )
@@ -40,7 +43,29 @@ def _logpdf(x, beta_left, m_left, scale_left, beta_right, m_right, scale_right, 
 
 
 @_jit(7)
-def _cdf(x, beta_left, m_left, scale_left, beta_right, m_right, scale_right, loc):
+def pdf(x, beta_left, m_left, scale_left, beta_right, m_right, scale_right, loc):
+    """
+    Return probability density.
+    """
+    return np.exp(
+        logpdf(
+            x,
+            beta_left,
+            m_left,
+            scale_left,
+            beta_right,
+            m_right,
+            scale_right,
+            loc,
+        )
+    )
+
+
+@_jit(7)
+def cdf(x, beta_left, m_left, scale_left, beta_right, m_right, scale_right, loc):
+    """
+    Return cumulative probability.
+    """
     norm = _norm_half(beta_left, m_left, scale_left) + _norm_half(
         beta_right, m_right, scale_right
     )
@@ -83,39 +108,3 @@ def _cdf(x, beta_left, m_left, scale_left, beta_right, m_right, scale_right, loc
                 * scale_right
             ) / norm
     return r
-
-
-def logpdf(x, beta_left, m_left, scale_left, beta_right, m_right, scale_right, loc):
-    """
-    Return log of probability density.
-    """
-    return _wrap(_logpdf)(
-        x, beta_left, m_left, scale_left, beta_right, m_right, scale_right, loc
-    )
-
-
-def pdf(x, beta_left, m_left, scale_left, beta_right, m_right, scale_right, loc):
-    """
-    Return probability density.
-    """
-    return np.exp(
-        logpdf(
-            x,
-            beta_left,
-            m_left,
-            scale_left,
-            beta_right,
-            m_right,
-            scale_right,
-            loc,
-        )
-    )
-
-
-def cdf(x, beta_left, m_left, scale_left, beta_right, m_right, scale_right, loc):
-    """
-    Return cumulative probability.
-    """
-    return _wrap(_cdf)(
-        x, beta_left, m_left, scale_left, beta_right, m_right, scale_right, loc
-    )

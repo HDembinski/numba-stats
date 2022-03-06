@@ -7,11 +7,14 @@ minimum bias particle collisions.
 """
 
 import numpy as np
-from ._util import _jit, _cast
+from ._util import _jit
 
 
 @_jit(3)
-def _pdf(x, m, t, n):
+def pdf(x, m, t, n):
+    """
+    Return probability density.
+    """
     # Formula from CMS, Eur. Phys. J. C (2012) 72:2164
     if n <= 2:
         raise ValueError("n > 2 is required")
@@ -24,7 +27,10 @@ def _pdf(x, m, t, n):
 
 
 @_jit(3)
-def _cdf(x, m, t, n):
+def cdf(x, m, t, n):
+    """
+    Return cumulative probability.
+    """
     # Formula computed from tsallis_pdf with Sympy, then simplified by hand
     if n <= 2:
         raise ValueError("n > 2 is required")
@@ -37,17 +43,3 @@ def _cdf(x, m, t, n):
         * (m + mt - n * (mt + t))
         / (m * (n - T(2)) + nt)
     )
-
-
-def pdf(x, m, t, n):
-    """
-    Return probability density.
-    """
-    return _pdf(_cast(x), m, t, n)
-
-
-def cdf(x, m, t, n):
-    """
-    Return cumulative probability.
-    """
-    return _cdf(_cast(x), m, t, n)

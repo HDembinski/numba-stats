@@ -5,11 +5,14 @@ Poisson distribution.
 import numpy as np
 from ._special import gammaincc as _gammaincc
 from math import lgamma as _lgamma
-from ._util import _jit, _wrap
+from ._util import _jit
 
 
 @_jit(1)
-def _logpmf(k, mu):
+def logpmf(k, mu):
+    """
+    Return log of probability mass.
+    """
     T = type(mu)
     r = np.empty(len(k), T)
     for i, ki in enumerate(k):
@@ -20,22 +23,7 @@ def _logpmf(k, mu):
     return r
 
 
-@_jit(1, cache=False)
-def _cdf(k, mu):
-    T = type(mu)
-    r = np.empty(len(k), T)
-    for i, ki in enumerate(k):
-        r[i] = _gammaincc(ki + T(1), mu)
-    return r
-
-
-def logpmf(k, mu):
-    """
-    Return log of probability mass.
-    """
-    return _wrap(_logpmf)(k, mu)
-
-
+@_jit(1)
 def pmf(k, mu):
     """
     Return probability mass.
@@ -43,8 +31,13 @@ def pmf(k, mu):
     return np.exp(logpmf(k, mu))
 
 
+@_jit(1, cache=False)
 def cdf(k, mu):
     """
     Evaluate cumulative distribution function.
     """
-    return _wrap(_cdf)(k, mu)
+    T = type(mu)
+    r = np.empty(len(k), T)
+    for i, ki in enumerate(k):
+        r[i] = _gammaincc(ki + T(1), mu)
+    return r

@@ -13,17 +13,10 @@ do not), use :func:`integral` to compute it.
 """
 
 import numpy as np
-import numba as nb
-from ._util import _cast, _wrap, _jit
+from ._util import _jit, _Floats
 
 
-_signatures = [
-    nb.float32[:](nb.float32[:], nb.float32[:]),
-    nb.float64[:](nb.float64[:], nb.float64[:]),
-]
-
-
-@_jit(_signatures)
+@_jit([T[:](T[:], T[:]) for T in _Floats])
 def _de_castlejau(z, beta):
     # De Casteljau algorithm, numerically stable
     n = len(beta)
@@ -59,25 +52,7 @@ def _trans(x, xmin, xmax):
     return (x - xmin) * scale
 
 
-_signatures = [
-    nb.float32[:](nb.float32[:], nb.float32[:], nb.float32, nb.float32),
-    nb.float64[:](nb.float64[:], nb.float64[:], nb.float64, nb.float64),
-]
-
-
-@_jit(_signatures)
-def _density(x, beta, xmin, xmax):
-    z = _trans(x, xmin, xmax)
-    return _de_castlejau(z, beta)
-
-
-@_jit(_signatures, cache=True)
-def _integral(x, beta, xmin, xmax):
-    z = _trans(x, xmin, xmax)
-    beta = _beta_int(beta) * (xmax - xmin)
-    return _de_castlejau(z, beta)
-
-
+@_jit([T[:](T[:], T[:], T, T) for T in _Floats])
 def density(x, beta, xmin, xmax):
     """
     Return density described by a Bernstein polynomial.
@@ -104,9 +79,11 @@ def density(x, beta, xmin, xmax):
     ndarray
         Function values.
     """
-    return _wrap(_density)(x, _cast(beta), xmin, xmax)
+    z = _trans(x, xmin, xmax)
+    return _de_castlejau(z, beta)
 
 
+@_jit([T[:](T[:], T[:], T, T) for T in _Floats], cache=True)
 def integral(x, beta, xmin, xmax):
     """
     Return integral of a Bernstein polynomial from xmin to x.
@@ -127,41 +104,9 @@ def integral(x, beta, xmin, xmax):
     ndarray
         Integral values.
     """
-    return _wrap(_integral)(x, _cast(beta), xmin, xmax)
-
-
-@nb.extending.overload(density)
-def _density_ol(x, beta, xmin, xmax):
-    from numba.core.errors import TypingError
-    from numba.types import Array, Float
-
-    if not isinstance(x, Array):
-        raise TypingError("x must be a Numpy array")
-    if not isinstance(beta, Array):
-        raise TypingError("beta must be a Numpy array")
-    if not isinstance(xmin, Float):
-        raise TypingError("xmin must be float")
-    if not isinstance(xmax, Float):
-        raise TypingError("xmax must be float")
-
-    return _density.__wrapped__
-
-
-@nb.extending.overload(integral)
-def _integral_ol(x, beta, xmin, xmax):
-    from numba.core.errors import TypingError
-    from numba.types import Array, Float
-
-    if not isinstance(x, Array):
-        raise TypingError("x must be a Numpy array")
-    if not isinstance(beta, Array):
-        raise TypingError("beta must be a Numpy array")
-    if not isinstance(xmin, Float):
-        raise TypingError("xmin must be float")
-    if not isinstance(xmax, Float):
-        raise TypingError("xmax must be float")
-
-    return _integral.__wrapped__
+    z = _trans(x, xmin, xmax)
+    beta = _beta_int(beta) * (xmax - xmin)
+    return _de_castlejau(z, beta)
 
 
 def __getattr__(key):
