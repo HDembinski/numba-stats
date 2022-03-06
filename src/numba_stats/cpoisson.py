@@ -2,7 +2,7 @@
 Continuous Poisson distribution.
 """
 from ._special import gammaincc as _gammaincc
-from ._util import _jit, _cast
+from ._util import _jit, _wrap
 import numpy as np
 
 
@@ -18,7 +18,7 @@ def cdf(x, mu):
     """
     Return cumulative probability.
     """
-    return _cdf(_cast(x), mu)
+    return _wrap(_cdf)(x, mu)
 
 
 # The pdf, d cdf(x, mu)/ dx, cannot be expressed in tabulated functions:

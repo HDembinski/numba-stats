@@ -3,7 +3,7 @@ Student's t distribution.
 """
 import numpy as np
 from ._special import stdtr as _stdtr, stdtrit as _stdtrit
-from ._util import _jit, _trans
+from ._util import _jit, _trans, _wrap
 from math import lgamma as _lgamma
 
 
@@ -46,25 +46,25 @@ def logpdf(x, df, loc, scale):
     """
     Return probability density.
     """
-    return _logpdf(x, df, loc, scale)
+    return _wrap(_logpdf)(x, df, loc, scale)
 
 
 def pdf(x, df, loc, scale):
     """
     Return probability density.
     """
-    return np.exp(_logpdf(x, df, loc, scale))
+    return np.exp(logpdf(x, df, loc, scale))
 
 
 def cdf(x, df, loc, scale):
     """
     Return cumulative probability.
     """
-    return _cdf(x, df, loc, scale)
+    return _wrap(_cdf)(x, df, loc, scale)
 
 
 def ppf(p, df, loc, scale):
     """
     Return quantile for given probability.
     """
-    return _ppf(p, df, loc, scale)
+    return _wrap(_ppf)(p, df, loc, scale)

@@ -8,7 +8,7 @@ discontinuity at the maximum or elsewhere.
 """
 
 from .crystalball import _powerlaw_integral, _normal_integral, _log_density
-from ._util import _jit, _cast
+from ._util import _jit, _wrap
 import numpy as np
 
 
@@ -89,8 +89,8 @@ def logpdf(x, beta_left, m_left, scale_left, beta_right, m_right, scale_right, l
     """
     Return log of probability density.
     """
-    return _logpdf(
-        _cast(x), beta_left, m_left, scale_left, beta_right, m_right, scale_right, loc
+    return _wrap(_logpdf)(
+        x, beta_left, m_left, scale_left, beta_right, m_right, scale_right, loc
     )
 
 
@@ -99,8 +99,8 @@ def pdf(x, beta_left, m_left, scale_left, beta_right, m_right, scale_right, loc)
     Return probability density.
     """
     return np.exp(
-        _logpdf(
-            _cast(x),
+        logpdf(
+            x,
             beta_left,
             m_left,
             scale_left,
@@ -116,6 +116,6 @@ def cdf(x, beta_left, m_left, scale_left, beta_right, m_right, scale_right, loc)
     """
     Return cumulative probability.
     """
-    return _cdf(
-        _cast(x), beta_left, m_left, scale_left, beta_right, m_right, scale_right, loc
+    return _wrap(_cdf)(
+        x, beta_left, m_left, scale_left, beta_right, m_right, scale_right, loc
     )

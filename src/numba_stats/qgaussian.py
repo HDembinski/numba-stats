@@ -14,7 +14,7 @@ import numpy as np
 import numba as nb
 from math import lgamma as _lgamma
 from . import norm as _norm, t as _t
-from ._util import _jit, _cast
+from ._util import _jit, _wrap
 
 
 @_jit(-2)
@@ -111,12 +111,12 @@ def _ppf(x, q, mu, sigma):
 
 
 def pdf(x, q, mu, sigma):
-    return _pdf(_cast(x), q, mu, sigma)
+    return _wrap(_pdf)(x, q, mu, sigma)
 
 
 def cdf(x, q, mu, sigma):
-    return _cdf(_cast(x), q, mu, sigma)
+    return _wrap(_cdf)(x, q, mu, sigma)
 
 
 def ppf(p, q, mu, sigma):
-    return _ppf(_cast(p), q, mu, sigma)
+    return _wrap(_ppf)(p, q, mu, sigma)

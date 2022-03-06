@@ -3,7 +3,7 @@ Lognormal distribution.
 """
 import numpy as np
 from .norm import _ppfz
-from ._util import _jit, _cast, _trans, _type_check
+from ._util import _jit, _wrap, _trans, _type_check
 from math import erf as _erf
 from numba.extending import overload as _overload
 
@@ -51,28 +51,28 @@ def logpdf(x, s, loc, scale):
     """
     Return log of probability density.
     """
-    return _logpdf(_cast(x), s, loc, scale)
+    return _wrap(_logpdf)(x, s, loc, scale)
 
 
 def pdf(x, s, loc, scale):
     """
     Return probability density.
     """
-    return _pdf(_cast(x), s, loc, scale)
+    return _wrap(_pdf)(x, s, loc, scale)
 
 
 def cdf(x, s, loc, scale):
     """
     Return cumulative probability.
     """
-    return _cdf(_cast(x), s, loc, scale)
+    return _wrap(_cdf)(x, s, loc, scale)
 
 
 def ppf(p, s, loc, scale):
     """
     Return quantile for given probability.
     """
-    return _ppf(_cast(p), s, loc, scale)
+    return _wrap(_ppf)(p, s, loc, scale)
 
 
 @_overload(logpdf)

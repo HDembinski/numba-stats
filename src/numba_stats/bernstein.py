@@ -14,7 +14,7 @@ do not), use :func:`integral` to compute it.
 
 import numpy as np
 import numba as nb
-from ._util import _cast, _jit
+from ._util import _cast, _wrap, _jit
 
 
 _signatures = [
@@ -104,10 +104,7 @@ def density(x, beta, xmin, xmax):
     ndarray
         Function values.
     """
-    r = _density(_cast(x), _cast(beta), xmin, xmax)
-    if np.ndim(x) == 0:
-        return np.squeeze(r)
-    return r
+    return _wrap(_density)(x, _cast(beta), xmin, xmax)
 
 
 def integral(x, beta, xmin, xmax):
@@ -130,10 +127,7 @@ def integral(x, beta, xmin, xmax):
     ndarray
         Integral values.
     """
-    r = _integral(_cast(x), _cast(beta), xmin, xmax)
-    if np.ndim(x) == 0:
-        return np.squeeze(r)
-    return r
+    return _wrap(_integral)(x, _cast(beta), xmin, xmax)
 
 
 @nb.extending.overload(density)

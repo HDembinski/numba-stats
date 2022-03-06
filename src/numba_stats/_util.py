@@ -21,6 +21,20 @@ def _jit(arg, cache=True):
     return nb.njit(signatures, cache=cache, error_model="numpy")
 
 
+def _wrap(fn):
+    def outer(arg, *rest):
+        squeeze = np.ndim(arg) == 0
+        arg = np.atleast_1d(arg)
+        if arg.dtype.kind != "f":
+            arg = arg.astype(float)
+        r = fn(arg, *rest)
+        if squeeze:
+            return np.squeeze(r)
+        return r
+
+    return outer
+
+
 def _cast(x):
     x = np.atleast_1d(x)
     if x.dtype.kind != "f":

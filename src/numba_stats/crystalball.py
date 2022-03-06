@@ -7,7 +7,7 @@ a power-law tail.
 https://en.wikipedia.org/wiki/Crystal_Ball_function
 """
 
-from ._util import _jit, _trans
+from ._util import _jit, _trans, _wrap
 import numpy as np
 from math import erf as _erf
 
@@ -78,18 +78,18 @@ def logpdf(x, beta, m, loc, scale):
     """
     Return log of probability density.
     """
-    return _logpdf(x, beta, m, loc, scale)
+    return _wrap(_logpdf)(x, beta, m, loc, scale)
 
 
 def pdf(x, beta, m, loc, scale):
     """
     Return probability density.
     """
-    return np.exp(_logpdf(x, beta, m, loc, scale))
+    return np.exp(logpdf(x, beta, m, loc, scale))
 
 
 def cdf(x, beta, m, loc, scale):
     """
     Return cumulative probability.
     """
-    return _cdf(x, beta, m, loc, scale)
+    return _wrap(_cdf)(x, beta, m, loc, scale)

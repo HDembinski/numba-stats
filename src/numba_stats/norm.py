@@ -4,24 +4,27 @@ Normal distribution.
 import numpy as np
 from numba.extending import overload as _overload
 from ._special import erfinv as _erfinv
-from ._util import _jit, _cast, _trans, _type_check
+from ._util import _jit, _wrap, _trans, _type_check
 from math import erf as _erf
 
 
 @_jit(-1)
 def _logpdfz(z):
-    return -0.5 * (z**2 + np.log(2 * np.pi))
+    T = type(z)
+    return -T(0.5) * (z * z + T(np.log(2 * np.pi)))
 
 
 @_jit(-1)
 def _cdfz(z):
-    c = np.sqrt(0.5)
-    return 0.5 * (1.0 + _erf(z * c))
+    T = type(z)
+    c = T(np.sqrt(0.5))
+    return T(0.5) * (T(1.0) + _erf(z * c))
 
 
 @_jit(-1, cache=False)  # cannot cache because of _erfinv
 def _ppfz(p):
-    return np.sqrt(2) * _erfinv(2 * p - 1)
+    T = type(p)
+    return T(np.sqrt(2)) * _erfinv(T(2) * p - T(1))
 
 
 @_jit(2)
@@ -57,28 +60,28 @@ def logpdf(x, loc, scale):
     """
     Return log of probability density.
     """
-    return _logpdf(_cast(x), loc, scale)
+    return _wrap(_logpdf)(x, loc, scale)
 
 
 def pdf(x, loc, scale):
     """
     Return probability density.
     """
-    return _pdf(_cast(x), loc, scale)
+    return np.exp(logpdf(x, loc, scale))
 
 
 def cdf(x, loc, scale):
     """
     Return cumulative probability.
     """
-    return _cdf(x, loc, scale)
+    return _wrap(_cdf)(x, loc, scale)
 
 
 def ppf(p, loc, scale):
     """
     Return quantile for given probability.
     """
-    return _ppf(_cast(p), loc, scale)
+    return _wrap(_ppf)(p, loc, scale)
 
 
 @_overload(logpdf)
