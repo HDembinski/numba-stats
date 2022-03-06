@@ -2,19 +2,13 @@
 Poisson distribution.
 """
 
-import numba as nb
 import numpy as np
 from ._special import gammaincc as _gammaincc
 from math import lgamma as _lgamma
 from ._util import _jit, _wrap
 
-_signatures = [
-    nb.float32[:](nb.int32[:], nb.float32),
-    nb.float64[:](nb.intp[:], nb.float64),
-]
 
-
-@_jit(_signatures)
+@_jit(1)
 def _logpmf(k, mu):
     T = type(mu)
     r = np.empty(len(k), T)
@@ -26,7 +20,7 @@ def _logpmf(k, mu):
     return r
 
 
-@_jit(_signatures)
+@_jit(1, cache=False)
 def _cdf(k, mu):
     T = type(mu)
     r = np.empty(len(k), T)

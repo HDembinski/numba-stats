@@ -23,14 +23,11 @@ def _jit(arg, cache=True):
 
 def _wrap(fn):
     def outer(arg, *rest):
-        squeeze = np.ndim(arg) == 0
-        arg = np.atleast_1d(arg)
+        shape = np.shape(arg)
+        arg = np.atleast_1d(arg).flatten()
         if arg.dtype.kind != "f":
             arg = arg.astype(float)
-        r = fn(arg, *rest)
-        if squeeze:
-            return np.squeeze(r)
-        return r
+        return fn(arg, *rest).reshape(shape)
 
     return outer
 
