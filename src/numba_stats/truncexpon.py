@@ -20,7 +20,7 @@ def _logpdf(x, xmin, xmax, loc, scale):
         elif zi > zmax:
             z[i] = -T(np.inf)
         else:
-            z[i] = -zi + c
+            z[i] = -zi - c
     return z
 
 
@@ -33,14 +33,15 @@ def _cdf(x, xmin, xmax, loc, scale):
     zmax = (xmax - loc) * scale2
     pmin = _expon._cdf1(zmin)
     pmax = _expon._cdf1(zmax)
-    scale3 = T(1) / pmax - pmin
+    scale3 = T(1) / (pmax - pmin)
     for i, zi in enumerate(z):
-        if z < zmin:
-            z[i] = 0
-        elif z > zmax:
-            z[i] = 1
+        if zmin <= zi:
+            if zi < zmax:
+                z[i] = (_expon._cdf1(zi) - pmin) * scale3
+            else:
+                z[i] = 1
         else:
-            z[i] = (_expon._cdf1(zi) - pmin) * scale3
+            z[i] = 0
     return z
 
 
@@ -54,8 +55,7 @@ def _ppf(p, xmin, xmax, loc, scale):
     pmax = _expon._cdf1(zmax)
     pstar = p * (pmax - pmin) + pmin
     z = _expon._ppf(pstar)
-    x = z * scale + loc
-    return x
+    return z * scale + loc
 
 
 def logpdf(x, xmin, xmax, loc, scale):

@@ -7,7 +7,7 @@ minimum bias particle collisions.
 """
 
 import numpy as np
-from ._util import _jit
+from ._util import _jit, _cast
 
 
 @_jit(3)
@@ -43,11 +43,11 @@ def pdf(x, m, t, n):
     """
     Return probability density.
     """
-    return _pdf(x, m, t, n)
+    return _pdf(_cast(x), m, t, n)
 
 
 def cdf(x, m, t, n):
     """
     Return cumulative probability.
     """
-    return _cdf(x, m, t, n)
+    return _cdf(_cast(x), m, t, n)
