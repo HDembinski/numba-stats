@@ -14,7 +14,7 @@ def _logpdf(x, df, loc, scale):
     k = T(0.5) * (df + T(1))
     c = _lgamma(k) - _lgamma(T(0.5) * df)
     c -= T(0.5) * np.log(df * T(np.pi))
-    c += np.log(scale)
+    c -= np.log(scale)
     for i, zi in enumerate(z):
         z[i] = -k * np.log(T(1) + (zi * zi) / df) + c
     return z
