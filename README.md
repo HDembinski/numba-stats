@@ -33,21 +33,19 @@ sigma = 3
 dp = norm.pdf(x, mu, sigma)
 p = norm.cdf(x, mu, sigma)
 ```
-The functions are fully vectorised, which means that `mu` and `sigma` can be vectors, too, although this is not usually needed. In the best case, the following functions are implemented
+The functions are vectorised on the variate `x`, but not on the shape parameters of the distribution. Ideally, the following functions are implemented for each distribution:
 * `logpdf`
 * `pdf`
 * `cdf`
 * `ppf`
 
-`logpdf` is only implemented if it is more efficient and accurate compared to computing `log(dist.pdf(...))`. `cdf` and `ppf` are missing for some distributions (e.g. `voigt`), if there is no known way to compute them accurately.
+`cdf` and `ppf` are missing for some distributions (e.g. `voigt`), if there is currently no fast implementation available. `logpdf` is only implemented if it is more efficient and accurate compared to computing `log(dist.pdf(...))`.
 
-## Documentation (or lack of)
+## Documentation
 
-Because of a technical limitation of Numba, this project is poorly documented. Functions with equivalents in `scipy.stats` follow the Scipy calling conventions exactly. These conventions are sometimes a bit unusual, for example, in case of the exponential, the log-normal or the uniform distribution. See the SciPy docs for details.
+Due to limited manpower, this project is currently poorly documented. Pull requests are welcome, docs should follow numpydoc style. There is no HTML documentation, to get help, please use `help()` in the Python interpreter.
 
-Please look into the source code for documentation of the other functions.
-
-Technical note: `pydoc numba_stats` does not show anything useful, because `numba.vectorize` creates instances of a class `DUFunc`. The wrapped functions show up as objects of that class and `help()` shows the generic documentation of that class instead of the documentation for the instances.
+Functions with equivalents in `scipy.stats` follow the Scipy calling conventions exactly. These conventions are sometimes a bit unusual, for example, in case of the exponential, the log-normal or the uniform distribution. See the SciPy docs for details.
 
 ## Contributions
 
