@@ -37,6 +37,14 @@ repos:
   hooks:
   - id: flake8
 
+# Python docstring formatting
+- repo: https://github.com/pycqa/pydocstyle
+  rev: 6.1.1
+  hooks:
+  - id: pydocstyle
+    args: ["--convention=numpy"]
+    files: src/numba_stats/[^_].*\.py
+
 # Python formatting
 - repo: https://github.com/psf/black
   rev: 22.1.0

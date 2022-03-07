@@ -1,10 +1,23 @@
 """
 Normal distribution.
+
+See Also
+--------
+scipy.stats.norm: Scipy equivalent.
 """
 import numpy as np
 from ._special import erfinv as _erfinv
 from ._util import _jit, _trans, _generate_wrappers
 from math import erf as _erf
+
+_doc_par = """
+x : ArrayLike
+    Random variate.
+loc : float
+    Location of the mode of the distribution.
+scale : float
+    Standard deviation.
+"""
 
 
 @_jit(-1)
@@ -28,9 +41,6 @@ def _ppf1(p):
 
 @_jit(2)
 def _logpdf(x, loc, scale):
-    """
-    Return log of probability density.
-    """
     r = _trans(x, loc, scale)
     for i, ri in enumerate(r):
         r[i] = _logpdf1(ri) - np.log(scale)
@@ -39,17 +49,11 @@ def _logpdf(x, loc, scale):
 
 @_jit(2)
 def _pdf(x, loc, scale):
-    """
-    Return probability density.
-    """
     return np.exp(_logpdf(x, loc, scale))
 
 
 @_jit(2)
 def _cdf(x, loc, scale):
-    """
-    Return cumulative probability.
-    """
     r = _trans(x, loc, scale)
     for i, ri in enumerate(r):
         r[i] = _cdf1(ri)
@@ -58,9 +62,6 @@ def _cdf(x, loc, scale):
 
 @_jit(2, cache=False)
 def _ppf(p, loc, scale):
-    """
-    Return quantile for given probability.
-    """
     r = np.empty_like(p)
     for i, pi in enumerate(p):
         r[i] = scale * _ppf1(pi) + loc

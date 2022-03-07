@@ -1,16 +1,28 @@
 """
 Lognormal distribution.
+
+See Also
+--------
+scipy.stats.lognorm: Scipy equivalent.
 """
 import numpy as np
 from . import norm as _norm
 from ._util import _jit, _trans, _generate_wrappers
 
+_doc_par = """
+x : ArrayLike
+    Random variate.
+s : float
+    Standard deviation of the corresponding normal distribution of exp(x).
+loc : float
+    Shift of the distribution.
+scale : float
+    Equal to exp(mu) of the corresponding normal distribution of exp(x).
+"""
+
 
 @_jit(3)
 def _logpdf(x, s, loc, scale):
-    """
-    Return log of probability density.
-    """
     r = _trans(x, loc, scale)
     for i, ri in enumerate(r):
         if ri > 0:
@@ -24,17 +36,11 @@ def _logpdf(x, s, loc, scale):
 
 @_jit(3)
 def _pdf(x, s, loc, scale):
-    """
-    Return probability density.
-    """
     return np.exp(_logpdf(x, s, loc, scale))
 
 
 @_jit(3)
 def _cdf(x, s, loc, scale):
-    """
-    Return cumulative probability.
-    """
     r = _trans(x, loc, scale)
     for i, ri in enumerate(r):
         if ri <= 0:
@@ -47,9 +53,6 @@ def _cdf(x, s, loc, scale):
 
 @_jit(3, cache=False)  # no cache because of norm._ppf
 def _ppf(p, s, loc, scale):
-    """
-    Return quantile for given probability.
-    """
     r = np.empty_like(p)
     for i in range(len(p)):
         zi = np.exp(s * _norm._ppf1(p[i]))

@@ -60,6 +60,8 @@ def _generate_wrappers(d):
         d["_type_check"] = _type_check
     d["_overload"] = overload
 
+    doc_par = d["_doc_par"].strip() if "_doc_par" in d else None
+
     for fname in "pdf", "pmf", "logpdf", "logpmf", "cdf", "ppf", "density", "integral":
         impl = f"_{fname}"
         if impl not in d:
@@ -67,11 +69,33 @@ def _generate_wrappers(d):
         fn = d[impl]
         args = inspect.signature(fn).parameters
         args = ", ".join([f"{x}" for x in args])
+        doc_title = {
+            "logpdf": "Return log of probability density.",
+            "logpmf": "Return log of probability mass.",
+            "pmf": "Return probability mass.",
+            "pdf": "Return probability density.",
+            "cdf": "Return cumulative probability.",
+            "ppf": "Return quantile for given probability.",
+        }.get(fname, None)
         code = f"""
 def {fname}({args}):
     return _wrap({impl})({args})
+"""
+        if doc_par is not None:
+            assert doc_title is not None
+            code += f"""
+{fname}.__doc__ = \"\"\"
+{doc_title}
 
-{fname}.__doc__ = {impl}.__doc__
+Parameters
+----------
+{doc_par}
+
+Returns
+-------
+Array-like
+    Function evaluated at the x points.
+\"\"\"
 
 @_overload({fname})
 def _ol_{fname}({args}):

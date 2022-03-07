@@ -5,11 +5,24 @@ The Crystal Ball distribution replaces the lower tail of a normal distribution w
 a power-law tail.
 
 https://en.wikipedia.org/wiki/Crystal_Ball_function
-"""
 
+See Also
+--------
+scipy.stats.crystalball: Scipy equivalent.
+"""
 from ._util import _jit, _trans, _generate_wrappers
 import numpy as np
 from math import erf as _erf
+
+_doc_par = """
+x : Array-like
+    Random variate.
+beta : float
+    Distance from the mode in units of standard deviations where the Crystal
+    Ball turns from a gaussian into a power law.
+m : float
+    Absolute value of the slope of the powerlaw tail. Must be large than 1.
+"""
 
 
 @_jit(-3)
@@ -48,9 +61,6 @@ def _log_density(z, beta, m):
 
 @_jit(4)
 def _logpdf(x, beta, m, loc, scale):
-    """
-    Return log of probability density.
-    """
     z = _trans(x, loc, scale)
     norm = scale * (
         _powerlaw_integral(-beta, beta, m) + _normal_integral(-beta, type(beta)(np.inf))
@@ -63,17 +73,11 @@ def _logpdf(x, beta, m, loc, scale):
 
 @_jit(4)
 def _pdf(x, beta, m, loc, scale):
-    """
-    Return probability density.
-    """
     return np.exp(_logpdf(x, beta, m, loc, scale))
 
 
 @_jit(4)
 def _cdf(x, beta, m, loc, scale):
-    """
-    Return cumulative probability.
-    """
     z = _trans(x, loc, scale)
     norm = _powerlaw_integral(-beta, beta, m) + _normal_integral(
         -beta, type(beta)(np.inf)

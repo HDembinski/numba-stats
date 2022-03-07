@@ -15,6 +15,18 @@ import numba as nb
 from . import norm as _norm, t as _t
 from ._util import _jit, _generate_wrappers
 
+_doc_par = """
+x : ArrayLike
+    Random variate.
+q : float
+    Shape parameter between 1 and 3. For q = 1, the qgaussian is a normal distribution,
+    for q == 3 it is a cauchy distribution.
+loc : float
+    Expectation value.
+scale : float
+    Width parameter.
+"""
+
 
 @nb.njit
 def _df_sigma(q, sigma):
@@ -33,9 +45,6 @@ def _df_sigma(q, sigma):
 
 @_jit(3)
 def _logpdf(x, q, mu, sigma):
-    """
-    Return log of probability density.
-    """
     if q < 1 or q > 3:
         raise ValueError("q < 1 or q > 3 are not supported")
 
@@ -49,17 +58,11 @@ def _logpdf(x, q, mu, sigma):
 
 @_jit(3)
 def _pdf(x, q, mu, sigma):
-    """
-    Return probability density.
-    """
     return np.exp(_logpdf(x, q, mu, sigma))
 
 
 @_jit(3, cache=False)
 def _cdf(x, q, mu, sigma):
-    """
-    Return cumulative probability.
-    """
     if q < 1 or q > 3:
         raise ValueError("q < 1 or q > 3 are not supported")
 
@@ -73,9 +76,6 @@ def _cdf(x, q, mu, sigma):
 
 @_jit(3, cache=False)
 def _ppf(p, q, mu, sigma):
-    """
-    Return quantile for given probability.
-    """
     if q < 1 or q > 3:
         raise ValueError("q < 1 or q > 3 are not supported")
 

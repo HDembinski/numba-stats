@@ -11,6 +11,27 @@ from .crystalball import _powerlaw_integral, _normal_integral, _log_density
 from ._util import _jit, _generate_wrappers
 import numpy as np
 
+_doc_par = """
+x : Array-like
+    Random variate.
+beta_left : float
+    Distance from the mode in units of standard deviations where the Crystal Ball
+    turns from a gaussian into a power law on the left side.
+m_left : float
+    Absolute value of the slope of the left powerlaw tail. Must be large than 1.
+scale_left : float
+    Standard deviation of the left side of the mode.
+beta_right : float
+    Distance from the mode in units of standard deviations where the Crystal Ball
+    turns from a gaussian into a power law on the right side.
+m_right : float
+    Absolute value of the slope of the right powerlaw tail. Must be large than 1.
+scale_right : float
+    Standard deviation of the right side of the mode.
+loc : float
+    Location of the mode of the distribution.
+"""
+
 
 @_jit(-3)
 def _norm_half(beta, m, scale):
@@ -21,9 +42,6 @@ def _norm_half(beta, m, scale):
 
 @_jit(7)
 def _logpdf(x, beta_left, m_left, scale_left, beta_right, m_right, scale_right, loc):
-    """
-    Return log of probability density.
-    """
     norm = _norm_half(beta_left, m_left, scale_left) + _norm_half(
         beta_right, m_right, scale_right
     )
@@ -44,9 +62,6 @@ def _logpdf(x, beta_left, m_left, scale_left, beta_right, m_right, scale_right, 
 
 @_jit(7)
 def _pdf(x, beta_left, m_left, scale_left, beta_right, m_right, scale_right, loc):
-    """
-    Return probability density.
-    """
     return np.exp(
         _logpdf(
             x,
@@ -63,9 +78,6 @@ def _pdf(x, beta_left, m_left, scale_left, beta_right, m_right, scale_right, loc
 
 @_jit(7)
 def _cdf(x, beta_left, m_left, scale_left, beta_right, m_right, scale_right, loc):
-    """
-    Return cumulative probability.
-    """
     norm = _norm_half(beta_left, m_left, scale_left) + _norm_half(
         beta_right, m_right, scale_right
     )
