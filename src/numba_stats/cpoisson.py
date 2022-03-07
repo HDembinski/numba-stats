@@ -1,16 +1,35 @@
 """
 Continuous Poisson distribution.
+
+The Poisson distribution is for discrete values, but the cdf can be generalised
+to arbitrary real values. It was assumed that this distribution could be useful
+to describe weighted data, but it is currently unclear how useful the
+distribution is.
+
+The pdf cannot be expressed in tabulated functions:
+
+d G(x, mu)/d x = ln(mu) G(x, mu) + mu T(3, x, mu)
+
+where G(x, mu) is the upper incomplete gamma function and T(m, s, x) is a
+special case of the Meijer G-function, see
+https://en.wikipedia.org/wiki/Incomplete_gamma_function#Derivatives
+
+There is a Meijer G-function implemented in mpmath, but I don't know how to use it.
 """
 from ._special import gammaincc as _gammaincc
 from ._util import _jit, _generate_wrappers
 import numpy as np
 
+_doc_par = """
+x: ArrayLike
+    Random variate.
+mu : float
+    Expected value.
+"""
+
 
 @_jit(1, cache=False)
 def _cdf(x, mu):
-    """
-    Return cumulative probability.
-    """
     r = np.empty_like(x)
     for i, xi in enumerate(x):
         r[i] = _gammaincc(xi + type(xi)(1), mu)
@@ -18,13 +37,3 @@ def _cdf(x, mu):
 
 
 _generate_wrappers(globals())
-
-# The pdf, d cdf(x, mu)/ dx, cannot be expressed in tabulated functions:
-#
-# d G(x, mu)/d x = ln(mu) G(x, mu) + mu T(3, x, mu)
-#
-# where G(x, mu) is the upper incomplete gamma function and T(m, s, x) is a special case
-# of the Meijer G-function,
-# see https://en.wikipedia.org/wiki/Incomplete_gamma_function#Derivatives
-#
-# There is a Meijer G-function implemented in mpmath, but I don't know how to use it.

@@ -9,12 +9,20 @@ minimum bias particle collisions.
 import numpy as np
 from ._util import _jit, _generate_wrappers
 
+_doc_par = """
+x : ArrayLike
+    Random variate.
+m : float
+    Mass of the particle.
+t :  float
+    Width parameter.
+n : float
+    Absolute value of the exponent of the power law.
+"""
+
 
 @_jit(3)
 def _pdf(x, m, t, n):
-    """
-    Return probability density.
-    """
     # Formula from CMS, Eur. Phys. J. C (2012) 72:2164
     if n <= 2:
         raise ValueError("n > 2 is required")
@@ -28,9 +36,6 @@ def _pdf(x, m, t, n):
 
 @_jit(3)
 def _cdf(x, m, t, n):
-    """
-    Return cumulative probability.
-    """
     # Formula computed from tsallis_pdf with Sympy, then simplified by hand
     if n <= 2:
         raise ValueError("n > 2 is required")

@@ -1,5 +1,9 @@
 """
 Poisson distribution.
+
+See Also
+--------
+scipy.stats.poisson: Scipy equivalent.
 """
 
 import numpy as np
@@ -7,12 +11,16 @@ from ._special import gammaincc as _gammaincc
 from math import lgamma as _lgamma
 from ._util import _jit, _generate_wrappers
 
+_doc_par = """
+x : ArrayLike
+    Random variate.
+mu : float
+    Expected value.
+"""
+
 
 @_jit(1)
 def _logpmf(k, mu):
-    """
-    Return log of probability mass.
-    """
     T = type(mu)
     r = np.empty(len(k), T)
     for i, ki in enumerate(k):
@@ -25,17 +33,11 @@ def _logpmf(k, mu):
 
 @_jit(1)
 def _pmf(k, mu):
-    """
-    Return probability mass.
-    """
     return np.exp(_logpmf(k, mu))
 
 
 @_jit(1, cache=False)
 def _cdf(k, mu):
-    """
-    Evaluate cumulative distribution function.
-    """
     T = type(mu)
     r = np.empty(len(k), T)
     for i, ki in enumerate(k):

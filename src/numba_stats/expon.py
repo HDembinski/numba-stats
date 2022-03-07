@@ -1,9 +1,22 @@
 """
 Exponential distribution.
+
+See Also
+--------
+scipy.stats.expon: Scipy equivalent.
 """
 import numpy as np
 from math import expm1 as _expm1, log1p as _log1p
 from ._util import _jit, _trans, _generate_wrappers
+
+_doc_par = """
+x: ArrayLike
+    Random variate.
+loc : float
+    Location of the mode.
+scale : float
+    Standard deviation.
+"""
 
 
 @_jit(-1)
@@ -18,9 +31,6 @@ def _ppf1(p):
 
 @_jit(2)
 def _logpdf(x, loc, scale):
-    """
-    Return log of probability density.
-    """
     z = _trans(x, loc, scale)
     return -z - np.log(scale)
 
@@ -29,6 +39,20 @@ def _logpdf(x, loc, scale):
 def _pdf(x, loc, scale):
     """
     Return probability density.
+
+    Parameters
+    ----------
+    x: ArrayLike
+        Random variate.
+    loc : float
+        Location of the mode.
+    scale : float
+        Standard deviation.
+
+    Returns
+    -------
+    ArrayLike
+        Function evaluated at x.
     """
     return np.exp(_logpdf(x, loc, scale))
 
@@ -37,6 +61,20 @@ def _pdf(x, loc, scale):
 def _cdf(x, loc, scale):
     """
     Return cumulative probability.
+
+    Parameters
+    ----------
+    x: ArrayLike
+        Random variate.
+    loc : float
+        Location of the mode.
+    scale : float
+        Standard deviation.
+
+    Returns
+    -------
+    ArrayLike
+        Function evaluated at x.
     """
     z = _trans(x, loc, scale)
     for i, zi in enumerate(z):
@@ -46,9 +84,6 @@ def _cdf(x, loc, scale):
 
 @_jit(2)
 def _ppf(p, loc, scale):
-    """
-    Return quantile for given probability.
-    """
     z = np.empty_like(p)
     for i, pi in enumerate(p):
         z[i] = _ppf1(pi)

@@ -1,15 +1,25 @@
 """
 Uniform distribution.
+
+See Also
+--------
+scipy.stats.uniform: Equivalent in Scipy.
 """
 from ._util import _jit, _generate_wrappers
 import numpy as np
 
+_doc_par = """
+x : ArrayLike
+    Random variate.
+a : float
+    Lower edge of the distribution.
+w : float
+    Width of the distribution.
+"""
+
 
 @_jit(2)
 def _logpdf(x, a, w):
-    """
-    Return log of probability density.
-    """
     r = np.empty_like(x)
     for i, xi in enumerate(x):
         if a <= xi <= a + w:
@@ -21,17 +31,11 @@ def _logpdf(x, a, w):
 
 @_jit(2)
 def _pdf(x, a, w):
-    """
-    Return probability density.
-    """
     return np.exp(_logpdf(x, a, w))
 
 
 @_jit(2)
 def _cdf(x, a, w):
-    """
-    Return cumulative probability.
-    """
     r = np.empty_like(x)
     for i, xi in enumerate(x):
         if a <= xi:
@@ -46,9 +50,6 @@ def _cdf(x, a, w):
 
 @_jit(2)
 def _ppf(p, a, w):
-    """
-    Return quantile for given probability.
-    """
     return w * p + a
 
 

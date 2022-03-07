@@ -1,16 +1,30 @@
 """
 Truncated exponential distribution.
+
+See Also
+--------
+scipy.stats.truncexpon: Scipy equivalent.
 """
 import numpy as np
 from ._util import _jit, _trans, _generate_wrappers
 from . import expon as _expon
 
+_doc_par = """
+x: ArrayLike
+    Random variate.
+xmin : float
+    Lower edge of the distribution.
+xmin : float
+    Upper edge of the distribution.
+loc : float
+    Location of the mode.
+scale : float
+    Width parameter.
+"""
+
 
 @_jit(4)
 def _logpdf(x, xmin, xmax, loc, scale):
-    """
-    Return log of probability density.
-    """
     T = type(xmin)
     z = _trans(x, loc, scale)
     scale2 = T(1) / scale
@@ -29,17 +43,11 @@ def _logpdf(x, xmin, xmax, loc, scale):
 
 @_jit(4)
 def _pdf(x, xmin, xmax, loc, scale):
-    """
-    Return probability density.
-    """
     return np.exp(_logpdf(x, xmin, xmax, loc, scale))
 
 
 @_jit(4)
 def _cdf(x, xmin, xmax, loc, scale):
-    """
-    Return cumulative probability.
-    """
     T = type(xmin)
     z = _trans(x, loc, scale)
     scale2 = T(1) / scale
@@ -61,9 +69,6 @@ def _cdf(x, xmin, xmax, loc, scale):
 
 @_jit(4)
 def _ppf(p, xmin, xmax, loc, scale):
-    """
-    Return quantile for given probability.
-    """
     T = type(xmin)
     scale2 = T(1) / scale
     zmin = (xmin - loc) * scale2

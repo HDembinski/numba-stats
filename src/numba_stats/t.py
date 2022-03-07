@@ -1,17 +1,29 @@
 """
 Student's t distribution.
+
+See Also
+--------
+scipy.stats.t: Scipy equivalent.
 """
 import numpy as np
 from ._special import stdtr as _stdtr, stdtrit as _stdtrit
 from ._util import _jit, _trans, _generate_wrappers
 from math import lgamma as _lgamma
 
+_doc_par = """
+x: ArrayLike
+    Random variate.
+df : float
+    Degrees of freedom.
+loc : float
+    Location of the mode.
+scale : float
+    Width parameter.
+"""
+
 
 @_jit(3, cache=False)
 def _logpdf(x, df, loc, scale):
-    """
-    Return log of probability density.
-    """
     T = type(df)
     z = _trans(x, loc, scale)
     k = T(0.5) * (df + T(1))
@@ -25,17 +37,11 @@ def _logpdf(x, df, loc, scale):
 
 @_jit(3, cache=False)
 def _pdf(x, df, loc, scale):
-    """
-    Return probability density.
-    """
     return np.exp(_logpdf(x, df, loc, scale))
 
 
 @_jit(3, cache=False)
 def _cdf(x, df, loc, scale):
-    """
-    Return cumulative probability.
-    """
     z = _trans(x, loc, scale)
     for i, zi in enumerate(z):
         z[i] = _stdtr(df, zi)
@@ -44,9 +50,6 @@ def _cdf(x, df, loc, scale):
 
 @_jit(3, cache=False)
 def _ppf(p, df, loc, scale):
-    """
-    Return quantile for given probability.
-    """
     T = type(df)
     r = np.empty_like(p)
     for i, pi in enumerate(p):

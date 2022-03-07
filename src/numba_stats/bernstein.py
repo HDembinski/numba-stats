@@ -10,6 +10,10 @@ several issues while providing no practical benefit. Use this function in an ext
 maximum-likelihood fit and do not multiply it with a scale. The scale is implicit in the
 parameter vector beta. If you really need to know the scale after the fit (usually you
 do not), use :func:`integral` to compute it.
+
+See Also
+--------
+scipy.interpolate.BPoly: Bernstein polynomials in Scipy.
 """
 
 import numpy as np
@@ -78,6 +82,17 @@ def _density(x, beta, xmin, xmax):
     -------
     ndarray
         Function values.
+
+    Examples
+    --------
+    >>> import numpy as np
+    >>> from numba_stats import bernstein
+    >>> x = np.linspace(-1, 1)
+    >>> y = bernstein.density(x, [1, 2], -1, 1)
+
+    See Also
+    --------
+    scipy.interpolate.BPoly
     """
     z = _trans(x, xmin, xmax)
     return _de_castlejau(z, beta)
@@ -103,6 +118,17 @@ def _integral(x, beta, xmin, xmax):
     -------
     ndarray
         Integral values.
+
+    Examples
+    --------
+    >>> import numpy as np
+    >>> from numba_stats import bernstein
+    >>> x = np.linspace(-1, 1)
+    >>> y = bernstein.integral(x, [1, 2], -1, 1)
+
+    See Also
+    --------
+    scipy.interpolate.BPoly
     """
     z = _trans(x, xmin, xmax)
     beta = _beta_int(beta) * (xmax - xmin)
