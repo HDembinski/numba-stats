@@ -43,27 +43,9 @@ The functions are vectorised on the variate `x`, but not on the shape parameters
 
 ## Documentation
 
-Due to limited manpower, this project is currently poorly documented. Pull requests are welcome, docs should follow numpydoc style. There is no HTML documentation, to get help, please use `help()` in the Python interpreter.
+To get documentation, please use `help()` in the Python interpreter.
 
 Functions with equivalents in `scipy.stats` follow the Scipy calling conventions exactly. These conventions are sometimes a bit unusual, for example, in case of the exponential, the log-normal or the uniform distribution. See the SciPy docs for details.
-
-**Status**
-
-- [x] bernstein (no direct equivalent in scipy)
-- [ ] cpoisson
-- [ ] crystalball_ex (no equivalent in scipy)
-- [ ] crystalball
-- [ ] expon
-- [ ] lognorm
-- [ ] norm
-- [ ] poisson
-- [ ] qgaussian (no equivalent in scipy)
-- [ ] t
-- [ ] truncexpon
-- [ ] truncnorm
-- [ ] tsallis (no equivalent in scipy)
-- [ ] uniform
-- [ ] voigt
 
 ## Contributions
 
