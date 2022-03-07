@@ -13,7 +13,7 @@ https://en.wikipedia.org/wiki/Q-Gaussian_distribution
 import numpy as np
 import numba as nb
 from . import norm as _norm, t as _t
-from ._util import _jit
+from ._util import _jit, _generate_wrappers
 
 
 @nb.njit
@@ -32,7 +32,7 @@ def _df_sigma(q, sigma):
 
 
 @_jit(3)
-def logpdf(x, q, mu, sigma):
+def _logpdf(x, q, mu, sigma):
     """
     Return log of probability density.
     """
@@ -40,23 +40,23 @@ def logpdf(x, q, mu, sigma):
         raise ValueError("q < 1 or q > 3 are not supported")
 
     if q == 1:
-        return _norm.logpdf(x, mu, sigma)
+        return _norm._logpdf(x, mu, sigma)
 
     df, sigma = _df_sigma(q, sigma)
 
-    return _t.logpdf(x, df, mu, sigma)
+    return _t._logpdf(x, df, mu, sigma)
 
 
 @_jit(3)
-def pdf(x, q, mu, sigma):
+def _pdf(x, q, mu, sigma):
     """
     Return probability density.
     """
-    return np.exp(logpdf(x, q, mu, sigma))
+    return np.exp(_logpdf(x, q, mu, sigma))
 
 
 @_jit(3, cache=False)
-def cdf(x, q, mu, sigma):
+def _cdf(x, q, mu, sigma):
     """
     Return cumulative probability.
     """
@@ -64,15 +64,15 @@ def cdf(x, q, mu, sigma):
         raise ValueError("q < 1 or q > 3 are not supported")
 
     if q == 1:
-        return _norm.cdf(x, mu, sigma)
+        return _norm._cdf(x, mu, sigma)
 
     df, sigma = _df_sigma(q, sigma)
 
-    return _t.cdf(x, df, mu, sigma)
+    return _t._cdf(x, df, mu, sigma)
 
 
 @_jit(3, cache=False)
-def ppf(x, q, mu, sigma):
+def _ppf(p, q, mu, sigma):
     """
     Return quantile for given probability.
     """
@@ -80,8 +80,11 @@ def ppf(x, q, mu, sigma):
         raise ValueError("q < 1 or q > 3 are not supported")
 
     if q == 1:
-        return _norm.ppf(x, mu, sigma)
+        return _norm._ppf(p, mu, sigma)
 
     df, sigma = _df_sigma(q, sigma)
 
-    return _t.ppf(x, df, mu, sigma)
+    return _t._ppf(p, df, mu, sigma)
+
+
+_generate_wrappers(globals())

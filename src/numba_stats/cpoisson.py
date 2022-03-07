@@ -2,12 +2,12 @@
 Continuous Poisson distribution.
 """
 from ._special import gammaincc as _gammaincc
-from ._util import _jit
+from ._util import _jit, _generate_wrappers
 import numpy as np
 
 
 @_jit(1, cache=False)
-def cdf(x, mu):
+def _cdf(x, mu):
     """
     Return cumulative probability.
     """
@@ -16,6 +16,8 @@ def cdf(x, mu):
         r[i] = _gammaincc(xi + type(xi)(1), mu)
     return r
 
+
+_generate_wrappers(globals())
 
 # The pdf, d cdf(x, mu)/ dx, cannot be expressed in tabulated functions:
 #

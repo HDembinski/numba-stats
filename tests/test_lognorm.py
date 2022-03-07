@@ -36,16 +36,16 @@ def test_ppf():
 def test_njit():
     @nb.njit
     def test(x):
-        a = lognorm.logpdf(x, 1, 0, 1)
-        b = lognorm.pdf(x, 1, 0, 1)
-        c = lognorm.cdf(x, 1, 0, 1)
-        d = lognorm.ppf(c, 1, 0, 1)
+        a = lognorm.logpdf(x, 1.0, 0.0, 1.0)
+        b = lognorm.pdf(x, 1.0, 0.0, 1.0)
+        c = lognorm.cdf(x, 1.0, 0.0, 1.0)
+        d = lognorm.ppf(c, 1.0, 0.0, 1.0)
         return a, b, c, d
 
     x = np.linspace(0, 3, 10)
     a, b, c, d = test(x)
 
-    assert_allclose(a, lognorm.logpdf(x, 1, 0, 1))
-    assert_allclose(b, lognorm.pdf(x, 1, 0, 1))
-    assert_allclose(c, lognorm.cdf(x, 1, 0, 1))
+    assert_allclose(a, lognorm.logpdf(x, 1.0, 0.0, 1.0))
+    assert_allclose(b, lognorm.pdf(x, 1.0, 0.0, 1.0))
+    assert_allclose(c, lognorm.cdf(x, 1.0, 0.0, 1.0))
     assert_allclose(d, x)

@@ -47,10 +47,10 @@ def test_ppf():
 def test_njit():
     @nb.njit
     def test(x):
-        a = norm.logpdf(x, 0, 1)
-        b = norm.pdf(x, 0, 1)
-        c = norm.cdf(x, 0, 1)
-        d = norm.ppf(c, 0, 1)
+        a = norm.logpdf(x, 0.0, 1.0)
+        b = norm.pdf(x, 0.0, 1.0)
+        c = norm.cdf(x, 0.0, 1.0)
+        d = norm.ppf(c, 0.0, 1.0)
         return a, b, c, d
 
     x = np.linspace(-3, 3, 10)

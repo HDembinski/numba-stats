@@ -1,12 +1,12 @@
 """
 Uniform distribution.
 """
-from ._util import _jit
+from ._util import _jit, _generate_wrappers
 import numpy as np
 
 
 @_jit(2)
-def logpdf(x, a, w):
+def _logpdf(x, a, w):
     """
     Return log of probability density.
     """
@@ -20,15 +20,15 @@ def logpdf(x, a, w):
 
 
 @_jit(2)
-def pdf(x, a, w):
+def _pdf(x, a, w):
     """
     Return probability density.
     """
-    return np.exp(logpdf(x, a, w))
+    return np.exp(_logpdf(x, a, w))
 
 
 @_jit(2)
-def cdf(x, a, w):
+def _cdf(x, a, w):
     """
     Return cumulative probability.
     """
@@ -45,8 +45,11 @@ def cdf(x, a, w):
 
 
 @_jit(2)
-def ppf(p, a, w):
+def _ppf(p, a, w):
     """
     Return quantile for given probability.
     """
     return w * p + a
+
+
+_generate_wrappers(globals())

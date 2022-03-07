@@ -8,7 +8,7 @@ discontinuity at the maximum or elsewhere.
 """
 
 from .crystalball import _powerlaw_integral, _normal_integral, _log_density
-from ._util import _jit
+from ._util import _jit, _generate_wrappers
 import numpy as np
 
 
@@ -20,7 +20,7 @@ def _norm_half(beta, m, scale):
 
 
 @_jit(7)
-def logpdf(x, beta_left, m_left, scale_left, beta_right, m_right, scale_right, loc):
+def _logpdf(x, beta_left, m_left, scale_left, beta_right, m_right, scale_right, loc):
     """
     Return log of probability density.
     """
@@ -43,12 +43,12 @@ def logpdf(x, beta_left, m_left, scale_left, beta_right, m_right, scale_right, l
 
 
 @_jit(7)
-def pdf(x, beta_left, m_left, scale_left, beta_right, m_right, scale_right, loc):
+def _pdf(x, beta_left, m_left, scale_left, beta_right, m_right, scale_right, loc):
     """
     Return probability density.
     """
     return np.exp(
-        logpdf(
+        _logpdf(
             x,
             beta_left,
             m_left,
@@ -62,7 +62,7 @@ def pdf(x, beta_left, m_left, scale_left, beta_right, m_right, scale_right, loc)
 
 
 @_jit(7)
-def cdf(x, beta_left, m_left, scale_left, beta_right, m_right, scale_right, loc):
+def _cdf(x, beta_left, m_left, scale_left, beta_right, m_right, scale_right, loc):
     """
     Return cumulative probability.
     """
@@ -108,3 +108,6 @@ def cdf(x, beta_left, m_left, scale_left, beta_right, m_right, scale_right, loc)
                 * scale_right
             ) / norm
     return r
+
+
+_generate_wrappers(globals())

@@ -10,12 +10,12 @@ https://en.wikipedia.org/wiki/Voigt_profile
 """
 
 from ._special import voigt_profile as _voigt
-from ._util import _jit
+from ._util import _jit, _generate_wrappers
 import numpy as np
 
 
 @_jit(3, cache=False)
-def pdf(x, gamma, loc, scale):
+def _pdf(x, gamma, loc, scale):
     """
     Return probability density.
     """
@@ -23,3 +23,6 @@ def pdf(x, gamma, loc, scale):
     for i, xi in enumerate(x):
         r[i] = _voigt(xi - loc, scale, gamma)
     return r
+
+
+_generate_wrappers(globals())

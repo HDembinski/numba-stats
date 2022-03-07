@@ -7,11 +7,11 @@ minimum bias particle collisions.
 """
 
 import numpy as np
-from ._util import _jit
+from ._util import _jit, _generate_wrappers
 
 
 @_jit(3)
-def pdf(x, m, t, n):
+def _pdf(x, m, t, n):
     """
     Return probability density.
     """
@@ -27,7 +27,7 @@ def pdf(x, m, t, n):
 
 
 @_jit(3)
-def cdf(x, m, t, n):
+def _cdf(x, m, t, n):
     """
     Return cumulative probability.
     """
@@ -43,3 +43,6 @@ def cdf(x, m, t, n):
         * (m + mt - n * (mt + t))
         / (m * (n - T(2)) + nt)
     )
+
+
+_generate_wrappers(globals())

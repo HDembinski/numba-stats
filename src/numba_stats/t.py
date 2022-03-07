@@ -3,12 +3,12 @@ Student's t distribution.
 """
 import numpy as np
 from ._special import stdtr as _stdtr, stdtrit as _stdtrit
-from ._util import _jit, _trans
+from ._util import _jit, _trans, _generate_wrappers
 from math import lgamma as _lgamma
 
 
 @_jit(3, cache=False)
-def logpdf(x, df, loc, scale):
+def _logpdf(x, df, loc, scale):
     """
     Return log of probability density.
     """
@@ -24,15 +24,15 @@ def logpdf(x, df, loc, scale):
 
 
 @_jit(3, cache=False)
-def pdf(x, df, loc, scale):
+def _pdf(x, df, loc, scale):
     """
     Return probability density.
     """
-    return np.exp(logpdf(x, df, loc, scale))
+    return np.exp(_logpdf(x, df, loc, scale))
 
 
 @_jit(3, cache=False)
-def cdf(x, df, loc, scale):
+def _cdf(x, df, loc, scale):
     """
     Return cumulative probability.
     """
@@ -43,7 +43,7 @@ def cdf(x, df, loc, scale):
 
 
 @_jit(3, cache=False)
-def ppf(p, df, loc, scale):
+def _ppf(p, df, loc, scale):
     """
     Return quantile for given probability.
     """
@@ -57,3 +57,6 @@ def ppf(p, df, loc, scale):
         else:
             r[i] = scale * _stdtrit(df, pi) + loc
     return r
+
+
+_generate_wrappers(globals())

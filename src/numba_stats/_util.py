@@ -1,5 +1,8 @@
 import numba as nb
 import numpy as np
+from numba.types import Array
+from numba.core.errors import TypingError
+from numba.extending import overload
 
 _Floats = (nb.float32, nb.float64)
 
@@ -22,21 +25,14 @@ def _jit(arg, cache=True):
 
 
 def _wrap(fn):
-    def outer(arg, *rest):
-        shape = np.shape(arg)
-        arg = np.atleast_1d(arg).flatten()
-        if arg.dtype.kind != "f":
-            arg = arg.astype(float)
-        return fn(arg, *rest).reshape(shape)
+    def outer(first, *rest):
+        shape = np.shape(first)
+        first = np.array(first).flatten()
+        if first.dtype.kind != "f":
+            first = first.astype(float)
+        return fn(first, *rest).reshape(shape)
 
     return outer
-
-
-def _cast(x):
-    x = np.atleast_1d(x)
-    if x.dtype.kind != "f":
-        return x.astype(float)
-    return x
 
 
 @_jit(2)
@@ -45,16 +41,41 @@ def _trans(x, loc, scale):
     return (x - loc) * inv_scale
 
 
-def _type_check(fn, *types):
-    import inspect
-    from numba.core.errors import TypingError
-    from numba.types import Array, Number
+def _type_check(first, *rest):
+    if not (isinstance(first, Array) and first.dtype in _Floats):
+        raise TypingError("first argument must be an array of floating point type")
 
-    signature = inspect.signature(fn)
-    for i, (tp, par) in enumerate(zip(types, signature.parameters)):
-        if i == 0:
-            if not isinstance(tp, Array):
-                raise TypingError(f"{par} must be an array")
-        else:
-            if not isinstance(tp, Number):
-                raise TypingError(f"{par} must be number")
+    T = type(first.dtype)
+    for i, tp in enumerate(rest):
+        if not isinstance(tp, T):
+            raise TypingError(f"argument {i+1} must be of type {tp}")
+
+
+def _generate_wrappers(d):
+    import inspect
+
+    if "_wrap" not in d:
+        d["_wrap"] = _wrap
+    if "_type_check" not in d:
+        d["_type_check"] = _type_check
+    d["_overload"] = overload
+
+    for fname in "pdf", "pmf", "logpdf", "logpmf", "cdf", "ppf", "density", "integral":
+        impl = f"_{fname}"
+        if impl not in d:
+            continue
+        fn = d[impl]
+        args = inspect.signature(fn).parameters
+        args = ", ".join([f"{x}" for x in args])
+        code = f"""
+def {fname}({args}):
+    return _wrap({impl})({args})
+
+{fname}.__doc__ = {impl}.__doc__
+
+@_overload({fname})
+def _ol_{fname}({args}):
+    _type_check({args})
+    return {impl}.__wrapped__
+"""
+        exec(code, d)

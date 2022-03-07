@@ -13,7 +13,7 @@ do not), use :func:`integral` to compute it.
 """
 
 import numpy as np
-from ._util import _jit, _Floats
+from ._util import _jit, _Floats, _generate_wrappers
 
 
 @_jit([T[:](T[:], T[:]) for T in _Floats])
@@ -53,7 +53,7 @@ def _trans(x, xmin, xmax):
 
 
 @_jit([T[:](T[:], T[:], T, T) for T in _Floats])
-def density(x, beta, xmin, xmax):
+def _density(x, beta, xmin, xmax):
     """
     Return density described by a Bernstein polynomial.
 
@@ -84,7 +84,7 @@ def density(x, beta, xmin, xmax):
 
 
 @_jit([T[:](T[:], T[:], T, T) for T in _Floats], cache=True)
-def integral(x, beta, xmin, xmax):
+def _integral(x, beta, xmin, xmax):
     """
     Return integral of a Bernstein polynomial from xmin to x.
 
@@ -107,6 +107,38 @@ def integral(x, beta, xmin, xmax):
     z = _trans(x, xmin, xmax)
     beta = _beta_int(beta) * (xmax - xmin)
     return _de_castlejau(z, beta)
+
+
+def _wrap(fn):
+    def outer(x, beta, xmin, xmax):
+        shape = np.shape(x)
+        args = []
+        for arg in (x, beta):
+            arg = np.array(arg).flatten()
+            if arg.dtype.kind != "f":
+                arg = arg.astype(float)
+            args.append(arg)
+        return fn(*args, xmin, xmax).reshape(shape)
+
+    return outer
+
+
+def _type_check(x, beta, xmin, xmax):
+    from numba.types import Array
+    from numba.core.errors import TypingError
+
+    for arg in (x, beta):
+        if not (isinstance(arg, Array) and arg.dtype in _Floats):
+            raise TypingError(
+                "first two arguments must be arrays of floating point type"
+            )
+    T = type(arg.dtype)
+    for i, tp in enumerate((xmin, xmax)):
+        if not isinstance(tp, T):
+            raise TypingError(f"argument {i+1} must be of type {tp}")
+
+
+_generate_wrappers(globals())
 
 
 def __getattr__(key):
