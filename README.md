@@ -47,6 +47,24 @@ Due to limited manpower, this project is currently poorly documented. Pull reque
 
 Functions with equivalents in `scipy.stats` follow the Scipy calling conventions exactly. These conventions are sometimes a bit unusual, for example, in case of the exponential, the log-normal or the uniform distribution. See the SciPy docs for details.
 
+**Status**
+
+- [x] bernstein (no direct equivalent in scipy)
+- [ ] cpoisson
+- [ ] crystalball_ex (no equivalent in scipy)
+- [ ] crystalball
+- [ ] expon
+- [ ] lognorm
+- [ ] norm
+- [ ] poisson
+- [ ] qgaussian (no equivalent in scipy)
+- [ ] t
+- [ ] truncexpon
+- [ ] truncnorm
+- [ ] tsallis (no equivalent in scipy)
+- [ ] uniform
+- [ ] voigt
+
 ## Contributions
 
 **You can help with adding more distributions, patches are very welcome.** Implementing a probability distribution is easy. You need to write it in simple Python that `numba` can understand. Special functions from `scipy.special` can be used after some wrapping, see submodule `numba_stats._special.py` how it is done.
