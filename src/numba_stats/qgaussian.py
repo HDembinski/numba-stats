@@ -11,47 +11,12 @@ https://en.wikipedia.org/wiki/Q-Gaussian_distribution
 """
 
 import numpy as np
-from math import lgamma as _lgamma
+import numba as nb
 from . import norm as _norm, t as _t
-from ._util import _jit, _vectorize
+from ._util import _jit, _generate_wrappers
 
 
-@_jit
-def _qexp(x, q):
-    if q == 1:
-        return np.exp(x)
-    alpha = 1.0 - q
-    arg = 1.0 + alpha * x
-    if arg <= 0:
-        return 0
-    le = np.log(arg) / alpha
-    return np.exp(le)
-
-
-@_jit
-def _compute_cq(q):
-    # beta = 1/2 for equivalence with normal distribution for q = 1
-    const = np.sqrt(2 * np.pi)
-    alpha = 1.0 - q
-    if q == 1:
-        return const
-    if q < 1:
-        return (
-            2.0
-            * const
-            / ((3.0 - q) * np.sqrt(alpha))
-            * np.exp(_lgamma(1.0 / alpha) - _lgamma(0.5 * (3.0 - q) / alpha))
-        )
-    if q < 3:
-        return (
-            const
-            / np.sqrt(-alpha)
-            * np.exp(_lgamma(-0.5 * (3.0 - q) / alpha) - _lgamma(-1.0 / alpha))
-        )
-    return np.nan
-
-
-@_jit
+@nb.njit
 def _df_sigma(q, sigma):
     # https://en.wikipedia.org/wiki/Q-Gaussian_distribution
     # relation to Student's t-distribution
@@ -59,46 +24,67 @@ def _df_sigma(q, sigma):
     # 1/(2 sigma^2) = 1 / (3 - q)
     # 2 sigma^2 = 3 - q
     # sigma = sqrt((3 - q)/2)
-
-    df = (3 - q) / (q - 1)
-    sigma /= np.sqrt(0.5 * (3 - q))
+    T = type(q)
+    df = (T(3) - q) / (q - T(1))
+    sigma /= np.sqrt(T(0.5) * (T(3) - q))
 
     return df, sigma
 
 
-@_vectorize(4)
-def pdf(x, q, mu, sigma):
-    inv_scale = 1.0 / sigma
-    z = (x - mu) * inv_scale
-    c_q = _compute_cq(q)
-    inv_scale /= c_q
-    # beta = 1/2 for equivalence with normal distribution for q = 1
-    if q == 1.0:
-        return np.exp(-0.5 * z**2) * inv_scale
-    return _qexp(-0.5 * z**2, q) * inv_scale
-
-
-@_vectorize(4, cache=False)
-def cdf(x, q, mu, sigma):
+@_jit(3)
+def _logpdf(x, q, mu, sigma):
+    """
+    Return log of probability density.
+    """
     if q < 1 or q > 3:
         raise ValueError("q < 1 or q > 3 are not supported")
 
     if q == 1:
-        return _norm.cdf(x, mu, sigma)
+        return _norm._logpdf(x, mu, sigma)
 
     df, sigma = _df_sigma(q, sigma)
 
-    return _t.cdf(x, df, mu, sigma)
+    return _t._logpdf(x, df, mu, sigma)
 
 
-@_vectorize(4, cache=False)
-def ppf(x, q, mu, sigma):
+@_jit(3)
+def _pdf(x, q, mu, sigma):
+    """
+    Return probability density.
+    """
+    return np.exp(_logpdf(x, q, mu, sigma))
+
+
+@_jit(3, cache=False)
+def _cdf(x, q, mu, sigma):
+    """
+    Return cumulative probability.
+    """
     if q < 1 or q > 3:
         raise ValueError("q < 1 or q > 3 are not supported")
 
     if q == 1:
-        return _norm.ppf(x, mu, sigma)
+        return _norm._cdf(x, mu, sigma)
 
     df, sigma = _df_sigma(q, sigma)
 
-    return _t.ppf(x, df, mu, sigma)
+    return _t._cdf(x, df, mu, sigma)
+
+
+@_jit(3, cache=False)
+def _ppf(p, q, mu, sigma):
+    """
+    Return quantile for given probability.
+    """
+    if q < 1 or q > 3:
+        raise ValueError("q < 1 or q > 3 are not supported")
+
+    if q == 1:
+        return _norm._ppf(p, mu, sigma)
+
+    df, sigma = _df_sigma(q, sigma)
+
+    return _t._ppf(p, df, mu, sigma)
+
+
+_generate_wrappers(globals())

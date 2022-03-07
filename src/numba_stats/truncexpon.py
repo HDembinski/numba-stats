@@ -2,64 +2,78 @@
 Truncated exponential distribution.
 """
 import numpy as np
-from ._util import _vectorize
-from .expon import _cdf, _ppf
+from ._util import _jit, _trans, _generate_wrappers
+from . import expon as _expon
 
 
-@_vectorize(5)
-def logpdf(x, xmin, xmax, loc, scale):
+@_jit(4)
+def _logpdf(x, xmin, xmax, loc, scale):
     """
     Return log of probability density.
     """
-    if x < xmin:
-        return -np.inf
-    elif x > xmax:
-        return -np.inf
-    scale_inv = 1 / scale
-    z = (x - loc) * scale_inv
-    zmin = (xmin - loc) * scale_inv
-    zmax = (xmax - loc) * scale_inv
-    return -z + np.log(scale_inv / (_cdf(zmax) - _cdf(zmin)))
+    T = type(xmin)
+    z = _trans(x, loc, scale)
+    scale2 = T(1) / scale
+    zmin = (xmin - loc) * scale2
+    zmax = (xmax - loc) * scale2
+    c = np.log(scale * (_expon._cdf1(zmax) - _expon._cdf1(zmin)))
+    for i, zi in enumerate(z):
+        if zi < zmin:
+            z[i] = -T(np.inf)
+        elif zi > zmax:
+            z[i] = -T(np.inf)
+        else:
+            z[i] = -zi - c
+    return z
 
 
-@_vectorize(5)
-def pdf(x, xmin, xmax, loc, scale):
+@_jit(4)
+def _pdf(x, xmin, xmax, loc, scale):
     """
     Return probability density.
     """
-    return np.exp(logpdf(x, xmin, xmax, loc, scale))
+    return np.exp(_logpdf(x, xmin, xmax, loc, scale))
 
 
-@_vectorize(5)
-def cdf(x, xmin, xmax, loc, scale):
+@_jit(4)
+def _cdf(x, xmin, xmax, loc, scale):
     """
     Return cumulative probability.
     """
-    if x < xmin:
-        return 0.0
-    elif x > xmax:
-        return 1.0
-    scale_inv = 1 / scale
-    z = (x - loc) * scale_inv
-    p = _cdf(z)
-    zmin = (xmin - loc) * scale_inv
-    zmax = (xmax - loc) * scale_inv
-    pmin = _cdf(zmin)
-    pmax = _cdf(zmax)
-    return (p - pmin) / (pmax - pmin)
+    T = type(xmin)
+    z = _trans(x, loc, scale)
+    scale2 = T(1) / scale
+    zmin = (xmin - loc) * scale2
+    zmax = (xmax - loc) * scale2
+    pmin = _expon._cdf1(zmin)
+    pmax = _expon._cdf1(zmax)
+    scale3 = T(1) / (pmax - pmin)
+    for i, zi in enumerate(z):
+        if zmin <= zi:
+            if zi < zmax:
+                z[i] = (_expon._cdf1(zi) - pmin) * scale3
+            else:
+                z[i] = 1
+        else:
+            z[i] = 0
+    return z
 
 
-@_vectorize(5)
-def ppf(p, xmin, xmax, loc, scale):
+@_jit(4)
+def _ppf(p, xmin, xmax, loc, scale):
     """
     Return quantile for given probability.
     """
-    scale_inv = 1 / scale
-    zmin = (xmin - loc) * scale_inv
-    zmax = (xmax - loc) * scale_inv
-    pmin = _cdf(zmin)
-    pmax = _cdf(zmax)
-    pstar = p * (pmax - pmin) + pmin
-    z = _ppf(pstar)
-    x = z * scale + loc
-    return x
+    T = type(xmin)
+    scale2 = T(1) / scale
+    zmin = (xmin - loc) * scale2
+    zmax = (xmax - loc) * scale2
+    pmin = _expon._cdf1(zmin)
+    pmax = _expon._cdf1(zmax)
+    z = p * (pmax - pmin) + pmin
+    for i, zi in enumerate(z):
+        z[i] = _expon._ppf1(zi)
+    return z * scale + loc
+
+
+_generate_wrappers(globals())

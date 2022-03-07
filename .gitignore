@@ -10,3 +10,4 @@ venv
 .pytest_cache
 .ipynb_checkpoints
 *.egg-info
+.vscode

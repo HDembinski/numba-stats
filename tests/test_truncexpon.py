@@ -21,8 +21,8 @@ def test_cdf():
     x = np.linspace(-1, 5, 10)
     xmin = 1
     xmax = 4
-    mu = 1
-    sigma = 3
+    mu = 1.5
+    sigma = 2
     got = truncexpon.cdf(x, xmin, xmax, mu, sigma)
     expected = (expon.cdf(x, mu, sigma) - expon.cdf(xmin, mu, sigma)) / (
         expon.cdf(xmax, mu, sigma) - expon.cdf(xmin, mu, sigma)

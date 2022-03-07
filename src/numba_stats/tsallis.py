@@ -7,11 +7,11 @@ minimum bias particle collisions.
 """
 
 import numpy as np
-from ._util import _vectorize
+from ._util import _jit, _generate_wrappers
 
 
-@_vectorize(4)
-def pdf(x, m, t, n):
+@_jit(3)
+def _pdf(x, m, t, n):
     """
     Return probability density.
     """
@@ -19,14 +19,15 @@ def pdf(x, m, t, n):
     if n <= 2:
         raise ValueError("n > 2 is required")
 
-    mt = np.sqrt(m**2 + x**2)
+    T = type(m)
+    mt = np.sqrt(m * m + x * x)
     nt = n * t
-    c = (n - 1) * (n - 2) / (nt * (nt + (n - 2) * m))
-    return c * x * (1 + (mt - m) / nt) ** -n
+    c = (n - T(1)) * (n - T(2)) / (nt * (nt + (n - T(2)) * m))
+    return c * x * (T(1) + (mt - m) / nt) ** -n
 
 
-@_vectorize(4)
-def cdf(x, m, t, n):
+@_jit(3)
+def _cdf(x, m, t, n):
     """
     Return cumulative probability.
     """
@@ -34,6 +35,14 @@ def cdf(x, m, t, n):
     if n <= 2:
         raise ValueError("n > 2 is required")
 
-    mt = np.sqrt(m**2 + x**2)
+    T = type(m)
+    mt = np.sqrt(m * m + x * x)
     nt = n * t
-    return ((mt - m) / nt + 1) ** (1 - n) * (m + mt - n * (mt + t)) / (m * (n - 2) + nt)
+    return (
+        ((mt - m) / nt + T(1)) ** (T(1) - n)
+        * (m + mt - n * (mt + t))
+        / (m * (n - T(2)) + nt)
+    )
+
+
+_generate_wrappers(globals())

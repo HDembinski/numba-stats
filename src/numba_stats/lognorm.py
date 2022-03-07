@@ -2,52 +2,59 @@
 Lognormal distribution.
 """
 import numpy as np
-from .norm import _cdf, _ppf
-from ._util import _jit, _vectorize
+from . import norm as _norm
+from ._util import _jit, _trans, _generate_wrappers
 
 
-# has to be separate to avoid a warning
-@_jit
+@_jit(3)
 def _logpdf(x, s, loc, scale):
-    z = (x - loc) / scale
-    if z <= 0:
-        return -np.inf
-    c = np.sqrt(2 * np.pi)
-    log_pdf = -0.5 * np.log(z) ** 2 / s**2 - np.log(s * z * c)
-    return log_pdf - np.log(scale)
-
-
-@_vectorize(4)
-def logpdf(x, s, loc, scale):
     """
     Return log of probability density.
     """
-    return _logpdf(x, s, loc, scale)
+    r = _trans(x, loc, scale)
+    for i, ri in enumerate(r):
+        if ri > 0:
+            r[i] = -0.5 * np.log(ri) ** 2 / s**2 - np.log(
+                s * ri * np.sqrt(2 * np.pi) * scale
+            )
+        else:
+            r[i] = -np.inf
+    return r
 
 
-@_vectorize(4)
-def pdf(x, s, loc, scale):
+@_jit(3)
+def _pdf(x, s, loc, scale):
     """
     Return probability density.
     """
     return np.exp(_logpdf(x, s, loc, scale))
 
 
-@_vectorize(4)
-def cdf(x, s, loc, scale):
+@_jit(3)
+def _cdf(x, s, loc, scale):
     """
     Return cumulative probability.
     """
-    z = (x - loc) / scale
-    if z <= 0:
-        return 0.0
-    return _cdf(np.log(z) / s)
+    r = _trans(x, loc, scale)
+    for i, ri in enumerate(r):
+        if ri <= 0:
+            r[i] = 0.0
+        else:
+            ri = np.log(ri) / s
+            r[i] = _norm._cdf1(ri)
+    return r
 
 
-@_vectorize(4, cache=False)  # no cache because of _ppf
-def ppf(p, s, loc, scale):
+@_jit(3, cache=False)  # no cache because of norm._ppf
+def _ppf(p, s, loc, scale):
     """
     Return quantile for given probability.
     """
-    z = np.exp(s * _ppf(p))
-    return scale * z + loc
+    r = np.empty_like(p)
+    for i in range(len(p)):
+        zi = np.exp(s * _norm._ppf1(p[i]))
+        r[i] = scale * zi + loc
+    return r
+
+
+_generate_wrappers(globals())

@@ -8,98 +8,106 @@ discontinuity at the maximum or elsewhere.
 """
 
 from .crystalball import _powerlaw_integral, _normal_integral, _log_density
-from ._util import _vectorize, _jit
+from ._util import _jit, _generate_wrappers
 import numpy as np
 
 
-@_jit
+@_jit(-3)
 def _norm_half(beta, m, scale):
-    return (_normal_integral(0, beta) + _powerlaw_integral(-beta, beta, m)) * scale
+    return (
+        _powerlaw_integral(-beta, beta, m) + _normal_integral(-beta, type(beta)(0))
+    ) * scale
 
 
-@_jit
+@_jit(7)
 def _logpdf(x, beta_left, m_left, scale_left, beta_right, m_right, scale_right, loc):
-    if x < loc:
-        inv_scale = 1 / scale_left
-        beta = beta_left
-        m = m_left
-        z = x - loc
-    else:
-        inv_scale = 1 / scale_right
-        beta = beta_right
-        m = m_right
-        z = loc - x
-    z *= inv_scale
-    log_dens = _log_density(z, beta, m)
-    return log_dens - np.log(
-        _norm_half(beta_left, m_left, scale_left)
-        + _norm_half(beta_right, m_right, scale_right)
-    )
-
-
-@_vectorize(8)
-def logpdf(x, beta_left, m_left, scale_left, beta_right, m_right, scale_right, loc):
     """
     Return log of probability density.
     """
-    return _logpdf(
-        x, beta_left, m_left, scale_left, beta_right, m_right, scale_right, loc
+    norm = _norm_half(beta_left, m_left, scale_left) + _norm_half(
+        beta_right, m_right, scale_right
     )
+    c = np.log(norm)
+    r = np.empty_like(x)
+    for i, xi in enumerate(x):
+        if xi < loc:
+            beta = beta_left
+            m = m_left
+            z = (xi - loc) * (type(scale_left)(1) / scale_left)
+        else:
+            beta = beta_right
+            m = m_right
+            z = (loc - xi) * (type(scale_right)(1) / scale_right)
+        r[i] = _log_density(z, beta, m) - c
+    return r
 
 
-@_vectorize(8)
-def pdf(x, beta_left, m_left, scale_left, beta_right, m_right, scale_right, loc):
+@_jit(7)
+def _pdf(x, beta_left, m_left, scale_left, beta_right, m_right, scale_right, loc):
     """
     Return probability density.
     """
     return np.exp(
-        _logpdf(x, beta_left, m_left, scale_left, beta_right, m_right, scale_right, loc)
+        _logpdf(
+            x,
+            beta_left,
+            m_left,
+            scale_left,
+            beta_right,
+            m_right,
+            scale_right,
+            loc,
+        )
     )
 
 
-@_vectorize(8)
-def cdf(x, beta_left, m_left, scale_left, beta_right, m_right, scale_right, loc):
+@_jit(7)
+def _cdf(x, beta_left, m_left, scale_left, beta_right, m_right, scale_right, loc):
     """
     Return cumulative probability.
     """
     norm = _norm_half(beta_left, m_left, scale_left) + _norm_half(
         beta_right, m_right, scale_right
     )
-    z = x - loc
-    if z < 0:
-        z /= scale_left
-    else:
-        z /= scale_right
-    if z < -beta_left:
-        return _powerlaw_integral(z, beta_left, m_left) / norm * scale_left
-    if z < 0:
-        return (
-            (
-                _powerlaw_integral(-beta_left, beta_left, m_left)
-                + _normal_integral(-beta_left, z)
+    r = np.empty_like(x)
+    for i, xi in enumerate(x):
+        scale = type(scale_left)(1) / (scale_left if xi < loc else scale_right)
+        z = (xi - loc) * scale
+        if z < -beta_left:
+            r[i] = _powerlaw_integral(z, beta_left, m_left) * scale_left / norm
+        elif z < 0:
+            r[i] = (
+                (
+                    _powerlaw_integral(-beta_left, beta_left, m_left)
+                    + _normal_integral(-beta_left, z)
+                )
+                * scale_left
+                / norm
             )
-            * scale_left
-            / norm
-        )
-    if z < beta_right:
-        return (
-            (
-                _powerlaw_integral(-beta_left, beta_left, m_left)
-                + _normal_integral(-beta_left, 0)
-            )
-            * scale_left
-            + _normal_integral(0, z) * scale_right
-        ) / norm
-    return (
-        (
-            _powerlaw_integral(-beta_left, beta_left, m_left)
-            + _normal_integral(-beta_left, 0)
-        )
-        * scale_left
-        + (
-            _normal_integral(0, beta_right)
-            + _powerlaw_integral(-beta_right, beta_right, m_right)
-            - _powerlaw_integral(-z, beta_right, m_right)
-        )
-        * scale_right
-    ) / norm
+        elif z < beta_right:
+            r[i] = (
+                (
+                    _powerlaw_integral(-beta_left, beta_left, m_left)
+                    + _normal_integral(-beta_left, type(beta_left)(0))
+                )
+                * scale_left
+                + _normal_integral(0, z) * scale_right
+            ) / norm
+        else:
+            r[i] = (
+                (
+                    _powerlaw_integral(-beta_left, beta_left, m_left)
+                    + _normal_integral(-beta_left, type(beta_left)(0))
+                )
+                * scale_left
+                + (
+                    _normal_integral(type(beta_right)(0), beta_right)
+                    + _powerlaw_integral(-beta_right, beta_right, m_right)
+                    - _powerlaw_integral(-z, beta_right, m_right)
+                )
+                * scale_right
+            ) / norm
+    return r
+
+
+_generate_wrappers(globals())
