@@ -81,7 +81,9 @@ def _generate_wrappers(d):
 def {fname}({args}):
     return _wrap({impl})({args})
 """
-        if doc_par is not None:
+        if doc_par is None:
+            code += f"{fname}.__doc__ = {impl}.__doc__"
+        else:
             assert doc_title is not None
             code += f"""
 {fname}.__doc__ = \"\"\"
@@ -96,7 +98,9 @@ Returns
 Array-like
     Function evaluated at the x points.
 \"\"\"
+"""
 
+        code += f"""
 @_overload({fname})
 def _ol_{fname}({args}):
     _type_check({args})
