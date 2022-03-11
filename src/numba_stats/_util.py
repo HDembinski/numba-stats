@@ -7,6 +7,10 @@ from numba.extending import overload
 _Floats = (nb.float32, nb.float64)
 
 
+def _readonly_carray(T):
+    return Array(T, 1, "A", readonly=True)
+
+
 def _jit(arg, cache=True):
     if isinstance(arg, list):
         return nb.njit(arg, cache=cache, error_model="numpy")
@@ -15,10 +19,8 @@ def _jit(arg, cache=True):
     for T in (nb.float32, nb.float64):
         if arg < 0:
             sig = T(*([T] * -arg))
-        elif arg == 0:
-            sig = T[:](T[:])
         else:
-            sig = T[:](T[:], *([T] * arg))
+            sig = T[:](_readonly_carray(T), *[T for _ in range(arg)])
         signatures.append(sig)
 
     return nb.njit(signatures, cache=cache, error_model="numpy")
