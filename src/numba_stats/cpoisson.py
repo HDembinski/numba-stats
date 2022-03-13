@@ -17,7 +17,7 @@ https://en.wikipedia.org/wiki/Incomplete_gamma_function#Derivatives
 There is a Meijer G-function implemented in mpmath, but I don't know how to use it.
 """
 from ._special import gammaincc as _gammaincc
-from ._util import _jit, _generate_wrappers
+from ._util import _jit, _generate_wrappers, _prange
 import numpy as np
 
 _doc_par = """
@@ -31,8 +31,9 @@ mu : float
 @_jit(1, cache=False)
 def _cdf(x, mu):
     r = np.empty_like(x)
-    for i, xi in enumerate(x):
-        r[i] = _gammaincc(xi + type(xi)(1), mu)
+    one = type(x[0])(1)
+    for i in _prange(len(x)):
+        r[i] = _gammaincc(x[i] + one, mu)
     return r
 
 

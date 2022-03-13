@@ -8,7 +8,7 @@ discontinuity at the maximum or elsewhere.
 """
 
 from .crystalball import _powerlaw_integral, _normal_integral, _log_density
-from ._util import _jit, _generate_wrappers
+from ._util import _jit, _generate_wrappers, _prange
 import numpy as np
 
 _doc_par = """
@@ -47,15 +47,15 @@ def _logpdf(x, beta_left, m_left, scale_left, beta_right, m_right, scale_right, 
     )
     c = np.log(norm)
     r = np.empty_like(x)
-    for i, xi in enumerate(x):
-        if xi < loc:
+    for i in _prange(len(r)):
+        if x[i] < loc:
             beta = beta_left
             m = m_left
-            z = (xi - loc) * (type(scale_left)(1) / scale_left)
+            z = (x[i] - loc) * (type(scale_left)(1) / scale_left)
         else:
             beta = beta_right
             m = m_right
-            z = (loc - xi) * (type(scale_right)(1) / scale_right)
+            z = (loc - x[i]) * (type(scale_right)(1) / scale_right)
         r[i] = _log_density(z, beta, m) - c
     return r
 
@@ -82,9 +82,9 @@ def _cdf(x, beta_left, m_left, scale_left, beta_right, m_right, scale_right, loc
         beta_right, m_right, scale_right
     )
     r = np.empty_like(x)
-    for i, xi in enumerate(x):
-        scale = type(scale_left)(1) / (scale_left if xi < loc else scale_right)
-        z = (xi - loc) * scale
+    for i in _prange(len(x)):
+        scale = type(scale_left)(1) / (scale_left if x[i] < loc else scale_right)
+        z = (x[i] - loc) * scale
         if z < -beta_left:
             r[i] = _powerlaw_integral(z, beta_left, m_left) * scale_left / norm
         elif z < 0:

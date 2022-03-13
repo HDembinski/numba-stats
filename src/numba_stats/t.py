@@ -7,7 +7,7 @@ scipy.stats.t: Scipy equivalent.
 """
 import numpy as np
 from ._special import stdtr as _stdtr, stdtrit as _stdtrit
-from ._util import _jit, _trans, _generate_wrappers
+from ._util import _jit, _trans, _generate_wrappers, _prange
 from math import lgamma as _lgamma
 
 _doc_par = """
@@ -30,8 +30,8 @@ def _logpdf(x, df, loc, scale):
     c = _lgamma(k) - _lgamma(T(0.5) * df)
     c -= T(0.5) * np.log(df * T(np.pi))
     c -= np.log(scale)
-    for i, zi in enumerate(z):
-        z[i] = -k * np.log(T(1) + (zi * zi) / df) + c
+    for i in _prange(len(z)):
+        z[i] = -k * np.log(T(1) + (z[i] * z[i]) / df) + c
     return z
 
 
@@ -43,8 +43,8 @@ def _pdf(x, df, loc, scale):
 @_jit(3, cache=False)
 def _cdf(x, df, loc, scale):
     z = _trans(x, loc, scale)
-    for i, zi in enumerate(z):
-        z[i] = _stdtr(df, zi)
+    for i in _prange(len(z)):
+        z[i] = _stdtr(df, z[i])
     return z
 
 
@@ -52,14 +52,14 @@ def _cdf(x, df, loc, scale):
 def _ppf(p, df, loc, scale):
     T = type(df)
     r = np.empty_like(p)
-    for i, pi in enumerate(p):
-        if pi == 0:
+    for i in _prange(len(p)):
+        if p[i] == 0:
             r[i] = -T(np.inf)
-        elif pi == 1:
+        elif p[i] == 1:
             r[i] = T(np.inf)
         else:
-            r[i] = scale * _stdtrit(df, pi) + loc
-    return r
+            r[i] = _stdtrit(df, p[i])
+    return scale * r + loc
 
 
 _generate_wrappers(globals())

@@ -7,7 +7,7 @@ scipy.stats.expon: Scipy equivalent.
 """
 import numpy as np
 from math import expm1 as _expm1, log1p as _log1p
-from ._util import _jit, _trans, _generate_wrappers
+from ._util import _jit, _trans, _generate_wrappers, _prange
 
 _doc_par = """
 x: ArrayLike
@@ -77,16 +77,16 @@ def _cdf(x, loc, scale):
         Function evaluated at x.
     """
     z = _trans(x, loc, scale)
-    for i, zi in enumerate(z):
-        z[i] = _cdf1(zi)
+    for i in _prange(len(z)):
+        z[i] = _cdf1(z[i])
     return z
 
 
 @_jit(2)
 def _ppf(p, loc, scale):
     z = np.empty_like(p)
-    for i, pi in enumerate(p):
-        z[i] = _ppf1(pi)
+    for i in _prange(len(z)):
+        z[i] = _ppf1(p[i])
     return scale * z + loc
 
 

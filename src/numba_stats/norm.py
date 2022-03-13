@@ -7,7 +7,7 @@ scipy.stats.norm: Scipy equivalent.
 """
 import numpy as np
 from ._special import erfinv as _erfinv
-from ._util import _jit, _trans, _generate_wrappers
+from ._util import _jit, _trans, _generate_wrappers, _prange
 from math import erf as _erf
 
 _doc_par = """
@@ -42,8 +42,8 @@ def _ppf1(p):
 @_jit(2)
 def _logpdf(x, loc, scale):
     r = _trans(x, loc, scale)
-    for i, ri in enumerate(r):
-        r[i] = _logpdf1(ri) - np.log(scale)
+    for i in _prange(len(r)):
+        r[i] = _logpdf1(r[i]) - np.log(scale)
     return r
 
 
@@ -55,16 +55,16 @@ def _pdf(x, loc, scale):
 @_jit(2)
 def _cdf(x, loc, scale):
     r = _trans(x, loc, scale)
-    for i, ri in enumerate(r):
-        r[i] = _cdf1(ri)
+    for i in _prange(len(r)):
+        r[i] = _cdf1(r[i])
     return r
 
 
 @_jit(2, cache=False)
 def _ppf(p, loc, scale):
     r = np.empty_like(p)
-    for i, pi in enumerate(p):
-        r[i] = scale * _ppf1(pi) + loc
+    for i in _prange(len(r)):
+        r[i] = scale * _ppf1(p[i]) + loc
     return r
 
 

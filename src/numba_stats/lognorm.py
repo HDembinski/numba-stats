@@ -7,7 +7,7 @@ scipy.stats.lognorm: Scipy equivalent.
 """
 import numpy as np
 from . import norm as _norm
-from ._util import _jit, _trans, _generate_wrappers
+from ._util import _jit, _trans, _generate_wrappers, _prange
 
 _doc_par = """
 x : ArrayLike
@@ -24,10 +24,10 @@ scale : float
 @_jit(3)
 def _logpdf(x, s, loc, scale):
     r = _trans(x, loc, scale)
-    for i, ri in enumerate(r):
-        if ri > 0:
-            r[i] = -0.5 * np.log(ri) ** 2 / s**2 - np.log(
-                s * ri * np.sqrt(2 * np.pi) * scale
+    for i in _prange(len(r)):
+        if r[i] > 0:
+            r[i] = -0.5 * np.log(r[i]) ** 2 / s**2 - np.log(
+                s * r[i] * np.sqrt(2 * np.pi) * scale
             )
         else:
             r[i] = -np.inf
@@ -42,22 +42,21 @@ def _pdf(x, s, loc, scale):
 @_jit(3)
 def _cdf(x, s, loc, scale):
     r = _trans(x, loc, scale)
-    for i, ri in enumerate(r):
-        if ri <= 0:
+    for i in _prange(len(r)):
+        if r[i] <= 0:
             r[i] = 0.0
         else:
-            ri = np.log(ri) / s
-            r[i] = _norm._cdf1(ri)
+            z = np.log(r[i]) / s
+            r[i] = _norm._cdf1(z)
     return r
 
 
 @_jit(3, cache=False)  # no cache because of norm._ppf
 def _ppf(p, s, loc, scale):
     r = np.empty_like(p)
-    for i in range(len(p)):
-        zi = np.exp(s * _norm._ppf1(p[i]))
-        r[i] = scale * zi + loc
-    return r
+    for i in _prange(len(p)):
+        r[i] = np.exp(s * _norm._ppf1(p[i]))
+    return scale * r + loc
 
 
 _generate_wrappers(globals())

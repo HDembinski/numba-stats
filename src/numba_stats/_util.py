@@ -3,6 +3,7 @@ import numpy as np
 from numba.types import Array
 from numba.core.errors import TypingError
 from numba.extending import overload
+from numba import prange as _prange  # noqa
 
 _Floats = (nb.float32, nb.float64)
 
