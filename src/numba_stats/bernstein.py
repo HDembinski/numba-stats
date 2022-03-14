@@ -17,24 +17,23 @@ scipy.interpolate.BPoly: Bernstein polynomials in Scipy.
 """
 
 import numpy as np
-from ._util import _jit, _Floats, _generate_wrappers, _readonly_carray, _trans, _prange
+from ._util import _jit, _Floats, _generate_wrappers, _readonly_carray, _trans
 
 
 @_jit([T[:](_readonly_carray(T), _readonly_carray(T)) for T in _Floats])
 def _de_castlejau(z, beta):
     # De Casteljau algorithm, numerically stable
     n = len(beta)
-    res = np.empty_like(z)
-    if n > 0:
-        for i in _prange(len(z)):
-            azi = 1.0 - z[i]
-            betai = beta.copy()
-            for j in range(1, n):
-                for k in range(n - j):
-                    betai[k] = betai[k] * azi + betai[k + 1] * z[i]
-            res[i] = betai[0]
-    else:
-        res[:] = np.nan
+    res = np.full_like(z, np.nan)
+    betai = np.empty_like(beta)
+    # not sure how to parallelize this, each worker thread needs its own betai
+    for i in range(len(z)):
+        betai[:] = beta
+        azi = 1.0 - z[i]
+        for j in range(1, n):
+            for k in range(n - j):
+                betai[k] = betai[k] * azi + betai[k + 1] * z[i]
+        res[i] = betai[0]
     return res
 
 

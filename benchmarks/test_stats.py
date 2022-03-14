@@ -122,3 +122,20 @@ def test_t_ppf_speed(benchmark, which, n):
     m = np.linspace(-1, 1, n)
     s = np.linspace(0.1, 1, n)
     benchmark(lambda: sc.t.ppf(x, df, m, s) if which == "scipy" else t.ppf(x, df, m, s))
+
+
+@pytest.mark.benchmark(group="bernstein.density")
+@pytest.mark.parametrize("which", ("scipy", "ours"))
+@pytest.mark.parametrize("n", (10, 100, 1000, 10000))
+def test_bernstein_density_speed(benchmark, which, n):
+    from numba_stats import bernstein
+    from scipy.interpolate import BPoly
+
+    x = np.linspace(0, 1, n)
+    beta = np.arange(1, 4, dtype=float)
+
+    benchmark(
+        lambda: BPoly(np.array(beta)[:, np.newaxis], [x[0], x[-1]])(x)
+        if which == "scipy"
+        else bernstein.density(x, beta, x[0], x[-1])
+    )
