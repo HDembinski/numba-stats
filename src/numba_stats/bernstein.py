@@ -24,18 +24,16 @@ from ._util import _jit, _Floats, _generate_wrappers, _readonly_carray, _trans
 def _de_castlejau(z, beta):
     # De Casteljau algorithm, numerically stable
     n = len(beta)
-    res = np.empty_like(z)
-    if n == 0:
-        res[:] = np.nan
-    else:
-        betai = np.empty_like(beta)
-        for i, zi in enumerate(z):
-            azi = 1.0 - zi
-            betai[:] = beta
-            for j in range(1, n):
-                for k in range(n - j):
-                    betai[k] = betai[k] * azi + betai[k + 1] * zi
-            res[i] = betai[0]
+    res = np.full_like(z, np.nan)
+    betai = np.empty_like(beta)
+    # not sure how to parallelize this, each worker thread needs its own betai
+    for i in range(len(z)):
+        betai[:] = beta
+        azi = 1.0 - z[i]
+        for j in range(1, n):
+            for k in range(n - j):
+                betai[k] = betai[k] * azi + betai[k + 1] * z[i]
+        res[i] = betai[0]
     return res
 
 

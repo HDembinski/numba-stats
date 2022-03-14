@@ -6,7 +6,7 @@ See Also
 scipy.stats.truncexpon: Scipy equivalent.
 """
 import numpy as np
-from ._util import _jit, _trans, _generate_wrappers
+from ._util import _jit, _trans, _generate_wrappers, _prange
 from . import expon as _expon
 
 _doc_par = """
@@ -31,13 +31,11 @@ def _logpdf(x, xmin, xmax, loc, scale):
     zmin = (xmin - loc) * scale2
     zmax = (xmax - loc) * scale2
     c = np.log(scale * (_expon._cdf1(zmax) - _expon._cdf1(zmin)))
-    for i, zi in enumerate(z):
-        if zi < zmin:
-            z[i] = -T(np.inf)
-        elif zi > zmax:
-            z[i] = -T(np.inf)
+    for i in _prange(len(z)):
+        if zmin <= z[i] < zmax:
+            z[i] = -z[i] - c
         else:
-            z[i] = -zi - c
+            z[i] = -np.inf
     return z
 
 
@@ -56,10 +54,10 @@ def _cdf(x, xmin, xmax, loc, scale):
     pmin = _expon._cdf1(zmin)
     pmax = _expon._cdf1(zmax)
     scale3 = T(1) / (pmax - pmin)
-    for i, zi in enumerate(z):
-        if zmin <= zi:
-            if zi < zmax:
-                z[i] = (_expon._cdf1(zi) - pmin) * scale3
+    for i in _prange(len(z)):
+        if zmin <= z[i]:
+            if z[i] < zmax:
+                z[i] = (_expon._cdf1(z[i]) - pmin) * scale3
             else:
                 z[i] = 1
         else:
@@ -76,8 +74,8 @@ def _ppf(p, xmin, xmax, loc, scale):
     pmin = _expon._cdf1(zmin)
     pmax = _expon._cdf1(zmax)
     z = p * (pmax - pmin) + pmin
-    for i, zi in enumerate(z):
-        z[i] = _expon._ppf1(zi)
+    for i in _prange(len(z)):
+        z[i] = _expon._ppf1(z[i])
     return z * scale + loc
 
 

@@ -3,6 +3,7 @@ import numpy as np
 from numba.types import Array
 from numba.core.errors import TypingError
 from numba.extending import overload
+from numba import prange as _prange  # noqa
 
 _Floats = (nb.float32, nb.float64)
 
@@ -13,7 +14,7 @@ def _readonly_carray(T):
 
 def _jit(arg, cache=True):
     if isinstance(arg, list):
-        return nb.njit(arg, cache=cache, error_model="numpy")
+        return nb.njit(arg, cache=cache, inline="always", error_model="numpy")
 
     signatures = []
     for T in (nb.float32, nb.float64):
@@ -23,7 +24,7 @@ def _jit(arg, cache=True):
             sig = T[:](_readonly_carray(T), *[T for _ in range(arg)])
         signatures.append(sig)
 
-    return nb.njit(signatures, cache=cache, error_model="numpy")
+    return nb.njit(signatures, cache=cache, inline="always", error_model="numpy")
 
 
 def _wrap(fn):
@@ -79,11 +80,12 @@ def _generate_wrappers(d):
             "cdf": "Return cumulative probability.",
             "ppf": "Return quantile for given probability.",
         }.get(fname, None)
+
         code = f"""
 def {fname}({args}):
     return _wrap({impl})({args})
 
-@_overload({fname})
+@_overload({fname}, inline="always")
 def _ol_{fname}({args}):
     _type_check({args})
     return {impl}.__wrapped__

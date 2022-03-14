@@ -8,7 +8,7 @@ discontinuity at the maximum or elsewhere.
 """
 
 from .crystalball import _powerlaw_integral, _normal_integral, _log_density
-from ._util import _jit, _generate_wrappers
+from ._util import _jit, _generate_wrappers, _prange
 import numpy as np
 
 _doc_par = """
@@ -35,9 +35,8 @@ loc : float
 
 @_jit(-3)
 def _norm_half(beta, m, scale):
-    return (
-        _powerlaw_integral(-beta, beta, m) + _normal_integral(-beta, type(beta)(0))
-    ) * scale
+    T = type(beta)
+    return (_powerlaw_integral(-beta, beta, m) + _normal_integral(-beta, T(0))) * scale
 
 
 @_jit(7)
@@ -47,15 +46,15 @@ def _logpdf(x, beta_left, m_left, scale_left, beta_right, m_right, scale_right, 
     )
     c = np.log(norm)
     r = np.empty_like(x)
-    for i, xi in enumerate(x):
-        if xi < loc:
+    for i in _prange(len(r)):
+        if x[i] < loc:
             beta = beta_left
             m = m_left
-            z = (xi - loc) * (type(scale_left)(1) / scale_left)
+            z = (x[i] - loc) / scale_left
         else:
             beta = beta_right
             m = m_right
-            z = (loc - xi) * (type(scale_right)(1) / scale_right)
+            z = (loc - x[i]) / scale_right
         r[i] = _log_density(z, beta, m) - c
     return r
 
@@ -78,13 +77,14 @@ def _pdf(x, beta_left, m_left, scale_left, beta_right, m_right, scale_right, loc
 
 @_jit(7)
 def _cdf(x, beta_left, m_left, scale_left, beta_right, m_right, scale_right, loc):
+    T = type(beta_left)
     norm = _norm_half(beta_left, m_left, scale_left) + _norm_half(
         beta_right, m_right, scale_right
     )
     r = np.empty_like(x)
-    for i, xi in enumerate(x):
-        scale = type(scale_left)(1) / (scale_left if xi < loc else scale_right)
-        z = (xi - loc) * scale
+    for i in _prange(len(x)):
+        scale = T(1) / (scale_left if x[i] < loc else scale_right)
+        z = (x[i] - loc) * scale
         if z < -beta_left:
             r[i] = _powerlaw_integral(z, beta_left, m_left) * scale_left / norm
         elif z < 0:
@@ -100,20 +100,20 @@ def _cdf(x, beta_left, m_left, scale_left, beta_right, m_right, scale_right, loc
             r[i] = (
                 (
                     _powerlaw_integral(-beta_left, beta_left, m_left)
-                    + _normal_integral(-beta_left, type(beta_left)(0))
+                    + _normal_integral(-beta_left, T(0))
                 )
                 * scale_left
-                + _normal_integral(0, z) * scale_right
+                + _normal_integral(T(0), z) * scale_right
             ) / norm
         else:
             r[i] = (
                 (
                     _powerlaw_integral(-beta_left, beta_left, m_left)
-                    + _normal_integral(-beta_left, type(beta_left)(0))
+                    + _normal_integral(-beta_left, T(0))
                 )
                 * scale_left
                 + (
-                    _normal_integral(type(beta_right)(0), beta_right)
+                    _normal_integral(T(0), beta_right)
                     + _powerlaw_integral(-beta_right, beta_right, m_right)
                     - _powerlaw_integral(-z, beta_right, m_right)
                 )

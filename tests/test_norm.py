@@ -3,6 +3,7 @@ import numpy as np
 import numba as nb
 from numba_stats import norm
 from numpy.testing import assert_allclose
+import pytest
 
 
 def test_pdf_one():
@@ -44,19 +45,15 @@ def test_ppf():
     assert_allclose(got, expected)
 
 
-def test_njit():
-    @nb.njit
+@pytest.mark.filterwarnings("error")
+@pytest.mark.parametrize("fn", [norm.logpdf, norm.pdf, norm.cdf, norm.ppf])
+@pytest.mark.parametrize("parallel", [False, True])
+def test_njit(fn, parallel):
+    @nb.njit(parallel=parallel, fastmath=True)
     def test(x):
-        a = norm.logpdf(x, 0.0, 1.0)
-        b = norm.pdf(x, 0.0, 1.0)
-        c = norm.cdf(x, 0.0, 1.0)
-        d = norm.ppf(c, 0.0, 1.0)
-        return a, b, c, d
+        return fn(x, 0.0, 1.0)
 
-    x = np.linspace(-3, 3, 10)
-    a, b, c, d = test(x)
+    x = np.linspace(-3, 3, 1000)
+    y = test(x)
 
-    assert_allclose(a, norm.logpdf(x, 0, 1))
-    assert_allclose(b, norm.pdf(x, 0, 1))
-    assert_allclose(c, norm.cdf(x, 0, 1))
-    assert_allclose(d, x)
+    assert_allclose(y, fn(x, 0, 1))

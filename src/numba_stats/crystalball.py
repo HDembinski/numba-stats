@@ -10,7 +10,7 @@ See Also
 --------
 scipy.stats.crystalball: Scipy equivalent.
 """
-from ._util import _jit, _trans, _generate_wrappers
+from ._util import _jit, _trans, _generate_wrappers, _prange
 import numpy as np
 from math import erf as _erf
 
@@ -27,7 +27,8 @@ m : float
 
 @_jit(-3)
 def _log_powerlaw(z, beta, m):
-    c = -type(beta)(0.5) * beta * beta
+    T = type(beta)
+    c = -T(0.5) * beta * beta
     log_a = m * np.log(m / beta) + c
     b = m / beta - beta
     return log_a - m * np.log(b - z)
@@ -35,7 +36,8 @@ def _log_powerlaw(z, beta, m):
 
 @_jit(-3)
 def _powerlaw_integral(z, beta, m):
-    exp_beta = np.exp(-type(beta)(0.5) * beta * beta)
+    T = type(beta)
+    exp_beta = np.exp(-T(0.5) * beta * beta)
     a = (m / beta) ** m * exp_beta
     b = m / beta - beta
     m1 = m - type(m)(1)
@@ -44,12 +46,9 @@ def _powerlaw_integral(z, beta, m):
 
 @_jit(-2)
 def _normal_integral(a, b):
-    sqrt_half = np.sqrt(type(a)(0.5))
-    return (
-        sqrt_half
-        * np.sqrt(type(a)(np.pi))
-        * (_erf(b * sqrt_half) - _erf(a * sqrt_half))
-    )
+    T = type(a)
+    sqrt_half = np.sqrt(T(0.5))
+    return sqrt_half * np.sqrt(T(np.pi)) * (_erf(b * sqrt_half) - _erf(a * sqrt_half))
 
 
 @_jit(-3)
@@ -66,8 +65,8 @@ def _logpdf(x, beta, m, loc, scale):
         _powerlaw_integral(-beta, beta, m) + _normal_integral(-beta, type(beta)(np.inf))
     )
     c = np.log(norm)
-    for i, zi in enumerate(z):
-        z[i] = _log_density(zi, beta, m) - c
+    for i in _prange(len(z)):
+        z[i] = _log_density(z[i], beta, m) - c
     return z
 
 
@@ -82,12 +81,12 @@ def _cdf(x, beta, m, loc, scale):
     norm = _powerlaw_integral(-beta, beta, m) + _normal_integral(
         -beta, type(beta)(np.inf)
     )
-    for i, zi in enumerate(z):
-        if zi < -beta:
-            z[i] = _powerlaw_integral(zi, beta, m) / norm
+    for i in _prange(len(z)):
+        if z[i] < -beta:
+            z[i] = _powerlaw_integral(z[i], beta, m) / norm
         else:
             z[i] = (
-                _powerlaw_integral(-beta, beta, m) + _normal_integral(-beta, zi)
+                _powerlaw_integral(-beta, beta, m) + _normal_integral(-beta, z[i])
             ) / norm
     return z
 
