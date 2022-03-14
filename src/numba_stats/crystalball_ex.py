@@ -82,7 +82,7 @@ def _cdf(x, beta_left, m_left, scale_left, beta_right, m_right, scale_right, loc
         beta_right, m_right, scale_right
     )
     r = np.empty_like(x)
-    for i in range(len(x)):
+    for i in _prange(len(x)):
         scale = T(1) / (scale_left if x[i] < loc else scale_right)
         z = (x[i] - loc) * scale
         if z < -beta_left:
