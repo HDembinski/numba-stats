@@ -44,8 +44,10 @@ def test_integral_2(beta):
     assert_allclose(got, expected)
 
 
+@pytest.mark.filterwarnings("error")
 @pytest.mark.parametrize("parallel", (False, True))
-def test_numba_density(parallel):
+@pytest.mark.parametrize("fn", [bernstein.density, bernstein.integral])
+def test_numba(fn, parallel):
     x = np.linspace(0.5, 0.6, 10000)
     beta = np.array([1.0, 2.0, 3.0])
     xmin = 1.0
@@ -53,22 +55,9 @@ def test_numba_density(parallel):
 
     @nb.njit(parallel=parallel, fastmath=True)
     def f():
-        return bernstein.density(x, beta, xmin, xmax)
+        return fn(x, beta, xmin, xmax)
 
-    assert_allclose(f(), bernstein.density(x, beta, xmin, xmax))
-
-
-def test_numba_integral():
-    x = np.linspace(0.5, 0.6, 1000)
-    beta = np.array([1.0, 2.0, 3.0])
-    xmin = 1.0
-    xmax = 2.5
-
-    @nb.njit
-    def f():
-        return bernstein.integral(x, beta, xmin, xmax)
-
-    assert_allclose(f(), bernstein.integral(x, beta, xmin, xmax))
+    assert_allclose(f(), fn(x, beta, xmin, xmax))
 
 
 def test_deprecation():
