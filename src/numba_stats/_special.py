@@ -26,7 +26,6 @@ def get(name, signature):
 
 
 # unary functions (double)
-erfinv = get("erfinv", float64(float64))
 
 # binary functions (double)
 gammaincc = get("gammaincc", float64(float64, float64))

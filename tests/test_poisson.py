@@ -18,3 +18,11 @@ def test_cdf(mu):
     got = poisson.cdf(k, mu)
     expected = sc.poisson.cdf(k, mu)
     np.testing.assert_allclose(got, expected)
+
+
+@pytest.mark.parametrize("mu", np.linspace(0, 3, 5))
+def test_ppf(mu):
+    k = np.random.uniform(10)
+    got = poisson.ppf(k, mu)
+    expected = sc.poisson.ppf(k, mu)
+    np.testing.assert_allclose(got, expected)

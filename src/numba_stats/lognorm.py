@@ -51,7 +51,7 @@ def _cdf(x, s, loc, scale):
     return r
 
 
-@_jit(3, cache=False)  # no cache because of norm._ppf
+@_jit(3)
 def _ppf(p, s, loc, scale):
     r = np.empty_like(p)
     for i in _prange(len(p)):

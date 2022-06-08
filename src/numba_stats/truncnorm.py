@@ -64,7 +64,7 @@ def _cdf(x, xmin, xmax, loc, scale):
     return r
 
 
-@_jit(4, cache=False)
+@_jit(4)
 def _ppf(p, xmin, xmax, loc, scale):
     scale2 = type(scale)(1) / scale
     zmin = (xmin - loc) * scale2
