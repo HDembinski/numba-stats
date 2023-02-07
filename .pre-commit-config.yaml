@@ -39,7 +39,7 @@ repos:
 
 # Python docstring formatting
 - repo: https://github.com/pycqa/pydocstyle
-  rev: 6.1.1
+  rev: 6.3.0
   hooks:
   - id: pydocstyle
     args: ["--convention=numpy"]
@@ -47,6 +47,6 @@ repos:
 
 # Python formatting
 - repo: https://github.com/psf/black
-  rev: 22.12.0
+  rev: 23.1.0
   hooks:
   - id: black
