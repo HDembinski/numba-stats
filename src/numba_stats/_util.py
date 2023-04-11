@@ -13,6 +13,21 @@ def _readonly_carray(T):
 
 
 def _jit(arg, cache=True):
+    """
+    Wrapper for numba.njit to reduce boilerplate code.
+
+    We want to build jitted functions with explicit signatures to restrict
+    the argument types which are used in the implemnetation to float32 or
+    float64. We also want to pass specific options consistently
+    (e.g. error_model='numpy').
+
+    Parameters
+    ----------
+    arg : int
+        Number of arguments. If negative, all arguments of this function are scalars
+        and -arg is the number of arguments. If positive, the first argument is
+        an array, the others are scalars and arg is the number of scalar arguments.
+    """
     if isinstance(arg, list):
         return nb.njit(arg, cache=cache, inline="always", error_model="numpy")
 

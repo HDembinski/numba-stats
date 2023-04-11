@@ -6,7 +6,7 @@ See Also
 scipy.stats.norm: Scipy equivalent.
 """
 import numpy as np
-from ._special import erfinv as _erfinv
+from ._special import ndtri as _ndtri
 from ._util import _jit, _trans, _generate_wrappers, _prange
 from math import erf as _erf
 
@@ -33,10 +33,10 @@ def _cdf1(z):
     return T(0.5) * (T(1.0) + _erf(z * c))
 
 
-@_jit(-1, cache=False)  # cannot cache because of _erfinv
+@_jit(-1, cache=False)  # cannot cache because of _ndtri
 def _ppf1(p):
     T = type(p)
-    return T(np.sqrt(2)) * _erfinv(T(2) * p - T(1))
+    return T(_ndtri(p))
 
 
 @_jit(2)
