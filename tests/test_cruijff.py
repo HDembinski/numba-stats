@@ -7,6 +7,6 @@ import math
 
 def test_pdf():
     x = np.linspace(-5, 5, 100)
-    got = cruijff.pdf(x, 0, 1, 1, 0, 0)
+    got = cruijff.density(x, 0, 1, 1, 0, 0)
     expected = norm().pdf(x) * math.sqrt(2 * math.pi)  # scale by root(2pi)
     assert_allclose(got, expected)

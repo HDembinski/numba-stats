@@ -6,6 +6,8 @@ See For example: https://arxiv.org/abs/1005.4087
 
 from ._util import _jit, _generate_wrappers, _prange
 import numpy as np
+from scipy.integrate import quad
+import numba
 
 _doc_par = """
 x : ArrayLike
@@ -40,8 +42,28 @@ def _logpdf(x, mean, sigma_left, sigma_right, alpha_left, alpha_right):
 
 
 @_jit(5)
-def _pdf(x, mean, sigma_left, sigma_right, alpha_left, alpha_right):
+def _density(x, mean, sigma_left, sigma_right, alpha_left, alpha_right):
     return np.exp(_logpdf(x, mean, sigma_left, sigma_right, alpha_left, alpha_right))
+
+
+@_jit(-5)
+def _norm(mean, sigma_left, sigma_right, alpha_left, alpha_right):
+    with numba.objmode(value="float"):
+        (value,) = quad(
+            lambda x: _density(
+                x, mean, sigma_left, sigma_right, alpha_left, alpha_right
+            ),
+            -np.inf,
+            np.inf,
+        )
+    return value
+
+
+@_jit(5)
+def _pdf(x, mean, sigma_left, sigma_right, alpha_left, alpha_right):
+    return _density(x, mean, sigma_left, sigma_right, alpha_left, alpha_right) / _norm(
+        mean, sigma_left, sigma_right, alpha_left, alpha_right
+    )
 
 
 _generate_wrappers(globals())
