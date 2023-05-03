@@ -88,6 +88,7 @@ def _generate_wrappers(d):
         args = inspect.signature(fn).parameters
         args = ", ".join([f"{x}" for x in args])
         doc_title = {
+            "density": "Return density.",
             "logpdf": "Return log of probability density.",
             "logpmf": "Return log of probability mass.",
             "pmf": "Return probability mass.",
