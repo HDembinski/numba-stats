@@ -14,7 +14,7 @@ x: ArrayLike
     Random variate.
 xmin : float
     Lower edge of the distribution.
-xmin : float
+xmax : float
     Upper edge of the distribution.
 loc : float
     Location of the mode.
@@ -67,10 +67,8 @@ def _cdf(x, xmin, xmax, loc, scale):
 
 @_jit(4)
 def _ppf(p, xmin, xmax, loc, scale):
-    T = type(xmin)
-    scale2 = T(1) / scale
-    zmin = (xmin - loc) * scale2
-    zmax = (xmax - loc) * scale2
+    zmin = (xmin - loc) / scale
+    zmax = (xmax - loc) / scale
     pmin = _expon._cdf1(zmin)
     pmax = _expon._cdf1(zmax)
     z = p * (pmax - pmin) + pmin
