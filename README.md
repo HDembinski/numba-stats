@@ -64,6 +64,8 @@ Note that this is only faster if `x` has sufficient length, otherwise the parall
 
 ## Benchmarks
 
+The following benchmarks were produced on a Intel(R) Core(TM) i7-8569U CPU @ 2.80GHz against SciPy-1.10.1.
+
 ![](docs/_static/norm.pdf.svg)
 ![](docs/_static/norm.cdf.svg)
 ![](docs/_static/norm.ppf.svg)
