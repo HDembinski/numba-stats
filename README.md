@@ -2,7 +2,7 @@
 
 ![](https://img.shields.io/pypi/v/numba-stats.svg)
 
-We provide numba-accelerated implementations of statistical functions for common probability distributions
+We provide `numba`-accelerated implementations of statistical functions for common probability distributions
 
 * Uniform
 * (Truncated) Normal
@@ -15,7 +15,7 @@ We provide numba-accelerated implementations of statistical functions for common
 * Generalised double-sided Crystal Ball
 * Tsallis-Hagedorn, a model for the minimum bias pT distribution
 * Q-Gaussian
-* Bernstein density (not normalised to unity, use this in extended likelihood fits)
+* Bernstein density (not normalized to unity, use this in extended likelihood fits)
 
 with more to come. The speed gains are huge, up to a factor of 100 compared to `scipy`. Benchmarks are included in the repository and are run by `pytest`.
 
@@ -33,7 +33,7 @@ sigma = 3
 p = norm.pdf(x, mu, sigma)
 c = norm.cdf(x, mu, sigma)
 ```
-The functions are vectorised on the variate `x`, but not on the shape parameters of the distribution. Ideally, the following functions are implemented for each distribution:
+The functions are vectorized on the variate `x`, but not on the shape parameters of the distribution. Ideally, the following functions are implemented for each distribution:
 * `logpdf`
 * `pdf`
 * `cdf`
@@ -41,7 +41,7 @@ The functions are vectorised on the variate `x`, but not on the shape parameters
 
 `cdf` and `ppf` are missing for some distributions (e.g. `voigt`), if there is currently no fast implementation available. `logpdf` is only implemented if it is more efficient and accurate compared to computing `log(dist.pdf(...))`.
 
-The distributions in `numba_stats` can be used in other numba-JIT'ed functions. The functions in `numba_stats` use a single thread, but the implementations were written so that they profit from auto-parallelization. To enable this, call them from a JIT'ed function with the argument `parallel=True,fastmath=True`. You should always combine `parallel=True` with `fastmath=True`, since the latter makes the code profit more from auto-parallelization.
+The distributions in `numba_stats` can be used in other `numba`-JIT'ed functions. The functions in `numba_stats` use a single thread, but the implementations were written so that they profit from auto-parallelization. To enable this, call them from a JIT'ed function with the argument `parallel=True,fastmath=True`. You should always combine `parallel=True` with `fastmath=True`, since the latter enhances the gain from auto-parallelization.
 
 ```py
 from numba_stats import norm
@@ -60,7 +60,7 @@ sigma = 3
 p = norm_pdf(x, mu, sigma)
 ```
 
-Note that this is only faster if `x` has sufficient length (about 1000 elements or more). Otherwise, the parallelization overhead will make this call slower, see benchmarks below.
+Note that this is only faster if `x` has sufficient length (about 1000 elements or more). Otherwise, the parallelization overhead will make the call slower, see benchmarks below.
 
 ## Benchmarks
 
@@ -87,13 +87,13 @@ The following benchmarks were produced on an Intel(R) Core(TM) i7-8569U CPU @ 2.
 ![](docs/_static/voigt.pdf.svg)
 ![](docs/_static/bernstein.density.svg)
 
-The functions `voigt.pdf`, `t.cdf`, and `t.ppf` do not run faster than the SciPy versions, because we call the respective SciPy implementation written in FORTRAN. The advantage provided by `numba_stats` here is that you can call these functions from other numba-JIT'ed functions, which is not possible with the SciPy implementations.
+The functions `voigt.pdf`, `t.cdf`, and `t.ppf` do not run faster than the `scipy` versions, because we call the respective `scipy` implementation written in FORTRAN. The advantage provided by `numba_stats` here is that you can call these functions from other `numba`-JIT'ed functions, which is not possible with the `scipy` implementations.
 
 ## Documentation
 
 To get documentation, please use `help()` in the Python interpreter.
 
-Functions with equivalents in `scipy.stats` follow the Scipy calling conventions exactly. These conventions are sometimes a bit unusual, for example, in case of the exponential, the log-normal or the uniform distribution. See the SciPy docs for details.
+Functions with equivalents in `scipy.stats` follow the `scipy` calling conventions exactly, except for distributions starting with `trunc...`, which follow a different convention, since the `scipy` behavior is very impractical. Even so, note that the `scipy` conventions are sometimes a bit unusual, particular in case of the exponential, the log-normal, and the uniform distribution. See the `scipy` docs for details.
 
 ## Contributions
 
