@@ -60,7 +60,7 @@ sigma = 3
 p = norm_pdf(x, mu, sigma)
 ```
 
-Note that this is only faster if `x` has sufficient length, otherwise the parallelization overhead will make this call slower. See benchmarks.
+Note that this is only faster if `x` has sufficient length (about 1000 elements or more). Otherwise, the parallelization overhead will make this call slower, see benchmarks below.
 
 ## Benchmarks
 
