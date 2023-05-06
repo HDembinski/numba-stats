@@ -87,7 +87,7 @@ The following benchmarks were produced on an Intel(R) Core(TM) i7-8569U CPU @ 2.
 ![](docs/_static/voigt.pdf.svg)
 ![](docs/_static/bernstein.density.svg)
 
-The functions `voigt.pdf`, `t.cdf`, and `t.ppf` do not run faster than the SciPy versions, because we call the respective SciPy implementation written in Fortran. The advantage provided by `numba_stats` here is that you can call these functions from other numba-JIT'ed functions, which is not possible with the SciPy implementations.
+The functions `voigt.pdf`, `t.cdf`, and `t.ppf` do not run faster than the SciPy versions, because we call the respective SciPy implementation written in FORTRAN. The advantage provided by `numba_stats` here is that you can call these functions from other numba-JIT'ed functions, which is not possible with the SciPy implementations.
 
 ## Documentation
 
