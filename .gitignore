@@ -11,3 +11,4 @@ venv
 .ipynb_checkpoints
 *.egg-info
 .vscode
+bench/*.svg
