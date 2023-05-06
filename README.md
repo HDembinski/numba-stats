@@ -30,8 +30,8 @@ x = np.linspace(-10, 10)
 mu = 2
 sigma = 3
 
-dp = norm.pdf(x, mu, sigma)
-p = norm.cdf(x, mu, sigma)
+p = norm.pdf(x, mu, sigma)
+c = norm.cdf(x, mu, sigma)
 ```
 The functions are vectorised on the variate `x`, but not on the shape parameters of the distribution. Ideally, the following functions are implemented for each distribution:
 * `logpdf`
@@ -40,6 +40,50 @@ The functions are vectorised on the variate `x`, but not on the shape parameters
 * `ppf`
 
 `cdf` and `ppf` are missing for some distributions (e.g. `voigt`), if there is currently no fast implementation available. `logpdf` is only implemented if it is more efficient and accurate compared to computing `log(dist.pdf(...))`.
+
+The distributions in `numba_stats` can be used in other numba-JIT'ed functions. The functions in `numba_stats` use a single thread, but the implementations were written so that they profit from auto-parallelization. To enable this, call them from a JIT'ed function with the argument `parallel=True,fastmath=True`. You should always combine `parallel=True` with `fastmath=True`, since the latter makes the code profit more from auto-parallelization.
+
+```py
+from numba_stats import norm
+import numba as nb
+import numpy as np
+
+@nb.njit(parallel=True, fastmath=True)
+def norm_pdf(x, mu, sigma):
+  return norm.pdf(x, mu, sigma)
+
+x = np.linspace(-10, 10)
+mu = 2
+sigma = 3
+
+# uses all your CPU cores
+p = norm_pdf(x, mu, sigma)
+```
+
+Note that this is only faster if `x` has sufficient length, otherwise the parallelization overhead will make this call slower. See benchmarks.
+
+## Benchmarks
+
+![](docs/_static/norm.pdf.svg)
+![](docs/_static/norm.cdf.svg)
+![](docs/_static/norm.ppf.svg)
+![](docs/_static/expon.pdf.svg)
+![](docs/_static/expon.cdf.svg)
+![](docs/_static/expon.ppf.svg)
+![](docs/_static/uniform.pdf.svg)
+![](docs/_static/uniform.cdf.svg)
+![](docs/_static/uniform.ppf.svg)
+![](docs/_static/t.pdf.svg)
+![](docs/_static/t.cdf.svg)
+![](docs/_static/t.ppf.svg)
+![](docs/_static/truncnorm.pdf.svg)
+![](docs/_static/truncnorm.cdf.svg)
+![](docs/_static/truncnorm.ppf.svg)
+![](docs/_static/truncexpon.pdf.svg)
+![](docs/_static/truncexpon.cdf.svg)
+![](docs/_static/truncexpon.ppf.svg)
+![](docs/_static/voigt.pdf.svg)
+![](docs/_static/bernstein.density.svg)
 
 ## Documentation
 
