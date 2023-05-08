@@ -16,6 +16,7 @@ We provide `numba`-accelerated implementations of statistical functions for comm
 * Tsallis-Hagedorn, a model for the minimum bias pT distribution
 * Q-Gaussian
 * Bernstein density (not normalized to unity, use this in extended likelihood fits)
+* Cruijff density (not normalized to unity, use this in extended likelihood fits)
 
 with more to come. The speed gains are huge, up to a factor of 100 compared to `scipy`. Benchmarks are included in the repository and are run by `pytest`.
 
