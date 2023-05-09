@@ -91,7 +91,6 @@ The `bernstein.density` does not profit from auto-parallelization, on the contra
 ![](docs/_static/truncexpon.ppf.svg)
 ![](docs/_static/voigt.pdf.svg)
 ![](docs/_static/bernstein.density.svg)
-![](docs/_static/bernstein.density.svg)
 ![](docs/_static/truncexpon.pdf.plus.norm.pdf.svg)
 
 ## Documentation
