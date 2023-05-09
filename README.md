@@ -67,6 +67,10 @@ Note that this is only faster if `x` has sufficient length (about 1000 elements 
 
 The following benchmarks were produced on an Intel(R) Core(TM) i7-8569U CPU @ 2.80GHz against SciPy-1.10.1. The dotted line on the right-hand figure shows the expected speedup (4x) from parallelization on a CPU with four physical cores.
 
+We see large speed-ups with respect to `scipy` for almost all distributions. Also calls with short arrays profit from `numba_stats`, due to the reduced call-overhead. The functions `voigt.pdf` and `t.ppf` do not run faster than the `scipy` versions, because we call the respective `scipy` implementation written in FORTRAN. The advantage provided by `numba_stats` here is that you can call these functions from other `numba`-JIT'ed functions, which is not possible with the `scipy` implementations, and `voigt.pdf` still profits from auto-parallelization.
+
+The `bernstein.density` does not profit from auto-parallelization, on the contrary it becomes much slower, so this should be avoided. This is a known issue, the internal implementation cannot be easily auto-parallelized.
+
 ![](docs/_static/norm.pdf.svg)
 ![](docs/_static/norm.cdf.svg)
 ![](docs/_static/norm.ppf.svg)
@@ -87,10 +91,8 @@ The following benchmarks were produced on an Intel(R) Core(TM) i7-8569U CPU @ 2.
 ![](docs/_static/truncexpon.ppf.svg)
 ![](docs/_static/voigt.pdf.svg)
 ![](docs/_static/bernstein.density.svg)
-
-The functions `voigt.pdf`, `t.cdf`, and `t.ppf` do not run faster than the `scipy` versions, because we call the respective `scipy` implementation written in FORTRAN. The advantage provided by `numba_stats` here is that you can call these functions from other `numba`-JIT'ed functions, which is not possible with the `scipy` implementations.
-
-The `bernstein.density` does not profit from auto-parallelization, on the contrary it becomes much slower. This is under investigation.
+![](docs/_static/bernstein.density.svg)
+![](docs/_static/truncexpon.pdf.plus.norm.pdf.svg)
 
 ## Documentation
 

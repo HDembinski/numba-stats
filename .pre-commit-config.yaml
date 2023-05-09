@@ -29,7 +29,7 @@ repos:
   - id: sort-simple-yaml
   - id: file-contents-sorter
   - id: trailing-whitespace
-    exclude: ^doc/_static/.*.svg
+    exclude: .*\.svg
 
 # Python linter (Flake8)
 - repo: https://github.com/PyCQA/flake8

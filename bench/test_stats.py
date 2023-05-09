@@ -159,3 +159,38 @@ def test_speed_bernstein_density(benchmark, lib, n):
     # warm-up JIT
     method(x, beta, xmin, xmax)
     benchmark(method, x, beta, xmin, xmax)
+
+
+@pytest.mark.parametrize("n", N)
+@pytest.mark.parametrize("lib", ("scipy", "ours", "ours:parallel,fastmath"))
+def test_speed_truncexpon_pdf_plus_norm_pdf(benchmark, lib, n):
+    x = np.linspace(0, 1, n)
+    rng = np.random.default_rng(1)
+    rng.shuffle(x)
+
+    xmin = np.min(x)
+    xmax = np.max(x)
+
+    if lib == "scipy":
+        from scipy.stats import norm, truncexpon
+
+        def method(x, z, mu, sigma, slope):
+            p1 = truncexpon.pdf(x, xmax, xmin, slope)
+            p2 = norm.pdf(x, mu, sigma)
+            return (1 - z) * p1 + z * p2
+
+    else:
+        from numba_stats import norm, truncexpon
+
+        def method(x, z, mu, sigma, slope):
+            p1 = truncexpon.pdf(x, xmin, xmax, 0.0, slope)
+            p2 = norm.pdf(x, mu, sigma)
+            return (1 - z) * p1 + z * p2
+
+        if lib == "ours:parallel,fastmath":
+            method = nb.njit(parallel=True, fastmath=True)(method)
+
+    # warm-up JIT
+    args = 0.5, 0.5, 0.1, 1.0
+    method(x, *args)
+    benchmark(method, x, *args)
