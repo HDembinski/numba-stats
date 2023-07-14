@@ -14,7 +14,7 @@ def test_density_1():
 def test_density_2():
     x = np.linspace(-5, 5, 100)
     got = cruijff.density(x, 0.1, 0.2, 1.5, 2.1, 2.1)
-    expected = cruijff.density((x - 1.5) / 2.1, 1, 0.1, 0.2, 0, 1, 1)
+    expected = cruijff.density((x - 1.5) / 2.1, 0.1, 0.2, 0, 1, 1)
     assert_allclose(got, expected)
 
 

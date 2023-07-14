@@ -23,7 +23,7 @@ scale_right: float
 """
 
 
-@_jit(6)
+@_jit(5)
 def _density(x, beta_left, beta_right, loc, scale_left, scale_right):
     r = np.empty_like(x)
     for i in _prange(len(x)):
