@@ -23,8 +23,8 @@ scale_right: float
 """
 
 
-@_jit(6)
-def _density(x, ymax, beta_left, beta_right, loc, scale_left, scale_right):
+@_jit(5)
+def _density(x, beta_left, beta_right, loc, scale_left, scale_right):
     r = np.empty_like(x)
     for i in _prange(len(x)):
         if x[i] < loc:
@@ -35,7 +35,7 @@ def _density(x, ymax, beta_left, beta_right, loc, scale_left, scale_right):
             beta = beta_right
         z = (x[i] - loc) / scale
         r[i] = -0.5 * z**2 / (1 + beta * z**2)
-    return ymax * np.exp(r)
+    return np.exp(r)
 
 
 _generate_wrappers(globals())
