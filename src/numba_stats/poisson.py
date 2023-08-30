@@ -9,7 +9,9 @@ scipy.stats.poisson: Scipy equivalent.
 import numpy as np
 from ._special import gammaincc as _gammaincc
 from math import lgamma as _lgamma
-from ._util import _jit, _generate_wrappers, _prange
+
+# from ._util import _generate_wrappers, _prange
+import numba as nb
 
 _doc_par = """
 x : ArrayLike
@@ -18,31 +20,40 @@ mu : float
     Expected value.
 """
 
+signatures = [
+    nb.float64(nb.int64, nb.float64),
+    nb.float64(nb.uint64, nb.float64),
+    nb.float64(nb.int32, nb.float64),
+    nb.float64(nb.uint32, nb.float64),
+    nb.float64(nb.float64, nb.float64),
+    nb.float32(nb.float32, nb.float32),
+    nb.float32(nb.int32, nb.float32),
+    nb.float32(nb.uint32, nb.float32),
+]
 
-@_jit(1)
-def _logpmf(k, mu):
+
+@nb.vectorize(signatures, nopython=True, cache=True)
+def logpmf(k, mu):
+    """Poisson logpmf."""
     T = type(mu)
-    r = np.empty(len(k), T)
-    for i in _prange(len(r)):
-        if mu == 0:
-            r[i] = 0.0 if k[i] == 0 else -np.inf
-        else:
-            r[i] = k[i] * np.log(mu) - _lgamma(k[i] + T(1)) - mu
-    return r
+    if mu == 0:
+        return T(0.0 if k == 0 else -np.inf)
+    else:
+        return T(k * np.log(mu) - _lgamma(k + T(1)) - mu)
 
 
-@_jit(1)
-def _pmf(k, mu):
-    return np.exp(_logpmf(k, mu))
+@nb.vectorize(signatures, nopython=True, cache=True)
+def pmf(k, mu):
+    """Poisson pmf."""
+    return np.exp(logpmf(k, mu))
 
 
-@_jit(1, cache=False)
-def _cdf(k, mu):
+# cannot be cached due to usage of cython function
+@nb.vectorize(signatures, nopython=True)
+def cdf(k, mu):
+    """Poisson cdf."""
     T = type(mu)
-    r = np.empty(len(k), T)
-    for i in _prange(len(r)):
-        r[i] = _gammaincc(k[i] + T(1), mu)
-    return r
+    return _gammaincc(k + T(1), mu)
 
 
-_generate_wrappers(globals())
+# _generate_wrappers(globals())
