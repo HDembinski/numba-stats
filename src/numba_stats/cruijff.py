@@ -4,7 +4,7 @@ Cruijff distribution.
 See For example: https://arxiv.org/abs/1005.4087
 """
 
-from ._util import _jit, _generate_wrappers, _prange
+from ._util import _jit, _generate_wrappers, _prange, _to_array
 import numpy as np
 
 _doc_par = """
@@ -25,6 +25,7 @@ scale_right: float
 
 @_jit(5)
 def _density(x, beta_left, beta_right, loc, scale_left, scale_right):
+    x, shape = _to_array(x)
     r = np.empty_like(x)
     for i in _prange(len(x)):
         if x[i] < loc:
@@ -35,7 +36,7 @@ def _density(x, beta_left, beta_right, loc, scale_left, scale_right):
             beta = beta_right
         z = (x[i] - loc) / scale
         r[i] = -0.5 * z**2 / (1 + beta * z**2)
-    return np.exp(r)
+    return np.reshape(np.exp(r), shape)
 
 
 _generate_wrappers(globals())

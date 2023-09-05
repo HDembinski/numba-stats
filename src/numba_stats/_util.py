@@ -9,7 +9,7 @@ _Floats = (nb.float32, nb.float64)
 
 
 def _to_array(a):
-    return np.atleast_1d(a), a.shape
+    return np.ravel(a), a.shape
 
 
 @overload(_to_array, inline="always")
@@ -27,10 +27,15 @@ def _(a):
             def _(a):
                 return a.reshape((1,)), ()
 
-            return _
+        elif a.ndim == 1:
 
-        def _(a):
-            return a, a.shape
+            def _(a):
+                return a, a.shape
+
+        else:
+
+            def _(a):
+                return a.ravel(), a.shape
 
         return _
 
@@ -39,7 +44,7 @@ def _readonly_carray(T):
     return Array(T, 1, "A", readonly=True)
 
 
-def _jit(arg, cache=True):
+def _jit(arg, scalar=True, cache=True):
     """
     Wrapper for numba.njit to reduce boilerplate code.
 
@@ -62,25 +67,29 @@ def _jit(arg, cache=True):
     for T in (nb.float32, nb.float64):
         if arg < 0:
             sig = T(*([T] * -arg))
+            signatures.append(sig)
         else:
             sig = T[:](_readonly_carray(T), *[T for _ in range(arg)])
-        signatures.append(sig)
+            signatures.append(sig)
+            if scalar:
+                sig = T(T, *[T for _ in range(arg)])
+                signatures.append(sig)
 
     return nb.njit(signatures, cache=cache, inline="always", error_model="numpy")
 
 
 def _wrap(fn):
     def outer(first, *rest):
-        shape = np.shape(first)
-        first = np.array(first).flatten()
+        if not isinstance(first, np.ndarray):
+            first = np.ndarray(first)
         if first.dtype.kind != "f":
             first = first.astype(float)
-        return fn(first, *rest).reshape(shape)
+        return fn(first, *rest)
 
     return outer
 
 
-@_jit(2)
+@_jit(2, scalar=False)
 def _trans(x, loc, scale):
     inv_scale = type(scale)(1) / scale
     return (x - loc) * inv_scale

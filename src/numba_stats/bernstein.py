@@ -17,7 +17,14 @@ scipy.interpolate.BPoly: Bernstein polynomials in Scipy.
 """
 
 import numpy as np
-from ._util import _jit, _Floats, _generate_wrappers, _readonly_carray, _trans
+from ._util import (
+    _jit,
+    _Floats,
+    _generate_wrappers,
+    _readonly_carray,
+    _trans,
+    _to_array,
+)
 
 
 @_jit([T[:](_readonly_carray(T), _readonly_carray(T)) for T in _Floats])
@@ -86,8 +93,9 @@ def _density(x, beta, xmin, xmax):
     --------
     scipy.interpolate.BPoly
     """
+    x, shape = _to_array(x)
     z = _trans(x, xmin, xmax - xmin)
-    return _de_castlejau(z, beta)
+    return np.reshape(_de_castlejau(z, beta), shape)
 
 
 @_jit(
@@ -125,21 +133,20 @@ def _integral(x, beta, xmin, xmax):
     scipy.interpolate.BPoly
     """
     scale = xmax - xmin
+    x, shape = _to_array(x)
     z = _trans(x, xmin, scale)
     beta = _beta_int(beta) * scale
-    return _de_castlejau(z, beta)
+    return np.reshape(_de_castlejau(z, beta), shape)
 
 
 def _wrap(fn):
     def outer(x, beta, xmin, xmax):
-        shape = np.shape(x)
         args = []
         for arg in (x, beta):
-            arg = np.array(arg).flatten()
             if arg.dtype.kind != "f":
                 arg = arg.astype(float)
             args.append(arg)
-        return fn(*args, xmin, xmax).reshape(shape)
+        return fn(*args, xmin, xmax)
 
     return outer
 

@@ -7,7 +7,7 @@ scipy.stats.expon: Scipy equivalent.
 """
 import numpy as np
 from math import expm1 as _expm1, log1p as _log1p
-from ._util import _jit, _trans, _generate_wrappers, _prange
+from ._util import _jit, _trans, _generate_wrappers, _prange, _to_array
 
 _doc_par = """
 x: ArrayLike
@@ -31,8 +31,9 @@ def _ppf1(p):
 
 @_jit(2)
 def _logpdf(x, loc, scale):
+    x, shape = _to_array(x)
     z = _trans(x, loc, scale)
-    return -z - np.log(scale)
+    return -np.reshape(z, shape) - np.log(scale)
 
 
 @_jit(2)
@@ -76,18 +77,20 @@ def _cdf(x, loc, scale):
     ArrayLike
         Function evaluated at x.
     """
+    x, shape = _to_array(x)
     z = _trans(x, loc, scale)
     for i in _prange(len(z)):
         z[i] = _cdf1(z[i])
-    return z
+    return np.reshape(z, shape)
 
 
 @_jit(2)
 def _ppf(p, loc, scale):
+    p, shape = _to_array(p)
     z = np.empty_like(p)
     for i in _prange(len(z)):
         z[i] = _ppf1(p[i])
-    return scale * z + loc
+    return scale * np.reshape(z, shape) + loc
 
 
 _generate_wrappers(globals())

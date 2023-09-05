@@ -54,10 +54,13 @@ def test_numba(fn, parallel):
     xmax = 2.5
 
     @nb.njit(parallel=parallel, fastmath=True)
-    def f():
+    def f(x):
         return fn(x, beta, xmin, xmax)
 
-    assert_allclose(f(), fn(x, beta, xmin, xmax))
+    assert_allclose(f(x), fn(x, beta, xmin, xmax))
+
+    x = 0.55
+    assert_allclose(f(x), fn(x, beta, xmin, xmax))
 
 
 def test_deprecation():

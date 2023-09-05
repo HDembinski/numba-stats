@@ -10,7 +10,7 @@ See Also
 --------
 scipy.stats.crystalball: Scipy equivalent.
 """
-from ._util import _jit, _trans, _generate_wrappers, _prange
+from ._util import _jit, _trans, _generate_wrappers, _prange, _to_array
 import numpy as np
 from math import erf as _erf
 
@@ -60,6 +60,7 @@ def _log_density(z, beta, m):
 
 @_jit(4)
 def _logpdf(x, beta, m, loc, scale):
+    x, shape = _to_array(x)
     z = _trans(x, loc, scale)
     norm = scale * (
         _powerlaw_integral(-beta, beta, m) + _normal_integral(-beta, type(beta)(np.inf))
@@ -67,7 +68,7 @@ def _logpdf(x, beta, m, loc, scale):
     c = np.log(norm)
     for i in _prange(len(z)):
         z[i] = _log_density(z[i], beta, m) - c
-    return z
+    return np.reshape(z, shape)
 
 
 @_jit(4)
@@ -77,6 +78,7 @@ def _pdf(x, beta, m, loc, scale):
 
 @_jit(4)
 def _cdf(x, beta, m, loc, scale):
+    x, shape = _to_array(x)
     z = _trans(x, loc, scale)
     norm = _powerlaw_integral(-beta, beta, m) + _normal_integral(
         -beta, type(beta)(np.inf)
@@ -88,7 +90,7 @@ def _cdf(x, beta, m, loc, scale):
             z[i] = (
                 _powerlaw_integral(-beta, beta, m) + _normal_integral(-beta, z[i])
             ) / norm
-    return z
+    return np.reshape(z, shape)
 
 
 _generate_wrappers(globals())

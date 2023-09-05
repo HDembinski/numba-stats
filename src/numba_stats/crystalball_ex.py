@@ -8,7 +8,7 @@ discontinuity at the maximum or elsewhere.
 """
 
 from .crystalball import _powerlaw_integral, _normal_integral, _log_density
-from ._util import _jit, _generate_wrappers, _prange
+from ._util import _jit, _generate_wrappers, _prange, _to_array
 import numpy as np
 
 _doc_par = """
@@ -41,6 +41,7 @@ def _norm_half(beta, m, scale):
 
 @_jit(7)
 def _logpdf(x, beta_left, m_left, scale_left, beta_right, m_right, scale_right, loc):
+    x, shape = _to_array(x)
     norm = _norm_half(beta_left, m_left, scale_left) + _norm_half(
         beta_right, m_right, scale_right
     )
@@ -56,7 +57,7 @@ def _logpdf(x, beta_left, m_left, scale_left, beta_right, m_right, scale_right, 
             m = m_right
             z = (loc - x[i]) / scale_right
         r[i] = _log_density(z, beta, m) - c
-    return r
+    return np.reshape(r, shape)
 
 
 @_jit(7)
@@ -77,6 +78,7 @@ def _pdf(x, beta_left, m_left, scale_left, beta_right, m_right, scale_right, loc
 
 @_jit(7)
 def _cdf(x, beta_left, m_left, scale_left, beta_right, m_right, scale_right, loc):
+    x, shape = _to_array(x)
     T = type(beta_left)
     norm = _norm_half(beta_left, m_left, scale_left) + _norm_half(
         beta_right, m_right, scale_right
@@ -119,7 +121,7 @@ def _cdf(x, beta_left, m_left, scale_left, beta_right, m_right, scale_right, loc
                 )
                 * scale_right
             ) / norm
-    return r
+    return np.reshape(r, shape)
 
 
 _generate_wrappers(globals())

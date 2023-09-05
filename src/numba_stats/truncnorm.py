@@ -8,7 +8,7 @@ scipy.stats.truncnorm: Scipy equivalent.
 
 import numpy as np
 from . import norm as _norm
-from ._util import _jit, _generate_wrappers, _prange
+from ._util import _jit, _generate_wrappers, _prange, _to_array
 
 _doc_par = """
 x: ArrayLike
@@ -28,6 +28,7 @@ scale : float
 def _logpdf(x, xmin, xmax, loc, scale):
     T = type(scale)
     scale2 = T(1) / scale
+    x, shape = _to_array(x)
     z = (x - loc) * scale2
     zmin = (xmin - loc) * scale2
     zmax = (xmax - loc) * scale2
@@ -37,7 +38,7 @@ def _logpdf(x, xmin, xmax, loc, scale):
             z[i] = _norm._logpdf1(z[i]) - np.log(scale)
         else:
             z[i] = -T(np.inf)
-    return z
+    return np.reshape(z, shape)
 
 
 @_jit(4)
@@ -48,6 +49,7 @@ def _pdf(x, xmin, xmax, loc, scale):
 @_jit(4)
 def _cdf(x, xmin, xmax, loc, scale):
     scale = type(scale)(1) / scale
+    x, shape = _to_array(x)
     r = (x - loc) * scale
     zmin = (xmin - loc) * scale
     zmax = (xmax - loc) * scale
@@ -61,11 +63,12 @@ def _cdf(x, xmin, xmax, loc, scale):
                 r[i] = 1.0
         else:
             r[i] = 0.0
-    return r
+    return np.reshape(r, shape)
 
 
 @_jit(4, cache=False)
 def _ppf(p, xmin, xmax, loc, scale):
+    p, shape = _to_array(p)
     scale2 = type(scale)(1) / scale
     zmin = (xmin - loc) * scale2
     zmax = (xmax - loc) * scale2
@@ -74,7 +77,7 @@ def _ppf(p, xmin, xmax, loc, scale):
     r = p * (pmax - pmin) + pmin
     for i in _prange(len(r)):
         r[i] = _norm._ppf1(r[i])
-    return scale * r + loc
+    return scale * np.reshape(r, shape) + loc
 
 
 _generate_wrappers(globals())

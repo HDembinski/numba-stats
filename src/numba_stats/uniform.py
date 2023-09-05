@@ -5,7 +5,7 @@ See Also
 --------
 scipy.stats.uniform: Equivalent in Scipy.
 """
-from ._util import _jit, _generate_wrappers, _prange
+from ._util import _jit, _generate_wrappers, _prange, _to_array
 import numpy as np
 
 _doc_par = """
@@ -20,13 +20,14 @@ w : float
 
 @_jit(2)
 def _logpdf(x, a, w):
+    x, shape = _to_array(x)
     r = np.empty_like(x)
     for i in _prange(len(x)):
         if a <= x[i] <= a + w:
             r[i] = -np.log(w)
         else:
             r[i] = -np.inf
-    return r
+    return np.reshape(r, shape)
 
 
 @_jit(2)
@@ -36,6 +37,7 @@ def _pdf(x, a, w):
 
 @_jit(2)
 def _cdf(x, a, w):
+    x, shape = _to_array(x)
     r = np.empty_like(x)
     for i in _prange(len(x)):
         if a <= x[i]:
@@ -45,7 +47,7 @@ def _cdf(x, a, w):
                 r[i] = 1
         else:
             r[i] = 0
-    return r
+    return np.reshape(r, shape)
 
 
 @_jit(2)

@@ -6,7 +6,7 @@ See Also
 scipy.stats.truncexpon: Scipy equivalent.
 """
 import numpy as np
-from ._util import _jit, _trans, _generate_wrappers, _prange
+from ._util import _jit, _trans, _generate_wrappers, _prange, _to_array
 from . import expon as _expon
 
 _doc_par = """
@@ -26,6 +26,7 @@ scale : float
 @_jit(4)
 def _logpdf(x, xmin, xmax, loc, scale):
     T = type(xmin)
+    x, shape = _to_array(x)
     z = _trans(x, loc, scale)
     scale2 = T(1) / scale
     zmin = (xmin - loc) * scale2
@@ -36,7 +37,7 @@ def _logpdf(x, xmin, xmax, loc, scale):
             z[i] = -z[i] - c
         else:
             z[i] = -np.inf
-    return z
+    return np.reshape(z, shape)
 
 
 @_jit(4)
@@ -47,6 +48,7 @@ def _pdf(x, xmin, xmax, loc, scale):
 @_jit(4)
 def _cdf(x, xmin, xmax, loc, scale):
     T = type(xmin)
+    x, shape = _to_array(x)
     z = _trans(x, loc, scale)
     scale2 = T(1) / scale
     zmin = (xmin - loc) * scale2
@@ -62,7 +64,7 @@ def _cdf(x, xmin, xmax, loc, scale):
                 z[i] = 1
         else:
             z[i] = 0
-    return z
+    return np.reshape(z, shape)
 
 
 @_jit(4)
@@ -71,10 +73,11 @@ def _ppf(p, xmin, xmax, loc, scale):
     zmax = (xmax - loc) / scale
     pmin = _expon._cdf1(zmin)
     pmax = _expon._cdf1(zmax)
+    p, shape = _to_array(p)
     z = p * (pmax - pmin) + pmin
     for i in _prange(len(z)):
         z[i] = _expon._ppf1(z[i])
-    return z * scale + loc
+    return np.reshape(z, shape) * scale + loc
 
 
 _generate_wrappers(globals())
