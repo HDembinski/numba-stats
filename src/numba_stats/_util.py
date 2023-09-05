@@ -1,11 +1,38 @@
 import numba as nb
 import numpy as np
-from numba.types import Array
+from numba.types import Array, Float, Integer
 from numba.core.errors import TypingError
 from numba.extending import overload
 from numba import prange as _prange  # noqa
 
 _Floats = (nb.float32, nb.float64)
+
+
+def _to_array(a):
+    return np.atleast_1d(a), a.shape
+
+
+@overload(_to_array, inline="always")
+def _(a):
+    if isinstance(a, (Float, Integer)):
+
+        def _(a):
+            return np.array([a]), ()
+
+        return _
+
+    if isinstance(a, Array):
+        if a.ndim == 0:
+
+            def _(a):
+                return a.reshape((1,)), ()
+
+            return _
+
+        def _(a):
+            return a, a.shape
+
+        return _
 
 
 def _readonly_carray(T):
@@ -60,8 +87,13 @@ def _trans(x, loc, scale):
 
 
 def _type_check(first, *rest):
+    if isinstance(first, (Float, Integer)):
+        return
+
     if not (isinstance(first, Array) and first.dtype in _Floats):
-        raise TypingError("first argument must be an array of floating point type")
+        raise TypingError(
+            "first argument must be a number or an array of floating point type"
+        )
 
     T = type(first.dtype)
     for i, tp in enumerate(rest):

@@ -7,7 +7,7 @@ scipy.stats.norm: Scipy equivalent.
 """
 import numpy as np
 from ._special import ndtri as _ndtri
-from ._util import _jit, _trans, _generate_wrappers, _prange
+from ._util import _jit, _trans, _generate_wrappers, _prange, _to_array
 from math import erf as _erf
 
 _doc_par = """
@@ -41,10 +41,11 @@ def _ppf1(p):
 
 @_jit(2)
 def _logpdf(x, loc, scale):
+    x, shape = _to_array(x)
     r = _trans(x, loc, scale)
     for i in _prange(len(r)):
         r[i] = _logpdf1(r[i]) - np.log(scale)
-    return r
+    return np.reshape(r, shape)
 
 
 @_jit(2)
@@ -54,18 +55,20 @@ def _pdf(x, loc, scale):
 
 @_jit(2)
 def _cdf(x, loc, scale):
+    x, shape = _to_array(x)
     r = _trans(x, loc, scale)
     for i in _prange(len(r)):
         r[i] = _cdf1(r[i])
-    return r
+    return np.reshape(r, shape)
 
 
 @_jit(2, cache=False)
 def _ppf(p, loc, scale):
+    p, shape = _to_array(p)
     r = np.empty_like(p)
     for i in _prange(len(r)):
         r[i] = scale * _ppf1(p[i]) + loc
-    return r
+    return np.reshape(r, shape)
 
 
 _generate_wrappers(globals())

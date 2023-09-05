@@ -57,3 +57,6 @@ def test_njit(fn, parallel):
     y = test(x)
 
     assert_allclose(y, fn(x, 0, 1))
+
+    y = test(2.5)
+    assert_allclose(y, fn(2.5, 0, 1))
