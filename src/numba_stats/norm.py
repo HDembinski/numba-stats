@@ -11,8 +11,6 @@ from ._util import _jit, _trans, _generate_wrappers, _prange
 from math import erf as _erf
 
 _doc_par = """
-x : ArrayLike
-    Random variate.
 loc : float
     Location of the mode of the distribution.
 scale : float

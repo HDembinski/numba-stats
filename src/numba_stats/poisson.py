@@ -12,8 +12,6 @@ from math import lgamma as _lgamma
 from ._util import _jit, _generate_wrappers, _prange
 
 _doc_par = """
-x : ArrayLike
-    Random variate.
 mu : float
     Expected value.
 """

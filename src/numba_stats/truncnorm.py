@@ -11,8 +11,6 @@ from . import norm as _norm
 from ._util import _jit, _generate_wrappers, _prange
 
 _doc_par = """
-x: ArrayLike
-    Random variate.
 xmin : float
     Lower edge of the distribution.
 xmin : float

@@ -41,3 +41,17 @@ def test_ppf():
     x = truncexpon.ppf(expected, xmin, xmax, mu, sigma)
     got = truncexpon.cdf(x, xmin, xmax, mu, sigma)
     np.testing.assert_allclose(got, expected, atol=1e-14)
+
+
+def test_rvs():
+    xmin = 1
+    xmax = 4
+    mu = 2
+    sigma = 3
+    x = truncexpon.rvs(xmin, xmax, mu, sigma, size=100_000, random_state=1)
+    p = truncexpon.cdf(x, xmin, xmax, mu, sigma)
+    from matplotlib import pyplot as plt
+
+    plt.hist(p)
+    plt.show()
+    # np.testing.assert_allclose(got, expected, atol=1e-14)

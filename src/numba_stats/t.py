@@ -11,8 +11,6 @@ from ._util import _jit, _trans, _generate_wrappers, _prange
 from math import lgamma as _lgamma
 
 _doc_par = """
-x: ArrayLike
-    Random variate.
 df : float
     Degrees of freedom.
 loc : float

@@ -29,16 +29,26 @@ def _jit(arg, cache=True):
         an array, the others are scalars and arg is the number of scalar arguments.
     """
     if isinstance(arg, list):
-        return nb.njit(arg, cache=cache, inline="always", error_model="numpy")
+        signatures = arg
+    else:
+        signatures = []
+        for T in (nb.float32, nb.float64):
+            if arg < 0:
+                sig = T(*([T] * -arg))
+            else:
+                sig = T[:](_readonly_carray(T), *[T for _ in range(arg)])
+            signatures.append(sig)
+    return nb.njit(signatures, cache=cache, inline="always", error_model="numpy")
 
-    signatures = []
-    for T in (nb.float32, nb.float64):
-        if arg < 0:
-            sig = T(*([T] * -arg))
-        else:
-            sig = T[:](_readonly_carray(T), *[T for _ in range(arg)])
-        signatures.append(sig)
 
+def _rvs_jit(arg, cache=True):
+    if isinstance(arg, list):
+        signatures = arg
+    else:
+        signatures = []
+        for T in (nb.float32, nb.float64):
+            sig = T[:](*[T for _ in range(arg)], nb.uint64, nb.optional(nb.uint64))
+            signatures.append(sig)
     return nb.njit(signatures, cache=cache, inline="always", error_model="numpy")
 
 
@@ -80,7 +90,17 @@ def _generate_wrappers(d):
 
     doc_par = d["_doc_par"].strip() if "_doc_par" in d else None
 
-    for fname in "pdf", "pmf", "logpdf", "logpmf", "cdf", "ppf", "density", "integral":
+    for fname in (
+        "pdf",
+        "pmf",
+        "logpdf",
+        "logpmf",
+        "cdf",
+        "ppf",
+        "density",
+        "integral",
+        "rvs",
+    ):
         impl = f"_{fname}"
         if impl not in d:
             continue
@@ -89,13 +109,35 @@ def _generate_wrappers(d):
         args = ", ".join([f"{x}" for x in args])
         doc_title = {
             "density": "Return density.",
+            "integral": "Return integrated density.",
             "logpdf": "Return log of probability density.",
             "logpmf": "Return log of probability mass.",
             "pmf": "Return probability mass.",
             "pdf": "Return probability density.",
             "cdf": "Return cumulative probability.",
             "ppf": "Return quantile for given probability.",
+            "rvs": "Return random samples from distribution.",
         }.get(fname, None)
+        if fname == "ppf":
+            before_par = """\
+x: ArrayLike
+    Probability. Must be between 0 and 1.
+"""
+        elif fname == "rvs":
+            before_par = ""
+        else:
+            before_par = """\
+    x: ArrayLike
+        Random variate.
+    """
+        if fname == "rvs":
+            after_par = """\
+    size : int, optional
+        Number of random variates. Default is 1.
+    random_state : int or None, optional
+        Seed of the random number generator. Default is None, which uses a random seed."""
+        else:
+            after_par = ""
 
         code = f"""
 def {fname}({args}):
@@ -118,7 +160,7 @@ def _ol_{fname}({args}):
 
 Parameters
 ----------
-{doc_par}
+{before_par}{doc_par}{after_par}
 
 Returns
 -------

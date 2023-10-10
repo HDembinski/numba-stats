@@ -10,8 +10,6 @@ from . import norm as _norm
 from ._util import _jit, _trans, _generate_wrappers, _prange
 
 _doc_par = """
-x : ArrayLike
-    Random variate.
 s : float
     Standard deviation of the corresponding normal distribution of exp(x).
 loc : float

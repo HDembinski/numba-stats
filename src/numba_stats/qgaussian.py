@@ -16,8 +16,6 @@ from . import norm as _norm, t as _t
 from ._util import _jit, _generate_wrappers
 
 _doc_par = """
-x : ArrayLike
-    Random variate.
 q : float
     Shape parameter between 1 and 3. For q = 1, the qgaussian is a normal distribution,
     for q == 3 it is a cauchy distribution.

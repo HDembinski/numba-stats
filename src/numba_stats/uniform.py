@@ -9,8 +9,6 @@ from ._util import _jit, _generate_wrappers, _prange
 import numpy as np
 
 _doc_par = """
-x : ArrayLike
-    Random variate.
 a : float
     Lower edge of the distribution.
 w : float

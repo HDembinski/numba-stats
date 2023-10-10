@@ -6,12 +6,10 @@ See Also
 scipy.stats.truncexpon: Scipy equivalent.
 """
 import numpy as np
-from ._util import _jit, _trans, _generate_wrappers, _prange
+from ._util import _jit, _trans, _generate_wrappers, _prange, _rvs_jit
 from . import expon as _expon
 
 _doc_par = """
-x: ArrayLike
-    Random variate.
 xmin : float
     Lower edge of the distribution.
 xmax : float
@@ -75,6 +73,18 @@ def _ppf(p, xmin, xmax, loc, scale):
     for i in _prange(len(z)):
         z[i] = _expon._ppf1(z[i])
     return z * scale + loc
+
+
+@_rvs_jit(4)
+def _rvs(xmin, xmax, loc, scale, size=1, random_state=None):
+    if random_state is None:
+        np.random.seed()
+    elif isinstance(random_state, int):
+        np.random.seed(random_state)
+    else:
+        raise ValueError("random_state keyword only supports integers")
+    p = np.random.uniform(size)
+    return _ppf(p, xmin, xmax, loc, scale)
 
 
 _generate_wrappers(globals())
