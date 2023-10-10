@@ -4,6 +4,7 @@ from numba.types import Array
 from numba.core.errors import TypingError
 from numba.extending import overload
 from numba import prange as _prange  # noqa
+import os
 
 _Floats = (nb.float32, nb.float64)
 
@@ -42,14 +43,20 @@ def _jit(arg, cache=True):
 
 
 def _rvs_jit(arg, cache=True):
-    if isinstance(arg, list):
-        signatures = arg
-    else:
-        signatures = []
-        for T in (nb.float32, nb.float64):
-            sig = T[:](*[T for _ in range(arg)], nb.uint64, nb.optional(nb.uint64))
-            signatures.append(sig)
+    signatures = []
+    T = nb.float64  # nb.float32 cannot be supported
+    # extra args at the end are for size and random_state
+    sig = T[:](*[T for _ in range(arg)], nb.uint64, nb.optional(nb.uint64))
+    signatures.append(sig)
     return nb.njit(signatures, cache=cache, inline="always", error_model="numpy")
+
+
+@nb.njit(cache=True)
+def _seed(seed):
+    if seed is None:
+        with nb.objmode(seed="optional(uint8)"):
+            seed = np.frombuffer(os.urandom(8), dtype=np.uint64)[0]
+    np.random.seed(seed)
 
 
 def _wrap(fn):
@@ -127,19 +134,29 @@ x: ArrayLike
             before_par = ""
         else:
             before_par = """\
-    x: ArrayLike
-        Random variate.
-    """
+x: ArrayLike
+    Random variate.
+"""
         if fname == "rvs":
-            after_par = """\
-    size : int, optional
-        Number of random variates. Default is 1.
-    random_state : int or None, optional
-        Seed of the random number generator. Default is None, which uses a random seed."""
+            after_par = """
+size : int
+    Number of random variates.
+random_state : int or None
+    Seed of the random number generator. Default is None, which uses a random seed."""
         else:
             after_par = ""
 
-        code = f"""
+        if fname == "rvs":
+            code = f"""
+def {fname}({args}):
+    return {impl}({args})
+
+@_overload({fname}, inline="always")
+def _ol_{fname}({args}):
+    return {impl}
+"""
+        else:
+            code = f"""
 def {fname}({args}):
     return _wrap({impl})({args})
 
@@ -148,6 +165,7 @@ def _ol_{fname}({args}):
     _type_check({args})
     return {impl}.__wrapped__
 """
+
         if doc_par is None:
             code += f"""
 {fname}.__doc__ = {impl}.__doc__

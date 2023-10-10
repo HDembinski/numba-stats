@@ -1,5 +1,6 @@
 import numpy as np
 from numba_stats import truncexpon, expon
+from scipy.stats import kstest
 
 
 def test_pdf():
@@ -49,9 +50,5 @@ def test_rvs():
     mu = 2
     sigma = 3
     x = truncexpon.rvs(xmin, xmax, mu, sigma, size=100_000, random_state=1)
-    p = truncexpon.cdf(x, xmin, xmax, mu, sigma)
-    from matplotlib import pyplot as plt
-
-    plt.hist(p)
-    plt.show()
-    # np.testing.assert_allclose(got, expected, atol=1e-14)
+    r = kstest(x, lambda x: truncexpon.cdf(x, xmin, xmax, mu, sigma))
+    assert r.pvalue > 0.01

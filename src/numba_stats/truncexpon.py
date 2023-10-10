@@ -6,7 +6,7 @@ See Also
 scipy.stats.truncexpon: Scipy equivalent.
 """
 import numpy as np
-from ._util import _jit, _trans, _generate_wrappers, _prange, _rvs_jit
+from ._util import _jit, _trans, _generate_wrappers, _prange, _rvs_jit, _seed
 from . import expon as _expon
 
 _doc_par = """
@@ -76,14 +76,9 @@ def _ppf(p, xmin, xmax, loc, scale):
 
 
 @_rvs_jit(4)
-def _rvs(xmin, xmax, loc, scale, size=1, random_state=None):
-    if random_state is None:
-        np.random.seed()
-    elif isinstance(random_state, int):
-        np.random.seed(random_state)
-    else:
-        raise ValueError("random_state keyword only supports integers")
-    p = np.random.uniform(size)
+def _rvs(xmin, xmax, loc, scale, size, random_state):
+    _seed(random_state)
+    p = np.random.uniform(0, 1, size)
     return _ppf(p, xmin, xmax, loc, scale)
 
 
