@@ -7,7 +7,7 @@ scipy.stats.t: Scipy equivalent.
 """
 import numpy as np
 from ._special import stdtr as _stdtr, stdtrit as _stdtrit
-from ._util import _jit, _trans, _generate_wrappers, _prange
+from ._util import _jit, _trans, _generate_wrappers, _prange, _seed, _rvs_jit
 from math import lgamma as _lgamma
 
 _doc_par = """
@@ -58,6 +58,13 @@ def _ppf(p, df, loc, scale):
         else:
             r[i] = _stdtrit(df, p[i])
     return scale * r + loc
+
+
+@_rvs_jit(3)
+def _rvs(df, loc, scale, size, random_state):
+    _seed(random_state)
+    p = np.random.uniform(0, 1, size)
+    return _ppf(p, df, loc, scale)
 
 
 _generate_wrappers(globals())

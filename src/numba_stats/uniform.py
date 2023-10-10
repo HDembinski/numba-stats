@@ -5,7 +5,7 @@ See Also
 --------
 scipy.stats.uniform: Equivalent in Scipy.
 """
-from ._util import _jit, _generate_wrappers, _prange
+from ._util import _jit, _generate_wrappers, _prange, _rvs_jit, _seed
 import numpy as np
 
 _doc_par = """
@@ -49,6 +49,13 @@ def _cdf(x, a, w):
 @_jit(2)
 def _ppf(p, a, w):
     return w * p + a
+
+
+@_rvs_jit(2)
+def _rvs(a, w, size, random_state):
+    _seed(random_state)
+    p = np.random.uniform(0, 1, size)
+    return _ppf(p, a, w)
 
 
 _generate_wrappers(globals())

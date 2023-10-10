@@ -7,7 +7,7 @@ scipy.stats.norm: Scipy equivalent.
 """
 import numpy as np
 from ._special import ndtri as _ndtri
-from ._util import _jit, _trans, _generate_wrappers, _prange
+from ._util import _jit, _trans, _generate_wrappers, _prange, _seed, _rvs_jit
 from math import erf as _erf
 
 _doc_par = """
@@ -64,6 +64,13 @@ def _ppf(p, loc, scale):
     for i in _prange(len(r)):
         r[i] = scale * _ppf1(p[i]) + loc
     return r
+
+
+@_rvs_jit(2)
+def _rvs(loc, scale, size, random_state):
+    _seed(random_state)
+    p = np.random.uniform(0, 1, size)
+    return _ppf(p, loc, scale)
 
 
 _generate_wrappers(globals())

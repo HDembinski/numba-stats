@@ -7,7 +7,7 @@ scipy.stats.expon: Scipy equivalent.
 """
 import numpy as np
 from math import expm1 as _expm1, log1p as _log1p
-from ._util import _jit, _trans, _generate_wrappers, _prange
+from ._util import _jit, _trans, _generate_wrappers, _prange, _rvs_jit, _seed
 
 _doc_par = """
 loc : float
@@ -86,6 +86,13 @@ def _ppf(p, loc, scale):
     for i in _prange(len(z)):
         z[i] = _ppf1(p[i])
     return scale * z + loc
+
+
+@_rvs_jit(2)
+def _rvs(loc, scale, size, random_state):
+    _seed(random_state)
+    p = np.random.uniform(0, 1, size)
+    return _ppf(p, loc, scale)
 
 
 _generate_wrappers(globals())

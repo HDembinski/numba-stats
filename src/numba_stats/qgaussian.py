@@ -13,7 +13,7 @@ https://en.wikipedia.org/wiki/Q-Gaussian_distribution
 import numpy as np
 import numba as nb
 from . import norm as _norm, t as _t
-from ._util import _jit, _generate_wrappers
+from ._util import _jit, _generate_wrappers, _rvs_jit
 
 _doc_par = """
 q : float
@@ -83,6 +83,19 @@ def _ppf(p, q, mu, sigma):
     df, sigma = _df_sigma(q, sigma)
 
     return _t._ppf(p, df, mu, sigma)
+
+
+@_rvs_jit(3)
+def _rvs(q, mu, sigma, size, random_state):
+    if q < 1 or q > 3:
+        raise ValueError("q < 1 or q > 3 are not supported")
+
+    if q == 1:
+        return _norm._rvs(mu, sigma, size, random_state)
+
+    df, sigma = _df_sigma(q, sigma)
+
+    return _t._rvs(df, mu, sigma, size, random_state)
 
 
 _generate_wrappers(globals())
