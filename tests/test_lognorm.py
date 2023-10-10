@@ -33,6 +33,13 @@ def test_ppf():
     assert_allclose(got, expected)
 
 
+def test_rvs():
+    args = 1.5, 0.1, 1.2
+    x = lognorm.rvs(*args, size=100_000, random_state=1)
+    r = sc.kstest(x, lambda x: lognorm.cdf(x, *args))
+    assert r.pvalue > 0.01
+
+
 def test_njit():
     @nb.njit
     def test(x):

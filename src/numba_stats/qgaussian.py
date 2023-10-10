@@ -85,7 +85,7 @@ def _ppf(p, q, mu, sigma):
     return _t._ppf(p, df, mu, sigma)
 
 
-@_rvs_jit(3)
+@_rvs_jit(3, cache=False)
 def _rvs(q, mu, sigma, size, random_state):
     if q < 1 or q > 3:
         raise ValueError("q < 1 or q > 3 are not supported")

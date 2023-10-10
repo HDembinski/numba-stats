@@ -22,3 +22,10 @@ def test_ppf():
     got = expon.ppf(p, 1, 2)
     expected = sc.expon.ppf(p, 1, 2)
     np.testing.assert_allclose(got, expected)
+
+
+def test_rvs():
+    args = 1, 2
+    x = expon.rvs(*args, size=100_000, random_state=1)
+    r = sc.kstest(x, lambda x: expon.cdf(x, *args))
+    assert r.pvalue > 0.01

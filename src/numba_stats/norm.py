@@ -66,7 +66,7 @@ def _ppf(p, loc, scale):
     return r
 
 
-@_rvs_jit(2)
+@_rvs_jit(2, cache=False)
 def _rvs(loc, scale, size, random_state):
     _seed(random_state)
     p = np.random.uniform(0, 1, size)
