@@ -22,7 +22,7 @@ with more to come. The speed gains are huge, up to a factor of 100 compared to `
 
 ## Usage
 
-Each distribution is implemented in a submodule. Import the submodule that you need.
+Each distribution is implemented in a submodule. Import the submodule that you need and call the functions in the module.
 ```py
 from numba_stats import norm
 import numpy as np
@@ -35,12 +35,13 @@ p = norm.pdf(x, mu, sigma)
 c = norm.cdf(x, mu, sigma)
 ```
 The functions are vectorized on the variate `x`, but not on the shape parameters of the distribution. Ideally, the following functions are implemented for each distribution:
-* `logpdf`
-* `pdf`
-* `cdf`
-* `ppf`
+* `pdf`: probability density function
+* `logpdf`: the logarithm of the probability density function (can be computed more efficiently and accurately for some distributions)
+* `cdf`: integral of the probability density function
+* `ppf`:inverse of the cdf
+* `rvs`: to generate random variates
 
-`cdf` and `ppf` are missing for some distributions (e.g. `voigt`), if there is currently no fast implementation available. `logpdf` is only implemented if it is more efficient and accurate compared to computing `log(dist.pdf(...))`.
+`cdf` and `ppf` are missing for some distributions (e.g. `voigt`), if there is currently no fast implementation available. `logpdf` is only implemented if it is more efficient and accurate compared to computing `log(dist.pdf(...))`. `rvs` is only implemented for distributions that have `ppf`, which is used to generate the random variates. The implementations of `rvs` are currently not optimized for highest performance, but turn out to be useful in practice nevertheless.
 
 The distributions in `numba_stats` can be used in other `numba`-JIT'ed functions. The functions in `numba_stats` use a single thread, but the implementations were written so that they profit from auto-parallelization. To enable this, call them from a JIT'ed function with the argument `parallel=True,fastmath=True`. You should always combine `parallel=True` with `fastmath=True`, since the latter enhances the gain from auto-parallelization.
 
