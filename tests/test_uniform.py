@@ -35,3 +35,10 @@ def test_ppf():
     got = uniform.ppf(0.5, -1, 3)
     expected = sc.uniform.ppf(0.5, -1, 3)
     assert_allclose(got, expected)
+
+
+def test_rvs():
+    args = -1, 2
+    x = uniform.rvs(*args, size=100_000, random_state=1)
+    r = sc.kstest(x, lambda x: uniform.cdf(x, *args))
+    assert r.pvalue > 0.01

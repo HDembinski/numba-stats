@@ -2,6 +2,7 @@ from numba_stats import qgaussian, t, norm
 import numpy as np
 import pytest
 from scipy.integrate import quad
+from scipy import stats as sc
 
 
 def q_sigma(nu, sigma):
@@ -73,3 +74,11 @@ def test_ppf(q):
     got = f(x)
 
     np.testing.assert_allclose(got, expected)
+
+
+@pytest.mark.parametrize("q", (1, 1.1, 1.2, 1.3, 1.4, 1.5, 1.9, 2.0, 2.5, 2.9))
+def test_rvs(q):
+    args = q, 2, 3
+    x = qgaussian.rvs(*args, size=100_000, random_state=1)
+    r = sc.kstest(x, lambda x: qgaussian.cdf(x, *args))
+    assert r.pvalue > 0.01

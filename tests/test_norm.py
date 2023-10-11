@@ -45,6 +45,14 @@ def test_ppf():
     assert_allclose(got, expected)
 
 
+def test_rvs():
+    mu = 2
+    sigma = 3
+    x = norm.rvs(mu, sigma, size=100_000, random_state=1)
+    r = sc.kstest(x, lambda x: norm.cdf(x, mu, sigma))
+    assert r.pvalue > 0.01
+
+
 @pytest.mark.filterwarnings("error")
 @pytest.mark.parametrize("fn", [norm.logpdf, norm.pdf, norm.cdf, norm.ppf])
 @pytest.mark.parametrize("parallel", [False, True])

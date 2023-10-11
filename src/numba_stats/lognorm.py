@@ -7,11 +7,9 @@ scipy.stats.lognorm: Scipy equivalent.
 """
 import numpy as np
 from . import norm as _norm
-from ._util import _jit, _trans, _generate_wrappers, _prange
+from ._util import _jit, _trans, _generate_wrappers, _prange, _seed, _rvs_jit
 
 _doc_par = """
-x : ArrayLike
-    Random variate.
 s : float
     Standard deviation of the corresponding normal distribution of exp(x).
 loc : float
@@ -57,6 +55,13 @@ def _ppf(p, s, loc, scale):
     for i in _prange(len(p)):
         r[i] = np.exp(s * _norm._ppf1(p[i]))
     return scale * r + loc
+
+
+@_rvs_jit(3, cache=False)
+def _rvs(s, loc, scale, size, random_state):
+    _seed(random_state)
+    p = np.random.uniform(0, 1, size)
+    return _ppf(p, s, loc, scale)
 
 
 _generate_wrappers(globals())

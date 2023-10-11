@@ -10,8 +10,6 @@ import numpy as np
 from ._util import _jit, _generate_wrappers
 
 _doc_par = """
-x : ArrayLike
-    Random variate.
 m : float
     Mass of the particle.
 t :  float

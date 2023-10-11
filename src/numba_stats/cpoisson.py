@@ -21,8 +21,6 @@ from ._util import _jit, _generate_wrappers, _prange
 import numpy as np
 
 _doc_par = """
-x: ArrayLike
-    Random variate.
 mu : float
     Expected value.
 """

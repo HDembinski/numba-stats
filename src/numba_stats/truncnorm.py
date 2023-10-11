@@ -8,11 +8,9 @@ scipy.stats.truncnorm: Scipy equivalent.
 
 import numpy as np
 from . import norm as _norm
-from ._util import _jit, _generate_wrappers, _prange
+from ._util import _jit, _generate_wrappers, _prange, _seed, _rvs_jit
 
 _doc_par = """
-x: ArrayLike
-    Random variate.
 xmin : float
     Lower edge of the distribution.
 xmin : float
@@ -75,6 +73,13 @@ def _ppf(p, xmin, xmax, loc, scale):
     for i in _prange(len(r)):
         r[i] = _norm._ppf1(r[i])
     return scale * r + loc
+
+
+@_rvs_jit(4, cache=False)
+def _rvs(xmin, xmax, loc, scale, size, random_state):
+    _seed(random_state)
+    p = np.random.uniform(0, 1, size)
+    return _ppf(p, xmin, xmax, loc, scale)
 
 
 _generate_wrappers(globals())

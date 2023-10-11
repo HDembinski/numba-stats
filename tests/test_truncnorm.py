@@ -64,3 +64,13 @@ def test_ppf():
     x = truncnorm.ppf(expected, mu, sigma, xmin, xmax)
     got = truncnorm.cdf(x, mu, sigma, xmin, xmax)
     np.testing.assert_allclose(got, expected, atol=1e-14)
+
+
+def test_rvs():
+    xmin = 1
+    xmax = 4
+    mu = 2
+    sigma = 3
+    x = truncnorm.rvs(xmin, xmax, mu, sigma, size=100_000, random_state=1)
+    r = sc.kstest(x, lambda x: truncnorm.cdf(x, xmin, xmax, mu, sigma))
+    assert r.pvalue > 0.01

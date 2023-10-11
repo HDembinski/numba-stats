@@ -12,8 +12,6 @@ from ._util import _jit, _generate_wrappers, _prange
 import numpy as np
 
 _doc_par = """
-x : Array-like
-    Random variate.
 beta_left : float
     Distance from the mode in units of standard deviations where the Crystal Ball
     turns from a gaussian into a power law on the left side.
