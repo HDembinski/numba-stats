@@ -4,7 +4,7 @@ from scipy.stats import kstest
 
 
 def test_pdf():
-    x = np.linspace(-1, 5, 10)
+    x = np.linspace(-5, 5, 10)
     xmin = 1
     xmax = 4
     mu = 2
@@ -19,7 +19,7 @@ def test_pdf():
 
 
 def test_cdf():
-    x = np.linspace(-1, 5, 10)
+    x = np.linspace(-5, 5, 10)
     xmin = 1
     xmax = 4
     mu = 1.5
