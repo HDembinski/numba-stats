@@ -54,15 +54,29 @@ import numpy as np
 def norm_pdf(x, mu, sigma):
   return norm.pdf(x, mu, sigma)
 
+# this must be an array of float
 x = np.linspace(-10, 10)
-mu = 2
-sigma = 3
+
+# these must be floats
+mu = 2.0
+sigma = 3.0
 
 # uses all your CPU cores
 p = norm_pdf(x, mu, sigma)
 ```
 
 Note that this is only faster if `x` has sufficient length (about 1000 elements or more). Otherwise, the parallelization overhead will make the call slower, see benchmarks below.
+
+#### Trouble-shooting
+
+When you use the numba-stats distributions in a compiled function, you need to pass the expected data types. The first argument must be numpy array of floats (32 or 64 bit). The following parameters must be floats. If you pass the wrong arguments, you will get numba errors similar to this one (where parameters were passed as integer instead of float):
+```
+numba.core.errors.TypingError: Failed in nopython mode pipeline (step: nopython frontend)
+No implementation of function Function(<function pdf at 0x7ff7186b7be0>) found for signature:
+
+ >>> pdf(array(float64, 1d, C), int64, int64)
+```
+You won't get these errors when you call the numba-stats PDFs outside of a compiled function, because I added some wrappers which automatically convert the data types in this case. This was made for convenience and is not a bug.
 
 ## Benchmarks
 
