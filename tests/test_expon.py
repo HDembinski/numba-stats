@@ -4,14 +4,14 @@ from numba_stats import expon
 
 
 def test_pdf():
-    x = np.linspace(1, 5, 20)
+    x = np.linspace(-5, 5, 20)
     got = expon.pdf(x, 1, 2)
     expected = sc.expon.pdf(x, 1, 2)
     np.testing.assert_allclose(got, expected)
 
 
 def test_cdf():
-    x = np.linspace(1, 5, 20) + 3
+    x = np.linspace(-5, 5, 20) + 3
     got = expon.cdf(x, 3, 2)
     expected = sc.expon.cdf(x, 3, 2)
     np.testing.assert_allclose(got, expected)

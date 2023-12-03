@@ -19,7 +19,8 @@ scale : float
 
 @_jit(-1)
 def _cdf1(z):
-    return -_expm1(-z)
+    T = type(z)
+    return T(0) if z < 0 else -_expm1(-z)
 
 
 @_jit(-1)
@@ -30,7 +31,10 @@ def _ppf1(p):
 @_jit(2)
 def _logpdf(x, loc, scale):
     z = _trans(x, loc, scale)
-    return -z - np.log(scale)
+    r = np.empty_like(z)
+    for i in _prange(len(r)):
+        r[i] = -np.inf if z[i] < 0 else -z[i] - np.log(scale)
+    return r
 
 
 @_jit(2)

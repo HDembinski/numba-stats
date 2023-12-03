@@ -29,6 +29,7 @@ def _logpdf(x, xmin, xmax, loc, scale):
     zmin = (xmin - loc) * scale2
     zmax = (xmax - loc) * scale2
     c = np.log(scale * (_expon._cdf1(zmax) - _expon._cdf1(zmin)))
+    zmin = max(zmin, T(0))
     for i in _prange(len(z)):
         if zmin <= z[i] < zmax:
             z[i] = -z[i] - c
@@ -52,6 +53,7 @@ def _cdf(x, xmin, xmax, loc, scale):
     pmin = _expon._cdf1(zmin)
     pmax = _expon._cdf1(zmax)
     scale3 = T(1) / (pmax - pmin)
+    zmin = max(zmin, T(0))
     for i in _prange(len(z)):
         if zmin <= z[i]:
             if z[i] < zmax:
