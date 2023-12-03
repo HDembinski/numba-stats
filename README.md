@@ -2,7 +2,7 @@
 
 ![](https://img.shields.io/pypi/v/numba-stats.svg)
 
-We provide `numba`-accelerated implementations of statistical functions for common probability distributions
+We provide `numba`-accelerated implementations of statistical distributions for common probability distributions
 
 * Uniform
 * (Truncated) Normal
@@ -20,6 +20,8 @@ We provide `numba`-accelerated implementations of statistical functions for comm
 
 with more to come. The speed gains are huge, up to a factor of 100 compared to `scipy`. Benchmarks are included in the repository and are run by `pytest`.
 
+The distributions are optimized for the use in maximum-likelihood fits, where you query a distribution at many points with a single set of parameters.
+
 ## Usage
 
 Each distribution is implemented in a submodule. Import the submodule that you need and call the functions in the module.
@@ -28,8 +30,8 @@ from numba_stats import norm
 import numpy as np
 
 x = np.linspace(-10, 10)
-mu = 2
-sigma = 3
+mu = 2.0
+sigma = 3.0
 
 p = norm.pdf(x, mu, sigma)
 c = norm.cdf(x, mu, sigma)
@@ -67,7 +69,7 @@ p = norm_pdf(x, mu, sigma)
 
 Note that this is only faster if `x` has sufficient length (about 1000 elements or more). Otherwise, the parallelization overhead will make the call slower, see benchmarks below.
 
-#### Trouble-shooting
+#### Troubleshooting
 
 When you use the numba-stats distributions in a compiled function, you need to pass the expected data types. The first argument must be numpy array of floats (32 or 64 bit). The following parameters must be floats. If you pass the wrong arguments, you will get numba errors similar to this one (where parameters were passed as integer instead of float):
 ```
@@ -76,7 +78,7 @@ No implementation of function Function(<function pdf at 0x7ff7186b7be0>) found f
 
  >>> pdf(array(float64, 1d, C), int64, int64)
 ```
-You won't get these errors when you call the numba-stats PDFs outside of a compiled function, because I added some wrappers which automatically convert the data types in this case. This was made for convenience and is not a bug.
+You won't get these errors when you call the numba-stats PDFs outside of a compiled function, because I added some wrappers which automatically convert the data types for convenience. This is why you can call `norm.pdf(1,2,3)` but `norm_pdf(1, 2, 3)` will fail.
 
 ## Benchmarks
 
