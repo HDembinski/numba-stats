@@ -78,7 +78,9 @@ No implementation of function Function(<function pdf at 0x7ff7186b7be0>) found f
 
  >>> pdf(array(float64, 1d, C), int64, int64)
 ```
-You won't get these errors when you call the numba-stats PDFs outside of a compiled function, because I added some wrappers which automatically convert the data types for convenience. This is why you can call `norm.pdf(1,2,3)` but `norm_pdf(1, 2, 3)` will fail.
+You won't get these errors when you call the numba-stats PDFs outside of a compiled function, because I added some wrappers which automatically convert the data types for convenience. This is why you can call `norm.pdf(1, 2, 3)`
+but
+`norm_pdf(1, 2, 3)` (as implemented above) will fail.
 
 ## Benchmarks
 
