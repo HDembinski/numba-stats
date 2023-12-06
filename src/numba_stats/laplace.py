@@ -1,12 +1,11 @@
 """
-Exponential distribution.
+Laplace distribution.
 
 See Also
 --------
-scipy.stats.expon: Scipy equivalent.
+scipy.stats.laplace: Scipy equivalent.
 """
 import numpy as np
-from math import expm1 as _expm1, log1p as _log1p
 from ._util import _jit, _trans, _generate_wrappers, _prange, _rvs_jit, _seed
 
 _doc_par = """
@@ -19,13 +18,12 @@ scale : float
 
 @_jit(-1)
 def _cdf1(z):
-    T = type(z)
-    return T(0) if z < 0 else -_expm1(-z)
+    return 1.0 - 0.5 * np.exp(-z) if z > 0 else 0.5 * np.exp(z)
 
 
 @_jit(-1)
 def _ppf1(p):
-    return -_log1p(-p)
+    return -np.log(2 * (1 - p)) if p > 0.5 else np.log(2 * p)
 
 
 @_jit(2)
@@ -33,7 +31,7 @@ def _logpdf(x, loc, scale):
     z = _trans(x, loc, scale)
     r = np.empty_like(z)
     for i in _prange(len(r)):
-        r[i] = -np.inf if z[i] < 0 else -z[i] - np.log(scale)
+        r[i] = np.log(0.25) - np.abs(z[i])
     return r
 
 
