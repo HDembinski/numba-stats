@@ -5,6 +5,7 @@ See Also
 --------
 scipy.stats.norm: Scipy equivalent.
 """
+
 import numpy as np
 from ._special import ndtri as _ndtri
 from ._util import _jit, _trans, _generate_wrappers, _prange, _seed, _rvs_jit

@@ -10,6 +10,7 @@ See Also
 --------
 scipy.stats.crystalball: Scipy equivalent.
 """
+
 from ._util import _jit, _trans, _generate_wrappers, _prange
 import numpy as np
 from math import erf as _erf

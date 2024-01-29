@@ -12,6 +12,7 @@ See Also
 --------
 scipy.special.voigt_profile: Equvialent in Scipy.
 """
+
 from ._special import voigt_profile as _voigt
 from ._util import _jit, _generate_wrappers, _prange
 import numpy as np

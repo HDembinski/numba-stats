@@ -5,6 +5,7 @@ See Also
 --------
 scipy.stats.truncexpon: Scipy equivalent.
 """
+
 import numpy as np
 from ._util import _jit, _trans, _generate_wrappers, _prange, _rvs_jit, _seed
 from . import expon as _expon
