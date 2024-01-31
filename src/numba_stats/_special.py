@@ -7,8 +7,15 @@ from numba.types import WrapperAddressProtocol, float64
 
 
 def get(name, signature):
-    # create new function object with correct signature that numba can call by extracting
-    addr = get_cython_function_address("scipy.special.cython_special", name)
+    # create new function object with correct signature that numba can call
+    from scipy.special import cython_special
+
+    # scipy-1.12 started to provide fused versions for some special functions
+    fuse_name = f"__pyx_fuse_1{name}"
+    if fuse_name not in cython_special.__pyx_capi__:
+        fuse_name = name
+
+    addr = get_cython_function_address("scipy.special.cython_special", fuse_name)
 
     # dynamically create type that inherits from WrapperAddressProtocol
     cls = type(
