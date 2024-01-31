@@ -1,3 +1,5 @@
+"""Utilities for code and docs generation to reduce boilerplate code."""
+
 import numba as nb
 import numpy as np
 from numba.types import Array
@@ -15,7 +17,7 @@ def _readonly_carray(T):
 
 def _jit(arg, cache=True):
     """
-    Wrapper for numba.njit to reduce boilerplate code.
+    Wrap numba.njit to reduce boilerplate code.
 
     We want to build jitted functions with explicit signatures to restrict the argument
     types which are used in the implemnetation to float32 or float64. We also want to
