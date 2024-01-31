@@ -5,6 +5,7 @@ See Also
 --------
 scipy.stats.lognorm: Scipy equivalent.
 """
+
 import numpy as np
 from . import norm as _norm
 from ._util import _jit, _trans, _generate_wrappers, _prange, _seed, _rvs_jit
