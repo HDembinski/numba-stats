@@ -5,6 +5,7 @@ See Also
 --------
 scipy.stats.t: Scipy equivalent.
 """
+
 import numpy as np
 from ._special import stdtr as _stdtr, stdtrit as _stdtrit
 from ._util import _jit, _trans, _generate_wrappers, _prange, _seed, _rvs_jit

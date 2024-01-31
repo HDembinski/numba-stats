@@ -5,6 +5,7 @@ See Also
 --------
 scipy.stats.expon: Scipy equivalent.
 """
+
 import numpy as np
 from math import expm1 as _expm1, log1p as _log1p
 from ._util import _jit, _trans, _generate_wrappers, _prange, _rvs_jit, _seed
