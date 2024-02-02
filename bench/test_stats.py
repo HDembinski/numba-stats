@@ -147,11 +147,14 @@ def test_speed_bernstein_density(benchmark, lib, n):
         def method(x, beta, xmin, xmax):
             return BPoly(np.array(beta)[:, np.newaxis], [xmin, xmax])(x)
 
-    elif lib == "ours:parallel,fastmath":
+    else:
         method = bernstein.density
 
         if lib == "ours:parallel,fastmath":
-            method = nb.njit(parallel=True, fastmath=True)(method)
+
+            @nb.njit(parallel=True, fastmath=True)
+            def method(x, gamma, loc, sigma):
+                return bernstein.density(x, gamma, loc, sigma)
 
     # warm-up JIT
     method(x, beta, xmin, xmax)
