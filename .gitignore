@@ -8,6 +8,8 @@ venv
 .benchmarks
 .coverage
 .venv
+.mypy_cache
+.ruff_cache
 .pytest_cache
 .ipynb_checkpoints
 *.egg-info
