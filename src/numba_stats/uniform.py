@@ -55,8 +55,7 @@ def _ppf(p, a, w):
 @_rvs_jit(2)
 def _rvs(a, w, size, random_state):
     _seed(random_state)
-    p = np.random.uniform(0, 1, size)
-    return _ppf(p, a, w)
+    return np.random.uniform(a, a + w, size)
 
 
 _generate_wrappers(globals())
