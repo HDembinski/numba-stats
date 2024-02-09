@@ -9,7 +9,8 @@ scipy.stats.poisson: Scipy equivalent.
 import numpy as np
 from ._special import gammaincc as _gammaincc
 from math import lgamma as _lgamma
-from ._util import _jit, _generate_wrappers, _prange
+from ._util import _jit, _generate_wrappers, _prange, _seed
+import numba as nb
 
 _doc_par = """
 mu : float
@@ -41,6 +42,17 @@ def _cdf(k, mu):
     for i in _prange(len(r)):
         r[i] = _gammaincc(k[i] + T(1), mu)
     return r
+
+
+@nb.njit(
+    nb.int64[:](nb.float32, nb.uint64, nb.optional(nb.uint64)),
+    cache=True,
+    inline="always",
+    error_model="numpy",
+)
+def _rvs(mu, size, random_state):
+    _seed(random_state)
+    return np.random.poisson(mu, size)
 
 
 _generate_wrappers(globals())
