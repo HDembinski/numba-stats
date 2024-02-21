@@ -17,9 +17,8 @@ They have been replaced with a single parameter "loc", which is the approximate 
 of the distribution.
 """
 
-from math import erf as _erf, erfc as _erfc
 import numpy as np
-from ._util import _jit, _generate_wrappers, _prange
+from ._util import _jit, _generate_wrappers, _erf_inplace, _erfc_inplace
 
 _doc_par = """
 beta : float
@@ -37,8 +36,7 @@ def _logpdf(x, beta, gamma, loc):
     two = T(2)
     half = T(0.5)
     v = -(x - loc) * beta
-    for i in _prange(len(x)):
-        v[i] = _erfc(v[i])
+    _erfc_inplace(v)
     u = (x - loc) * gamma
     T = type(beta)
     log_t = (half * gamma / beta) ** two
@@ -57,12 +55,10 @@ def _cdf(x, beta, gamma, loc):
     two = T(2)
     half = T(0.5)
     t1 = gamma / (two * beta) + beta * y
-    for i in _prange(len(t1)):
-        t1[i] = _erf(t1[i])
-    t2 = np.exp(-((gamma / (two * beta)) ** 2) - gamma * y)
+    _erf_inplace(t1)
+    t2 = np.exp(-((gamma / (two * beta)) ** two) - gamma * y)
     t3 = -beta * y
-    for i in _prange(len(t1)):
-        t3[i] = _erfc(t3[i])
+    _erfc_inplace(t3)
     return half * (t1 - t2 * t3) + half
 
 

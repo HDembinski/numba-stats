@@ -22,8 +22,10 @@ def test_cdf():
     par = 1.1, 2.2, 3.3
     x = np.linspace(-3, 3, 20)
 
-    expected = np.vectorize(lambda x: quad(lambda x: cmsshape.pdf(x, *par), -10, x)[0])(
-        x
-    )
+    @np.vectorize
+    def num_cdf(x):
+        return quad(lambda x: cmsshape.pdf(x, *par), -10, x)[0]
+
+    expected = num_cdf(x)
     got = cmsshape.cdf(x, *par)
     assert_allclose(got, expected, atol=1e-10)
