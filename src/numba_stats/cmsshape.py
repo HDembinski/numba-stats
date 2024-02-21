@@ -3,7 +3,7 @@ CMS-Shape distribution (for lack of a better name).
 
 The distribution consists of an exponential decay suppressed at small values by the
 complementary error function. The product is an asymmetric peak with a bell shape on the
-left hand side and an exponential tail on the right hand side. This shape is used by the
+left-hand side and an exponential tail on the right-hand side. This shape is used by the
 CMS experiment to model the background in the invariant mass distribution of Z to ll
 decay candidates.
 
@@ -11,10 +11,10 @@ Notes
 -----
 This implementation was modeled after
 https://gitlab.cern.ch/cms-muonPOG/spark_tnp/-/blob/Spark3/RooCMSShape.cc, but heavily
-modified. We added an analytical normalization and an analytical integral. It turns out
-that the parameters "alpha" and "peak" in the original implementation are redundant.
-They have been replaced with a single parameter "loc", which is the approximate center
-of the distribution.
+modified. An analytical normalization and an analytical cdf were added. The parameters
+"alpha" and "peak" in the original implementation turned out to be redundant and have
+been replaced with a single parameter "loc", which is the approximate center of the
+distribution.
 """
 
 import numpy as np
