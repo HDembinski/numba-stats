@@ -17,6 +17,7 @@ We provide `numba`-accelerated implementations of statistical distributions for 
 * Q-Gaussian
 * Bernstein density (not normalized to unity, use this in extended likelihood fits)
 * Cruijff density (not normalized to unity, use this in extended likelihood fits)
+* CMS-Shape
 
 with more to come. The speed gains are huge, up to a factor of 100 compared to `scipy`. Benchmarks are included in the repository and are run by `pytest`.
 

@@ -1,5 +1,6 @@
 """Utilities for code and docs generation to reduce boilerplate code."""
 
+import math
 import numba as nb
 import numpy as np
 from numba.types import Array
@@ -76,6 +77,18 @@ def _wrap(fn):
 def _trans(x, loc, scale):
     inv_scale = type(scale)(1) / scale
     return (x - loc) * inv_scale
+
+
+@nb.njit(cache=True, inline="always", error_model="numpy")
+def _erf_inplace(x):
+    for i in _prange(len(x)):
+        x[i] = math.erf(x[i])
+
+
+@nb.njit(cache=True, inline="always", error_model="numpy")
+def _erfc_inplace(x):
+    for i in _prange(len(x)):
+        x[i] = math.erfc(x[i])
 
 
 def _type_check(first, *rest):
