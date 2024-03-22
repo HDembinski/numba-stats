@@ -7,7 +7,6 @@ scipy.stats.binom: Scipy equivalent.
 """
 
 import numpy as np
-from ._special import gammaincc as _gammaincc
 from ._special import xlogy as _xlogy
 from ._special import xlog1py as _xlog1py
 from math import lgamma as _lgamma
@@ -29,9 +28,10 @@ def _logpmf(k, n, p):
     T = type(n)
     r = np.empty(len(k), T)
     for i in _prange(len(r)):
-        combiln = (_lgamma(n + T(1)) - (_lgamma(k[i] + T(1)) + _lgamma(n-k[i] + T(1))))
-        r[i] = combiln + _xlogy(k[i], p) + _xlog1py(n-k[i], -p)
+        combiln = _lgamma(n + T(1)) - (_lgamma(k[i] + T(1)) + _lgamma(n - k[i] + T(1)))
+        r[i] = combiln + _xlogy(k[i], p) + _xlog1py(n - k[i], -p)
     return r
+
 
 @_jit(2, cache=False)
 def _pmf(k, n, p):
@@ -43,7 +43,7 @@ def _cdf(k, n, p):
     T = type(n)
     r = np.empty(len(k), T)
     for i in _prange(len(r)):
-        r[i] = np.sum(_pmf(np.arange(0,k[i]+1),n,p))
+        r[i] = np.sum(_pmf(np.arange(0, k[i] + 1), n, p))
     return r
 
 
