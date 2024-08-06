@@ -15,3 +15,4 @@ venv
 *.egg-info
 .vscode
 bench/*.svg
+.nox

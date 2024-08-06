@@ -2,8 +2,50 @@
 requires = ["setuptools>=42", "setuptools_scm[toml]>=3.4"]
 build-backend = "setuptools.build_meta"
 
+[project]
+name = "numba-stats"
+dynamic = ["version"]
+requires-python = ">=3.7"
+dependencies = ["numba>=0.49", "numpy>=1.18", "scipy>=1.5"]
+authors = [{ name = "Hans Dembinski", email = "hans.dembinski@gmail.com" }]
+readme = "README.md"
+description = "Numba-accelerated implementations of scipy probability distributions and others used in particle physics"
+license = { text = "MIT" }
+classifiers = [
+    # complete classifier list: http://pypi.python.org/pypi?%3Aaction=list_classifiers
+    'Development Status :: 5 - Production/Stable',
+    'Intended Audience :: Science/Research',
+    "License :: OSI Approved :: MIT License",
+    "Operating System :: OS Independent",
+    "Programming Language :: Python :: 3",
+    'Programming Language :: Python :: 3',
+    'Programming Language :: Python :: 3 :: Only',
+    'Programming Language :: Python :: 3.7',
+    'Programming Language :: Python :: 3.8',
+    'Programming Language :: Python :: 3.9',
+    'Programming Language :: Python :: 3.10',
+    'Programming Language :: Python :: 3.11',
+    'Programming Language :: Python :: 3.12',
+    'Programming Language :: Python :: Implementation :: CPython',
+]
+
+[project.urls]
+repository = "https://github.com/hdembinski/numba-stats"
+
+[project.optional-dependencies]
+test = [
+    "pytest",
+    "pytest-xdist",
+    "pytest-cov",
+    "pytest-benchmark",
+    "pydocstyle",
+    "coverage",
+]
+
+[tool.setuptools.packages.find]
+where = ["src"]
+
 [tool.setuptools_scm]
-write_to = "src/numba_stats/_version.py"
 
 [tool.pytest.ini_options]
 minversion = "6.0"
