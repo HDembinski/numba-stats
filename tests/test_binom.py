@@ -2,6 +2,7 @@ import numpy as np
 from numba_stats import binom
 import scipy.stats as sc
 import pytest
+import numba as nb
 
 
 # NC and KC are all combinations of n and k from 0 to 10
@@ -18,7 +19,6 @@ KC = np.array(KC, np.float64)
 
 @pytest.mark.parametrize("p", np.linspace(0, 1, 5))
 def test_pmf(p):
-    print(KC, NC)
     got = binom.pmf(KC, NC, p)
     expected = sc.binom.pmf(KC, NC, p)
     np.testing.assert_allclose(got, expected)
@@ -31,11 +31,12 @@ def test_cdf(p):
     np.testing.assert_allclose(got, expected)
 
 
-@pytest.mark.parametrize("n", np.linspace(0, 10, 6))
+@pytest.mark.parametrize("n", np.arange(0, 10))
 @pytest.mark.parametrize("p", np.linspace(0, 1, 5))
 def test_rvs(n, p):
     got = binom.rvs(n, p, size=1000, random_state=1)
 
+    @nb.njit
     def expected():
         np.random.seed(1)
         return np.random.binomial(n, p, 1000)
