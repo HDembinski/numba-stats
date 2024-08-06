@@ -1,12 +1,17 @@
 name: Deploy
 
 on:
+  push:
+    tags:
+      - '**'
   workflow_dispatch:
-  release:
-    types: [published]
   pull_request:
     paths:
       - .github/workflows/deploy.yml
+
+concurrency:
+  group: ${{ github.workflow }}-${{ github.head_ref }}
+  cancel-in-progress: true
 
 jobs:
   deploy:
@@ -32,4 +37,4 @@ jobs:
     - run: python -m pytest
 
     - uses: pypa/gh-action-pypi-publish@release/v1
-      if: contains(github.event.ref, '/tags/')
+      if: github.event_name == 'push' && contains(github.event.ref, '/tags/')
