@@ -4,7 +4,7 @@
 [![DOI](https://zenodo.org/badge/DOI/10.5281/zenodo.13236518.svg)](https://doi.org/10.5281/zenodo.13236518)
 
 
-We provide `numba`-accelerated implementations of statistical distributions for common probability distributions
+We provide `numba`-accelerated implementations of common probability distributions.
 
 * Uniform
 * (Truncated) Normal
