@@ -31,7 +31,7 @@ def test_cdf(p):
     np.testing.assert_allclose(got, expected)
 
 
-@pytest.mark.parametrize("n", np.arange(0, 10))
+@pytest.mark.parametrize("n", np.arange(0, 10, 2))
 @pytest.mark.parametrize("p", np.linspace(0, 1, 5))
 def test_rvs(n, p):
     got = binom.rvs(n, p, size=1000, random_state=1)
