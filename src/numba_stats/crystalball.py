@@ -26,7 +26,7 @@ m : float
 """
 
 
-@_jit(-3)
+@_jit(3, narg=0)
 def _log_powerlaw(z, beta, m):
     T = type(beta)
     c = -T(0.5) * beta * beta
@@ -35,7 +35,7 @@ def _log_powerlaw(z, beta, m):
     return log_a - m * np.log(b - z)
 
 
-@_jit(-3)
+@_jit(3, narg=0)
 def _powerlaw_integral(z, beta, m):
     T = type(beta)
     exp_beta = np.exp(-T(0.5) * beta * beta)
@@ -45,14 +45,14 @@ def _powerlaw_integral(z, beta, m):
     return a * (b - z) ** -m1 / m1
 
 
-@_jit(-2)
+@_jit(2, narg=0)
 def _normal_integral(a, b):
     T = type(a)
     sqrt_half = np.sqrt(T(0.5))
     return sqrt_half * np.sqrt(T(np.pi)) * (_erf(b * sqrt_half) - _erf(a * sqrt_half))
 
 
-@_jit(-3)
+@_jit(3, narg=0)
 def _log_density(z, beta, m):
     if z < -beta:
         return _log_powerlaw(z, beta, m)

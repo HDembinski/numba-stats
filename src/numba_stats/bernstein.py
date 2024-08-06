@@ -17,10 +17,15 @@ scipy.interpolate.BPoly: Bernstein polynomials in Scipy.
 """
 
 import numpy as np
-from ._util import _jit, _Floats, _generate_wrappers, _readonly_carray, _trans
+from ._util import (
+    _jit,
+    _Floats,
+    _generate_wrappers,
+    _trans,
+)
 
 
-@_jit([T[:](_readonly_carray(T), _readonly_carray(T)) for T in _Floats])
+@_jit(0, narg=2)
 def _de_castlejau(z, beta):
     # De Casteljau algorithm, numerically stable
     n = len(beta)
@@ -48,7 +53,7 @@ def _beta_int(beta):
     return r
 
 
-@_jit([T[:](_readonly_carray(T), _readonly_carray(T), T, T) for T in _Floats])
+@_jit(2, narg=2)
 def _density(x, beta, xmin, xmax):
     """
     Return density described by a Bernstein polynomial.
@@ -90,9 +95,7 @@ def _density(x, beta, xmin, xmax):
     return _de_castlejau(z, beta)
 
 
-@_jit(
-    [T[:](_readonly_carray(T), _readonly_carray(T), T, T) for T in _Floats], cache=True
-)
+@_jit(2, narg=2)
 def _integral(x, beta, xmin, xmax):
     """
     Return integral of a Bernstein polynomial from xmin to x.

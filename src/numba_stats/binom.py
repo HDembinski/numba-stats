@@ -7,43 +7,53 @@ scipy.stats.binom: Scipy equivalent.
 """
 
 import numpy as np
-from ._special import xlogy as _xlogy
-from ._special import xlog1py as _xlog1py
+from ._special import xlogy as _xlogy, xlog1py as _xlog1py, betainc as _betainc
 from math import lgamma as _lgamma
 from ._util import _jit, _generate_wrappers, _prange, _seed
 import numba as nb
 
 _doc_par = """
 k : int
-    number of successes.
+    Number of successes.
 n : int
-    number of trails.
+    Number of trials.
 p : float
-    success probability for each trail.
+    Success probability for each trial.
 """
 
 
-@_jit(2, cache=False)
+@_jit(1, narg=2, cache=False)
 def _logpmf(k, n, p):
-    T = type(n)
+    T = type(p)
     r = np.empty(len(k), T)
+    one = T(1)
     for i in _prange(len(r)):
-        combiln = _lgamma(n + T(1)) - (_lgamma(k[i] + T(1)) + _lgamma(n - k[i] + T(1)))
-        r[i] = combiln + _xlogy(k[i], p) + _xlog1py(n - k[i], -p)
+        combiln = _lgamma(n[i] + one) - (
+            _lgamma(k[i] + one) + _lgamma(n[i] - k[i] + one)
+        )
+        r[i] = combiln + _xlogy(k[i], p) + _xlog1py(n[i] - k[i], -p)
     return r
 
 
-@_jit(2, cache=False)
+@_jit(1, narg=2, cache=False)
 def _pmf(k, n, p):
     return np.exp(_logpmf(k, n, p))
 
 
-@_jit(2, cache=False)
+@_jit(1, narg=2, cache=False)
 def _cdf(k, n, p):
-    T = type(n)
+    T = type(p)
     r = np.empty(len(k), T)
+    one = T(1)
     for i in _prange(len(r)):
-        r[i] = np.sum(_pmf(np.arange(0, k[i] + 1), n, p))
+        if k[i] == n[i]:
+            r[i] = 1
+        elif p == 0:
+            r[i] = 1
+        elif p == 1:
+            r[i] = 0
+        else:
+            r[i] = 1 - _betainc(k[i] + one, n[i] - k[i], p)
     return r
 
 

@@ -18,13 +18,13 @@ scale : float
 """
 
 
-@_jit(-1)
+@_jit(1, narg=0)
 def _cdf1(z):
     T = type(z)
     return T(0) if z < 0 else -_expm1(-z)
 
 
-@_jit(-1)
+@_jit(1, narg=0)
 def _ppf1(p):
     return -_log1p(-p)
 
