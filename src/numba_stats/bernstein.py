@@ -165,14 +165,13 @@ _generate_wrappers(globals())
 def __getattr__(key):
     # Temporary hack to maintain backward compatibility
     import warnings
-    from numpy import VisibleDeprecationWarning
 
     if key in ("scaled_pdf", "scaled_cdf"):
         r = {"scaled_pdf": "density", "scaled_cdf": "integral"}
         warnings.warn(
             f"bernstein.{key} is deprecated and will be removed in a future release, "
             f"use bernstein.{r[key]} instead",
-            VisibleDeprecationWarning,
+            FutureWarning,
             1,
         )
         return globals()[r[key]]

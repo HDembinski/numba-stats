@@ -1,8 +1,10 @@
 # numba-stats
 
 ![](https://img.shields.io/pypi/v/numba-stats.svg)
+[![DOI](https://zenodo.org/badge/DOI/10.5281/zenodo.13236518.svg)](https://doi.org/10.5281/zenodo.13236518)
 
-We provide `numba`-accelerated implementations of statistical distributions for common probability distributions
+
+We provide `numba`-accelerated implementations of common probability distributions.
 
 * Uniform
 * (Truncated) Normal
@@ -83,6 +85,16 @@ You won't get these errors when you call the numba-stats PDFs outside of a compi
 but
 `norm_pdf(1, 2, 3)` (as implemented above) will fail.
 
+## Documentation
+
+To get documentation, please use `help()` in the Python interpreter.
+
+Functions with equivalents in `scipy.stats` follow the `scipy` calling conventions exactly, except for distributions starting with `trunc...`, which follow a different convention, since the `scipy` behavior is very impractical. Even so, note that the `scipy` conventions are sometimes a bit unusual, particular in case of the exponential, the log-normal, and the uniform distribution. See the `scipy` docs for details.
+
+## Citation
+
+If you use this package in a scientific work, please cite us. You can generate citations in your preferred format on the [Zenodo website](https://doi.org/10.5281/zenodo.13236518).
+
 ## Benchmarks
 
 The following benchmarks were produced on an Intel(R) Core(TM) i7-8569U CPU @ 2.80GHz against SciPy-1.10.1. The dotted line on the right-hand figure shows the expected speedup (4x) from parallelization on a CPU with four physical cores.
@@ -113,15 +125,9 @@ The `bernstein.density` does not profit from auto-parallelization, on the contra
 ![](docs/_static/bernstein.density.svg)
 ![](docs/_static/truncexpon.pdf.plus.norm.pdf.svg)
 
-## Documentation
-
-To get documentation, please use `help()` in the Python interpreter.
-
-Functions with equivalents in `scipy.stats` follow the `scipy` calling conventions exactly, except for distributions starting with `trunc...`, which follow a different convention, since the `scipy` behavior is very impractical. Even so, note that the `scipy` conventions are sometimes a bit unusual, particular in case of the exponential, the log-normal, and the uniform distribution. See the `scipy` docs for details.
-
 ## Contributions
 
-**You can help with adding more distributions, patches are very welcome.** Implementing a probability distribution is easy. You need to write it in simple Python that `numba` can understand. Special functions from `scipy.special` can be used after some wrapping, see submodule `numba_stats._special.py` how it is done.
+**You can help with adding more distributions, patches are welcome.** Implementing a probability distribution is easy. You need to write it in simple Python that `numba` can understand. Special functions from `scipy.special` can be used after some wrapping, see submodule `numba_stats._special.py` how it is done.
 
 ## numba-stats and numba-scipy
 
