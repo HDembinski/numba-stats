@@ -16,7 +16,19 @@ def _readonly_carray(T):
     return Array(T, 1, "A", readonly=True)
 
 
-def _jit(arg, cache=True):
+def _jit_custom(signatures, cache=True):
+    """
+    Wrap numba.njit to reduce boilerplate code.
+
+    We want to build jitted functions with explicit signatures to restrict the argument
+    types which are used in the implemnetation to float32 or float64. We also want to
+    pass specific options consistently: error_model='numpy' and inline='always'. The
+    latter is important to profit from auto-parallelization of surrounding code.
+    """
+    return nb.njit(signatures, cache=cache, inline="always", error_model="numpy")
+
+
+def _jit(npar, *, narg=1, cache=True):
     """
     Wrap numba.njit to reduce boilerplate code.
 
@@ -25,24 +37,31 @@ def _jit(arg, cache=True):
     pass specific options consistently: error_model='numpy' and inline='always'. The
     latter is important to profit from auto-parallelization of surrounding code.
 
+    This decorator builds signatures with "narg" array arguments followed by "npar"
+    scalar arguments, and it does that for the types float32 or float64.
+
     Parameters
     ----------
-    arg : int
-        Number of arguments. If negative, all arguments of this function are scalars
-        and -arg is the number of arguments. If positive, the first argument is
-        an array, the others are scalars and arg is the number of scalar arguments.
+    npar : int
+        Number of scalar arguments.
+    narg : int, optional (default: 1)
+        Number of array arguments.
+    cache : bool, optional (default: True)
+        Whether to cache the compilation. We must turn this off if the function uses a
+        function pointer from Scipy.
     """
-    if isinstance(arg, list):
-        signatures = arg
-    else:
-        signatures = []
-        for T in (nb.float32, nb.float64):
-            if arg < 0:
-                sig = T(*([T] * -arg))
-            else:
-                sig = T[:](_readonly_carray(T), *[T for _ in range(arg)])
-            signatures.append(sig)
-    return nb.njit(signatures, cache=cache, inline="always", error_model="numpy")
+    assert npar >= 0
+    assert narg >= 0
+    signatures = []
+    for T in (nb.float32, nb.float64):
+        if narg == 0:
+            sig = T(*([T] * npar))
+        else:
+            sig = T[:](
+                *[_readonly_carray(T) for _ in range(narg)], *[T for _ in range(npar)]
+            )
+        signatures.append(sig)
+    return _jit_custom(signatures, cache=cache)
 
 
 def _rvs_jit(arg, cache=True):
@@ -51,7 +70,7 @@ def _rvs_jit(arg, cache=True):
     # extra args at the end are for size and random_state
     sig = T[:](*[T for _ in range(arg)], nb.uint64, nb.optional(nb.uint64))
     signatures.append(sig)
-    return nb.njit(signatures, cache=cache, inline="always", error_model="numpy")
+    return _jit_custom(signatures, cache=cache)
 
 
 @nb.njit(cache=True)

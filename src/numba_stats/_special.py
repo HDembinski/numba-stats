@@ -33,7 +33,10 @@ ndtri = get("ndtri", float64(float64))
 gammaincc = get("gammaincc", float64(float64, float64))
 stdtrit = get("stdtrit", float64(float64, float64))
 stdtr = get("stdtr", float64(float64, float64))
-betainc = get("betainc", float64(float64, float64, float64))
 
 # n-ary functions (double)
 voigt_profile = get("voigt_profile", float64(float64, float64, float64))
+xlogy = get("xlogy", float64(float64, float64))
+xlog1py = get("xlog1py", float64(float64, float64))
+# for some reason, getting betainc directly does not work! btdtr is an alias
+betainc = get("btdtr", float64(float64, float64, float64))

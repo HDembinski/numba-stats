@@ -17,12 +17,12 @@ scale : float
 """
 
 
-@_jit(-1)
+@_jit(1, narg=0)
 def _cdf1(z):
     return 1.0 - 0.5 * np.exp(-z) if z > 0 else 0.5 * np.exp(z)
 
 
-@_jit(-1)
+@_jit(1, narg=0)
 def _ppf1(p):
     return -np.log(2 * (1 - p)) if p > 0.5 else np.log(2 * p)
 

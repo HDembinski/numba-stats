@@ -31,7 +31,7 @@ loc : float
 """
 
 
-@_jit(-3)
+@_jit(3, narg=0)
 def _norm_half(beta, m, scale):
     T = type(beta)
     return (_powerlaw_integral(-beta, beta, m) + _normal_integral(-beta, T(0))) * scale

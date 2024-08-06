@@ -19,20 +19,20 @@ scale : float
 """
 
 
-@_jit(-1)
+@_jit(1, narg=0)
 def _logpdf1(z):
     T = type(z)
     return -T(0.5) * (z * z + T(np.log(2 * np.pi)))
 
 
-@_jit(-1)
+@_jit(1, narg=0)
 def _cdf1(z):
     T = type(z)
     c = T(np.sqrt(0.5))
     return T(0.5) * (T(1.0) + _erf(z * c))
 
 
-@_jit(-1, cache=False)  # cannot cache because of _ndtri
+@_jit(1, narg=0, cache=False)  # cannot cache because of _ndtri
 def _ppf1(p):
     T = type(p)
     return T(_ndtri(p))
