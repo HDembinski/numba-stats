@@ -44,6 +44,10 @@ def maxtest(session: nox.Session) -> None:
 @nox.session(python="3.12", reuse_venv=True)
 def cov(session: nox.Session) -> None:
     """Run covage and place in 'htmlcov' directory."""
+    import warnings
+
+    warnings.warn("JIT-compiled code lines are not counted.")
+
     session.install("-e.[test]")
     session.run("coverage", "run", "-m", "pytest", env=ENV)
     session.run("coverage", "html", "-d", "htmlcov")

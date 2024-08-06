@@ -1,0 +1,7 @@
+[run]
+source = src/numba_stats
+relative_files = True
+
+[report]
+exclude_lines =
+    pragma: no cover
