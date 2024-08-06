@@ -10,6 +10,7 @@ We provide `numba`-accelerated implementations of common probability distributio
 * (Truncated) Normal
 * Log-normal
 * Poisson
+* Binomial
 * (Truncated) Exponential
 * Student's t
 * Voigtian
@@ -21,7 +22,7 @@ We provide `numba`-accelerated implementations of common probability distributio
 * Cruijff density (not normalized to unity, use this in extended likelihood fits)
 * CMS-Shape
 
-with more to come. The speed gains are huge, up to a factor of 100 compared to `scipy`. Benchmarks are included in the repository and are run by `pytest`.
+The speed gains are huge, up to a factor of 100 compared to `scipy`. Benchmarks are included in the repository and are run by `pytest`.
 
 The distributions are optimized for the use in maximum-likelihood fits, where you query a distribution at many points with a single set of parameters.
 
