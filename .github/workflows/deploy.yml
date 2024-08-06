@@ -9,7 +9,7 @@ on:
       - .github/workflows/deploy.yml
 
 jobs:
-  release:
+  deploy:
     runs-on: ubuntu-latest
 
     environment:
