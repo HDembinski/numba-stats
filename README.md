@@ -3,8 +3,7 @@
 ![](https://img.shields.io/pypi/v/numba-stats.svg)
 [![DOI](https://zenodo.org/badge/DOI/10.5281/zenodo.13236518.svg)](https://doi.org/10.5281/zenodo.13236518)
 
-
-We provide `numba`-accelerated implementations of common probability distributions.
+We provide JIT-compiled (with numba) implementations of common probability distributions.
 
 * Uniform
 * (Truncated) Normal
@@ -73,7 +72,9 @@ p = norm_pdf(x, mu, sigma)
 
 Note that this is only faster if `x` has sufficient length (about 1000 elements or more). Otherwise, the parallelization overhead will make the call slower, see benchmarks below.
 
-#### Troubleshooting
+#### Gotchas and workarounds
+
+##### TypingErrors
 
 When you use the numba-stats distributions in a compiled function, you need to pass the expected data types. The first argument must be numpy array of floats (32 or 64 bit). The following parameters must be floats. If you pass the wrong arguments, you will get numba errors similar to this one (where parameters were passed as integer instead of float):
 ```
@@ -85,6 +86,16 @@ No implementation of function Function(<function pdf at 0x7ff7186b7be0>) found f
 You won't get these errors when you call the numba-stats PDFs outside of a compiled function, because I added some wrappers which automatically convert the data types for convenience. This is why you can call `norm.pdf(1, 2, 3)`
 but
 `norm_pdf(1, 2, 3)` (as implemented above) will fail.
+
+##### High-dimensional arrays
+
+To keep the implementation simple, the PDFs all operate on 1D array arguments. If you have a higher-dimensional array, you can reshape it, pass it to our function and the shape it back. This is a cheap operation.
+
+```py
+x = ... # some higher dimensional array
+# y = norm_pdf(x, 0.0, 1.0) this fails
+y = norm_pdf(x.reshape(-1), 0.0, 1.0).reshape(x.shape)  # OK
+```
 
 ## Documentation
 
