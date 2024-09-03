@@ -76,5 +76,3 @@ def _cdf(x, chi, c, p):
 
 
 _generate_wrappers(globals())
-
-_generate_wrappers(globals())

@@ -11,11 +11,9 @@ See Also
 scipy.stats.crystalball: Scipy equivalent.
 """
 
-from math import erf as _erf
-
+from ._util import _jit, _trans, _generate_wrappers, _prange
 import numpy as np
-
-from ._util import _generate_wrappers, _jit, _prange, _trans
+from math import erf as _erf
 
 _doc_par = """
 x : Array-like
@@ -93,7 +91,5 @@ def _cdf(x, beta, m, loc, scale):
             ) / norm
     return z
 
-
-_generate_wrappers(globals())
 
 _generate_wrappers(globals())
