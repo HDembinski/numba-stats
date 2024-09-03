@@ -1,8 +1,12 @@
 """
 Generalised ARGUS distribution.
 
-The ARGUS distribution is named after the particle physics experiment ARGUS and it describes the reconstructed invariant mass of a decayed particle candidate in continuum background.
-It is motivated from experimental observation. Here we have the generalised version of the ARGUS distribution that can be used to describe a more peaking like distribtion. p = 0.5 gives the normal ARGUS distribution.
+The ARGUS distribution is named after the particle physics experiment ARGUS and it 
+describes the reconstructed invariant mass of a decayed particle candidate 
+in continuum background.
+It is motivated from experimental observation. Here we have the generalised version 
+of the ARGUS distribution that can be used to describe a more peaking like distribtion. 
+p = 0.5 gives the normal ARGUS distribution.
 
 https://en.wikipedia.org/wiki/ARGUS_distribution
 
