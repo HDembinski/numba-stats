@@ -6,7 +6,7 @@ It is motivated from experimental observation. Here we have the generalised vers
 
 https://en.wikipedia.org/wiki/ARGUS_distribution
 
-See also
+See Also
 --------
 scipy.stats.argus: Scipy equivalent.
 """
