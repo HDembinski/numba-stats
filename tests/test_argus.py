@@ -10,7 +10,7 @@ from numba_stats import argus
 def test_logpdf(chi):
     c = 1
     p = 0.5
-    x = np.linspace(0, 1, 10)
+    x = np.linspace(-1, 2, 30)
     got = argus.logpdf(x, chi, c, p)
     expected = sc.argus.logpdf(x, chi)
     assert_allclose(got, expected)
@@ -20,7 +20,7 @@ def test_logpdf(chi):
 def test_pdf(chi):
     c = 1
     p = 0.5
-    x = np.linspace(0, 1, 10)
+    x = np.linspace(-1, 2, 30)
     got = argus.pdf(x, chi, c, p)
     expected = sc.argus.pdf(x, chi)
     assert_allclose(got, expected)
@@ -30,7 +30,7 @@ def test_pdf(chi):
 def test_cdf(chi):
     c = 1
     p = 0.5
-    x = np.linspace(0, 1, 10)
+    x = np.linspace(-1, 2, 30)
     got = argus.cdf(x, chi, c, p)
     expected = sc.argus.cdf(x, chi)
-    assert_allclose(got, expected)
+    assert_allclose(got, expected, atol=2e-16)

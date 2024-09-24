@@ -75,13 +75,14 @@ def _cdf(x, chi, c, p):
     p1 = p + one
     half_chi2 = half * chi * chi
     c2 = c * c
+    f = one / T(_ginc(p1, half_chi2))
     r = np.empty_like(x)
     for i in _prange(len(x)):
         xi = x[i]
         if 0 <= xi:
             if xi <= c:
                 y = one - xi * xi / c2
-                r[i] = T((one - _ginc(p1, half_chi2 * y) / _ginc(p1, half_chi2)))
+                r[i] = one - T(_ginc(p1, half_chi2 * y)) * f
             else:
                 r[i] = one
         else:
