@@ -71,6 +71,7 @@ def _cdf(x, chi, c, p):
     T = type(p)
     zero = T(0)
     one = T(1)
+    foo = 1
     half = T(0.5)
     p1 = p + one
     half_chi2 = half * chi * chi
