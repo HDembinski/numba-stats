@@ -187,7 +187,7 @@ def {fname}({args}):
 
 @_overload({fname}, inline="always")
 def _ol_{fname}({args}):
-    return {impl}
+    return {impl}.__wrapped__
 """
         else:
             code = f"""
