@@ -83,10 +83,10 @@ def _cdf(x, chi, c, p):
                 x2 = xi * xi
                 r[i] = T(
                     (
-                        _gammainc(p1, half_chi2)
+                        one
                         - _gammainc(p1, half_chi2 * (one - x2 / c2))
+                        / _gammainc(p1, half_chi2)
                     )
-                    / _gammainc(p1, half_chi2)
                 )
             else:
                 r[i] = one
