@@ -5,21 +5,22 @@
 
 We provide JIT-compiled (with numba) implementations of common probability distributions.
 
-* Uniform
-* (Truncated) Normal
-* Log-normal
-* Poisson
-* Binomial
-* (Truncated) Exponential
-* Student's t
-* Voigtian
-* Crystal Ball
-* Generalised double-sided Crystal Ball
-* Tsallis-Hagedorn, a model for the minimum bias pT distribution
-* Q-Gaussian
-* Bernstein density (not normalized to unity, use this in extended likelihood fits)
-* Cruijff density (not normalized to unity, use this in extended likelihood fits)
-* CMS-Shape
+- Uniform
+- (Truncated) Normal
+- Log-normal
+- Poisson
+- Binomial
+- (Truncated) Exponential
+- Student's t
+- Voigtian
+- Crystal Ball
+- Generalised double-sided Crystal Ball
+- Tsallis-Hagedorn, a model for the minimum bias pT distribution
+- Q-Gaussian
+- Bernstein density (not normalized to unity, use this in extended likelihood fits)
+- Cruijff density (not normalized to unity, use this in extended likelihood fits)
+- CMS-Shape
+- Generalized Argus
 
 The speed gains are huge, up to a factor of 100 compared to `scipy`. Benchmarks are included in the repository and are run by `pytest`.
 
@@ -28,6 +29,7 @@ The distributions are optimized for the use in maximum-likelihood fits, where yo
 ## Usage
 
 Each distribution is implemented in a submodule. Import the submodule that you need and call the functions in the module.
+
 ```py
 from numba_stats import norm
 import numpy as np
@@ -39,12 +41,14 @@ sigma = 3.0
 p = norm.pdf(x, mu, sigma)
 c = norm.cdf(x, mu, sigma)
 ```
+
 The functions are vectorized on the variate `x`, but not on the shape parameters of the distribution. Ideally, the following functions are implemented for each distribution:
-* `pdf`: probability density function
-* `logpdf`: the logarithm of the probability density function (can be computed more efficiently and accurately for some distributions)
-* `cdf`: integral of the probability density function
-* `ppf`:inverse of the cdf
-* `rvs`: to generate random variates
+
+- `pdf`: probability density function
+- `logpdf`: the logarithm of the probability density function (can be computed more efficiently and accurately for some distributions)
+- `cdf`: integral of the probability density function
+- `ppf`:inverse of the cdf
+- `rvs`: to generate random variates
 
 `cdf` and `ppf` are missing for some distributions (e.g. `voigt`), if there is currently no fast implementation available. `logpdf` is only implemented if it is more efficient and accurate compared to computing `log(dist.pdf(...))`. `rvs` is only implemented for distributions that have `ppf`, which is used to generate the random variates. The implementations of `rvs` are currently not optimized for highest performance, but turn out to be useful in practice nevertheless.
 
@@ -77,12 +81,14 @@ Note that this is only faster if `x` has sufficient length (about 1000 elements 
 ##### TypingErrors
 
 When you use the numba-stats distributions in a compiled function, you need to pass the expected data types. The first argument must be numpy array of floats (32 or 64 bit). The following parameters must be floats. If you pass the wrong arguments, you will get numba errors similar to this one (where parameters were passed as integer instead of float):
+
 ```
 numba.core.errors.TypingError: Failed in nopython mode pipeline (step: nopython frontend)
 No implementation of function Function(<function pdf at 0x7ff7186b7be0>) found for signature:
 
  >>> pdf(array(float64, 1d, C), int64, int64)
 ```
+
 You won't get these errors when you call the numba-stats PDFs outside of a compiled function, because I added some wrappers which automatically convert the data types for convenience. This is why you can call `norm.pdf(1, 2, 3)`
 but
 `norm_pdf(1, 2, 3)` (as implemented above) will fail.
