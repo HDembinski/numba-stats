@@ -41,20 +41,20 @@ def _logpdf(x, chi, c, p):
     two = T(2)
     half = T(0.5)
     half_chi2 = half * chi * chi
+    inv_c2 = one / (c * c)
     p1 = p + one
     r = np.empty_like(x)
     for i in _prange(len(x)):
         xi = x[i]
         if 0 <= xi and xi <= c:
-            x2 = xi * xi
-            y = one - x2 / (c * c)
+            y = one - xi * xi * inv_c2
             r[i] = (
                 -half_chi2 * y
                 + p * (np.log(y) - np.log(two))
                 + two * (p1 * np.log(chi) - np.log(c))
                 + np.log(xi)
                 - T(_lg(p1))
-                - np.log(T(_ginc(p1, half * chi**two)))
+                - np.log(T(_ginc(p1, half_chi2)))
             )
         else:
             r[i] = -np.inf
@@ -74,15 +74,15 @@ def _cdf(x, chi, c, p):
     half = T(0.5)
     p1 = p + one
     half_chi2 = half * chi * chi
-    c2 = c * c
-    f = one / T(_ginc(p1, half_chi2))
+    inv_c2 = one / (c * c)
+    inv_ginc = one / T(_ginc(p1, half_chi2))
     r = np.empty_like(x)
     for i in _prange(len(x)):
         xi = x[i]
         if 0 <= xi:
             if xi <= c:
-                y = one - xi * xi / c2
-                r[i] = one - T(_ginc(p1, half_chi2 * y)) * f
+                y = one - xi * xi * inv_c2
+                r[i] = one - T(_ginc(p1, half_chi2 * y)) * inv_ginc
             else:
                 r[i] = one
         else:
