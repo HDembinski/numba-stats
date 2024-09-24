@@ -15,11 +15,11 @@ See Also
 scipy.stats.argus: Scipy equivalent.
 """
 
-from math import lgamma as _lgamma
+from math import lgamma as _lg
 
 import numpy as np
 
-from ._special import gammainc as _gammainc
+from ._special import gammainc as _ginc
 from ._util import _generate_wrappers, _jit, _prange
 
 _doc_par = """
@@ -53,8 +53,8 @@ def _logpdf(x, chi, c, p):
                 + p * (np.log(y) - np.log(two))
                 + two * (p1 * np.log(chi) - np.log(c))
                 + np.log(xi)
-                - T(_lgamma(p1))
-                - np.log(T(_gammainc(p1, half * chi**two)))
+                - T(_lg(p1))
+                - np.log(T(_ginc(p1, half * chi**two)))
             )
         else:
             r[i] = -np.inf
@@ -71,7 +71,6 @@ def _cdf(x, chi, c, p):
     T = type(p)
     zero = T(0)
     one = T(1)
-    foo = 1
     half = T(0.5)
     p1 = p + one
     half_chi2 = half * chi * chi
@@ -81,14 +80,8 @@ def _cdf(x, chi, c, p):
         xi = x[i]
         if 0 <= xi:
             if xi <= c:
-                x2 = xi * xi
-                r[i] = T(
-                    (
-                        one
-                        - _gammainc(p1, half_chi2 * (one - x2 / c2))
-                        / _gammainc(p1, half_chi2)
-                    )
-                )
+                y = one - xi * xi / c2
+                r[i] = T((one - _ginc(p1, half_chi2 * y) / _ginc(p1, half_chi2)))
             else:
                 r[i] = one
         else:
