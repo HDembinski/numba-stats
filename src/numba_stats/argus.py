@@ -15,11 +15,11 @@ See Also
 scipy.stats.argus: Scipy equivalent.
 """
 
-from math import gamma
+from math import lgamma as _lgamma
 
 import numpy as np
 
-from ._special import gammaincc
+from ._special import gammainc as _gammainc
 from ._util import _generate_wrappers, _jit, _prange
 
 _doc_par = """
@@ -37,21 +37,28 @@ p : float
 @_jit(3, cache=False)
 def _logpdf(x, chi, c, p):
     T = type(p)
-
-    y = T(1) - (x ** T(2)) / (c ** T(2))
-    z = (
-        -T(0.5) * chi * chi * y
-        + p * np.log(y)
-        - p * np.log(T(2))
-        + (T(2) * p + T(2)) * np.log(chi)
-        - T(2.0) * np.log(c)
-        + np.log(x)
-        - np.log(
-            T(gamma(p + T(1)))
-            - T(gammaincc(p + T(1), T(0.5) * chi ** T(2)) * T(gamma(p + T(1)))),
-        )
-    )
-    return z
+    one = T(1)
+    two = T(2)
+    half = T(0.5)
+    half_chi2 = half * chi * chi
+    p1 = p + one
+    r = np.empty_like(x)
+    for i in _prange(len(x)):
+        xi = x[i]
+        if 0 <= xi and xi <= c:
+            x2 = xi * xi
+            y = one - x2 / (c * c)
+            r[i] = (
+                -half_chi2 * y
+                + p * (np.log(y) - np.log(two))
+                + two * (p1 * np.log(chi) - np.log(c))
+                + np.log(xi)
+                - T(_lgamma(p1))
+                - np.log(T(_gammainc(p1, half * chi**two)))
+            )
+        else:
+            r[i] = -np.inf
+    return r
 
 
 @_jit(3, cache=False)
@@ -62,20 +69,29 @@ def _pdf(x, chi, c, p):
 @_jit(3, cache=False)
 def _cdf(x, chi, c, p):
     T = type(p)
+    zero = T(0)
+    one = T(1)
+    half = T(0.5)
+    p1 = p + one
+    half_chi2 = half * chi * chi
+    c2 = c * c
     r = np.empty_like(x)
     for i in _prange(len(x)):
-        r[i] = (
-            (
-                gammaincc(
-                    p + T(1.0), T(0.5) * chi ** T(2) * (T(1) - x[i] ** T(2) / c ** T(2))
+        xi = x[i]
+        if 0 <= xi:
+            if xi <= c:
+                x2 = xi * xi
+                r[i] = T(
+                    (
+                        _gammainc(p1, half_chi2)
+                        - _gammainc(p1, half_chi2 * (one - x2 / c2))
+                    )
+                    / _gammainc(p1, half_chi2)
                 )
-                * gamma(p + T(1))
-                - T(gammaincc(p + T(1.0), T(0.5) * chi ** T(2)) * gamma(p + T(1)))
-            )
-        ) / (
-            T(gamma(p + T(1)))
-            - T(gammaincc(p + T(1), T(0.5) * chi ** T(2)) * gamma(p + T(1)))
-        )
+            else:
+                r[i] = one
+        else:
+            r[i] = zero
     return r
 
 
