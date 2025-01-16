@@ -11,7 +11,10 @@ def get(name, signature):
     from scipy.special import cython_special
 
     # scipy-1.12 started to provide fused versions for some special functions
-    fuse_name = f"__pyx_fuse_1{name}"
+    if name == "betainc":
+        fuse_name = f"__pyx_fuse_0{name}"
+    else:
+        fuse_name = f"__pyx_fuse_1{name}"
     if fuse_name not in cython_special.__pyx_capi__:
         fuse_name = name
 
@@ -39,5 +42,4 @@ stdtr = get("stdtr", float64(float64, float64))
 voigt_profile = get("voigt_profile", float64(float64, float64, float64))
 xlogy = get("xlogy", float64(float64, float64))
 xlog1py = get("xlog1py", float64(float64, float64))
-# for some reason, getting betainc directly does not work! btdtr is an alias
-betainc = get("btdtr", float64(float64, float64, float64))
+betainc = get("betainc", float64(float64, float64, float64))
