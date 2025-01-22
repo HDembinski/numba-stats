@@ -42,7 +42,7 @@ p = norm.pdf(x, mu, sigma)
 c = norm.cdf(x, mu, sigma)
 ```
 
-The functions are vectorized on the variate `x`, but not on the shape parameters of the distribution. Ideally, the following functions are implemented for each distribution:
+The functions are vectorized over the variate `x`, but not over the shape parameters of the distribution, which must be scalars (see [Rationale](#rationale) for an explanation). Ideally, the following functions are implemented for each distribution:
 
 - `pdf`: probability density function
 - `logpdf`: the logarithm of the probability density function (can be computed more efficiently and accurately for some distributions)
@@ -103,6 +103,20 @@ x = ... # some higher dimensional array
 y = norm_pdf(x.reshape(-1), 0.0, 1.0).reshape(x.shape)  # OK
 ```
 
+##### Parameter arrays
+
+To keep the implementation simple and efficient, the PDFs are vectorized only over the first argument `x`, but not over the parameters, unlike the scipy implementation.
+
+```py
+x = ... # some array
+mu = ... # some array
+sigma = ... # some array
+# this fails both inside a numba compiled function and in the normal Python interpreter
+y = norm.pdf(x, mu, sigma)
+```
+
+See the [Rationale](#rationale) for an explanation. If you need this functionality, it is probably best to use the scipy implementation. You could try to write a small numba-wrapper, but it is probably not going to be very efficient.
+
 ## Documentation
 
 To get documentation, please use `help()` in the Python interpreter.
@@ -112,6 +126,20 @@ Functions with equivalents in `scipy.stats` follow the `scipy` calling conventio
 ## Citation
 
 If you use this package in a scientific work, please cite us. You can generate citations in your preferred format on the [Zenodo website](https://doi.org/10.5281/zenodo.13236518).
+
+## Rationale
+
+This section explain design trade-offs.
+
+Q: Why is numba-stats only vectorized over the observations `x`, but not over the parameters?
+
+This is to keep the code simple and most efficient for the core use-case.
+
+numba-stats was designed to be used in fitting of parametric models to data, where the model parameters are always scalars, and only the observations are arrays. The implementations thus only vectorize the execution over the observations (the first argument of the distribution). This allows for optimizations, for example, precomputation of potentially costly terms that don't change if the parameters are constant, like the normalization of a pdf. Such optimizations are not possible if the parameters can change from observation to observation.
+
+But even when such savings are not there, the design requires less memory bandwidth compared to one where the parameters are also arrays. Computational speed is often limited by memory bandwidth nowadays.
+
+To efficiently support both the core use-case with scalar parameters and additionally the use-case where the parameters are arrays as well, one would need to write two implementations for each function, basically doubling the maintenance burden. I don't know of a compelling use-case where vectorization over parameters and the high performance of numba-stats is crucial, but if you have one, leave an issue. If you think you need the Poisson PDF vectorized over its parameter for maximum-likelihood fitting of histograms: it is a better and faster to use the Cash function instead (a numba implementation can be found in iminuit), see [#78](https://github.com/HDembinski/numba-stats/issues/78) for more details.
 
 ## Benchmarks
 
