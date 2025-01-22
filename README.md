@@ -126,6 +126,8 @@ def norm_pdf_v(x, mu, sigma):
     return result
 ```
 
+The performance is poor, because each call to norm.pdf inside the loop allocates and deallocates an array, which is very expensive.
+
 ## Documentation
 
 To get documentation, please use `help()` in the Python interpreter.
