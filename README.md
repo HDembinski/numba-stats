@@ -115,7 +115,16 @@ sigma = ... # some array
 y = norm.pdf(x, mu, sigma)
 ```
 
-See the [Rationale](#rationale) for an explanation. If you need this functionality, it is probably best to use the scipy implementation. You could try to write a small numba-wrapper, but it is probably not going to be very efficient.
+See the [Rationale](#rationale) for an explanation. If you need this functionality, it is probably best to use the scipy implementation. You could try to write a small numba-wrapper, but it is probably slower than just using scipy. For example, this implementation is 6-7 times slower than scipy on my computer when applied to arrays with 100000 entries.
+
+```py
+@nb.njit
+def norm_pdf_v(x, mu, sigma):
+    result = np.empty_like(x)
+    for i, (mui, sigmai) in enumerate(zip(mu, sigma)):
+        result[i] = norm.pdf(x[i: i+1], mui, sigmai)[0]
+    return result
+```
 
 ## Documentation
 
