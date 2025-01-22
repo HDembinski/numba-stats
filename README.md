@@ -115,7 +115,7 @@ sigma = ... # some array
 y = norm.pdf(x, mu, sigma)
 ```
 
-See the [Rationale](#rationale) for an explanation. If you need this functionality, it is probably best to use the scipy implementation. You could try to write a small numba-wrapper, but it is probably slower than just using scipy. For example, this implementation is 6-7 times slower than scipy on my computer when applied to arrays with 100000 entries.
+See the [Rationale](#rationale) for an explanation. If you need this functionality, it is best to use the scipy implementation. When that is not an option, for example, because you want to use a distribution that is only available in numba-stats, you can write a small wrapper like this:
 
 ```py
 @nb.njit
@@ -126,7 +126,7 @@ def norm_pdf_v(x, mu, sigma):
     return result
 ```
 
-The performance is poor, because each call to norm.pdf inside the loop allocates and deallocates an array, which is very expensive.
+The performance is poor, because each call to norm.pdf inside the loop allocates and deallocates an array, which is very expensive. This implementation is 6-7 times slower than the scipy implementation on my computer when applied to arrays with 100,000 entries.
 
 ## Documentation
 
