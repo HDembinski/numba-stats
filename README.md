@@ -126,7 +126,7 @@ def norm_pdf_v(x, mu, sigma):
     return result
 ```
 
-The performance is poor, because each call to norm.pdf inside the loop allocates and deallocates an array, which is very expensive. This implementation is 6-7 times slower than the scipy implementation on my computer when applied to arrays with 100,000 entries.
+The performance is poor, because each call to norm.pdf inside the loop allocates and deallocates an array. This implementation is 6-7 times slower than the scipy implementation on my computer when applied to arrays with 100,000 entries.
 
 ## Documentation
 
