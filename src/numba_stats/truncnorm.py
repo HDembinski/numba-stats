@@ -13,7 +13,7 @@ from ._util import _jit, _generate_wrappers, _prange, _seed, _rvs_jit
 _doc_par = """
 xmin : float
     Lower edge of the distribution.
-xmin : float
+xmax : float
     Upper edge of the distribution.
 loc : float
     Location of the mode.
