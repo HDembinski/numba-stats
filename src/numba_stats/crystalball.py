@@ -16,7 +16,6 @@ from ._util import _jit, _trans, _generate_wrappers, _prange
 import numpy as np
 from math import erf as _erf
 
-
 _doc_par = """
 x : Array-like
     Random variate.
