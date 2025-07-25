@@ -42,7 +42,8 @@ def _powerlaw_integral(z, beta, m):
     log_a = m * np.log(m / beta) + c
     b = m / beta - beta
     m1 = m - type(m)(1)
-    return np.exp(log_a - m1 * np.log(b-z) - np.log(m1))
+    return np.exp(log_a - m1 * np.log(b - z) - np.log(m1))
+
 
 @_jit(2, narg=0)
 def _normal_integral(a, b):
