@@ -21,13 +21,21 @@ PYPROJECT = nox.project.load_toml("pyproject.toml")
 MINIMUM_PYTHON = PYPROJECT["project"]["requires-python"].strip(">=")
 LATEST_PYTHON = str(python_releases.latest())
 
-nox.options.sessions = ["test", "maxtest"]
+nox.options.sessions = ["mintest", "maxtest"]
 
 # running in parallel with pytest-xdist does not make the tests faster
 
 
+# doesn't work on my windows machine but needed for CI
 @nox.session(reuse_venv=True)
 def test(session: nox.Session) -> None:
+    """Run all tests."""
+    session.install("-e.[test]")
+    session.run("pytest", *session.posargs)
+
+
+@nox.session(python=MINIMUM_PYTHON, reuse_venv=True)
+def mintest(session: nox.Session) -> None:
     """Run all tests."""
     session.install("-e.[test]")
     session.run("pytest", *session.posargs)
