@@ -54,6 +54,29 @@ def _normal_integral(a, b):
 
 
 @_jit(3, narg=0)
+def _powerlaw_ppf(y, beta, m):
+    T = type(beta)
+    exp_beta = np.exp(-T(0.5) * beta * beta)
+    a = (m / beta) ** m * exp_beta
+    b = m / beta - beta
+    m1 = m - type(m)(1)
+    term = ((y * m1) / a) ** (-T(1) / m1)
+    return b - term
+
+
+@_jit(2, narg=0, cache=False)
+def _normal_ppf(y, a):
+    T = type(a)
+    sqrt_half = np.sqrt(T(0.5))
+    sqrt_pi_half = np.sqrt(T(np.pi) * T(0.5))
+    y_normalized = y / sqrt_pi_half
+    erf_a = _erf(a * sqrt_half)
+    erf_b_target = y_normalized + erf_a
+    p = (erf_b_target + T(1)) / T(2)
+    return _norm._ppf1(p)
+
+
+@_jit(3, narg=0)
 def _log_density(z, beta, m):
     if z < -beta:
         return _log_powerlaw(z, beta, m)
@@ -93,6 +116,7 @@ def _cdf(x, beta, m, loc, scale):
     return z
 
 
+@_jit(4, cache=False)
 def _ppf(p, beta, m, loc, scale):
     norm = _powerlaw_integral(-beta, beta, m) + _normal_integral(
         -beta, type(beta)(np.inf)
@@ -101,22 +125,9 @@ def _ppf(p, beta, m, loc, scale):
     r = np.empty_like(p)
     for i in _prange(len(r)):
         if p[i] < pbeta:
-            eb2 = np.exp(-(beta**2) / 2.0)
-            C = (m / beta) * eb2 / (m - 1)
-            N = 1 / (C + _normal_integral(-beta, type(beta)(np.inf)))
-            r[i] = (
-                m / beta
-                - beta
-                - ((m - 1) * (m / beta) ** (-m) / eb2 * p[i] / N) ** (1 / (1 - m))
-            )
+            r[i] = _powerlaw_ppf(p[i] * norm, beta, m)
         else:
-            eb2 = np.exp(-(beta**2) / 2.0)
-            C = (m / beta) * eb2 / (m - 1)
-            N = 1 / (C + _normal_integral(-beta, type(beta)(np.inf)))
-            r[i] = _norm._ppf1(
-                _normal_integral(beta, type(beta)(np.inf)) / np.sqrt(2.0 * np.pi)
-                + (1 / np.sqrt(2.0 * np.pi)) * (p[i] / N - C)
-            )
+            r[i] = _normal_ppf((p[i] - pbeta) * norm, -beta)
     return scale * r + loc
 
 
