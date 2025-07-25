@@ -53,22 +53,22 @@ def _normal_integral(a, b):
 
 
 @_jit(3, narg=0)
-def _powerlaw_ppf(y, beta, m):
+def _powerlaw_ppf(p, beta, m):
     T = type(beta)
-    exp_beta = np.exp(-T(0.5) * beta * beta)
-    a = (m / beta) ** m * exp_beta
+    log_a = m * np.log(m / beta) - T(0.5) * beta * beta
     b = m / beta - beta
-    m1 = m - type(m)(1)
-    term = ((y * m1) / a) ** (-T(1) / m1)
+    m1 = m - T(1)
+    log_term = (-T(1) / m1) * (np.log(p) + np.log(m1) - log_a)
+    term = np.exp(log_term)
     return b - term
 
 
 @_jit(2, narg=0, cache=False)
-def _normal_ppf(y, a):
+def _normal_ppf(p, a):
     T = type(a)
     sqrt_half = np.sqrt(T(0.5))
     sqrt_pi_half = np.sqrt(T(np.pi) * T(0.5))
-    y_normalized = y / sqrt_pi_half
+    y_normalized = p / sqrt_pi_half
     erf_a = _erf(a * sqrt_half)
     erf_b_target = y_normalized + erf_a
     p = (erf_b_target + T(1)) / T(2)
