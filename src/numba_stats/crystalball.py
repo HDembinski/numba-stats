@@ -11,9 +11,11 @@ See Also
 scipy.stats.crystalball: Scipy equivalent.
 """
 
+from . import norm as _norm
 from ._util import _jit, _trans, _generate_wrappers, _prange
 import numpy as np
 from math import erf as _erf
+
 
 _doc_par = """
 x : Array-like
@@ -90,6 +92,33 @@ def _cdf(x, beta, m, loc, scale):
                 _powerlaw_integral(-beta, beta, m) + _normal_integral(-beta, z[i])
             ) / norm
     return z
+
+
+def _ppf(p, beta, m, loc, scale):
+    norm = _powerlaw_integral(-beta, beta, m) + _normal_integral(
+        -beta, type(beta)(np.inf)
+    )
+    pbeta = _powerlaw_integral(-beta, beta, m) / norm
+    r = np.empty_like(p)
+    for i in _prange(len(r)):
+        if p[i] < pbeta:
+            eb2 = np.exp(-(beta**2) / 2.0)
+            C = (m / beta) * eb2 / (m - 1)
+            N = 1 / (C + _normal_integral(-beta, type(beta)(np.inf)))
+            r[i] = (
+                m / beta
+                - beta
+                - ((m - 1) * (m / beta) ** (-m) / eb2 * p[i] / N) ** (1 / (1 - m))
+            )
+        else:
+            eb2 = np.exp(-(beta**2) / 2.0)
+            C = (m / beta) * eb2 / (m - 1)
+            N = 1 / (C + _normal_integral(-beta, type(beta)(np.inf)))
+            r[i] = _norm._ppf1(
+                _normal_integral(beta, type(beta)(np.inf)) / np.sqrt(2.0 * np.pi)
+                + (1 / np.sqrt(2.0 * np.pi)) * (p[i] / N - C)
+            )
+    return scale * r + loc
 
 
 _generate_wrappers(globals())
