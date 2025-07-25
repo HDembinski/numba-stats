@@ -38,10 +38,9 @@ def _log_powerlaw(z, beta, m):
 @_jit(3, narg=0)
 def _powerlaw_integral(z, beta, m):
     T = type(beta)
-    c = -T(0.5) * beta**2
-    log_a = m * np.log(m / beta) + c
+    log_a = m * np.log(m / beta) - T(0.5) * beta * beta
     b = m / beta - beta
-    m1 = m - type(m)(1)
+    m1 = m - T(1)
     return np.exp(log_a - m1 * np.log(b - z) - np.log(m1))
 
 
