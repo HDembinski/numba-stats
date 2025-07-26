@@ -51,7 +51,7 @@ def test_pdf_integral(beta, m):
 @pytest.mark.parametrize("m", (1.001, 2, 3))
 def test_logpdf(beta, m):
     scale = 1.5
-    x = np.linspace(-10, 5, 10)
+    x = np.linspace(-10, 10, 10)
     got = cb.logpdf(x, beta, m, scale, 2 * beta, 2 * m, scale, 0)
     expected = cb_scipy.logpdf(x, beta, 2 * beta, m, 2 * m, 0, scale)
     assert_allclose(got, expected)
@@ -61,7 +61,7 @@ def test_logpdf(beta, m):
 @pytest.mark.parametrize("m", (1.001, 2, 3))
 def test_pdf(beta, m):
     scale = 1.5
-    x = np.linspace(-10, 5, 10)
+    x = np.linspace(-10, 10, 10)
     got = cb.pdf(x, beta, m, scale, 2 * beta, 2 * m, scale, 0)
     expected = cb_scipy.pdf(x, beta, 2 * beta, m, 2 * m, 0, scale)
     assert_allclose(got, expected)
