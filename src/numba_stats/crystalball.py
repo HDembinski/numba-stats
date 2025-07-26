@@ -11,6 +11,7 @@ See Also
 scipy.stats.crystalball: Scipy equivalent.
 """
 
+from . import norm as _norm
 from ._util import _jit, _trans, _generate_wrappers, _prange
 import numpy as np
 from math import erf as _erf
@@ -52,6 +53,29 @@ def _normal_integral(a, b):
 
 
 @_jit(3, narg=0)
+def _powerlaw_ppf(p, beta, m):
+    T = type(beta)
+    log_a = m * np.log(m / beta) - T(0.5) * beta * beta
+    b = m / beta - beta
+    m1 = m - T(1)
+    log_term = (-T(1) / m1) * (np.log(p) + np.log(m1) - log_a)
+    term = np.exp(log_term)
+    return b - term
+
+
+@_jit(2, narg=0, cache=False)
+def _normal_ppf(p, a):
+    T = type(a)
+    sqrt_half = np.sqrt(T(0.5))
+    sqrt_pi_half = np.sqrt(T(np.pi) * T(0.5))
+    y_normalized = p / sqrt_pi_half
+    erf_a = _erf(a * sqrt_half)
+    erf_b_target = y_normalized + erf_a
+    p = (erf_b_target + T(1)) / T(2)
+    return _norm._ppf1(p)
+
+
+@_jit(3, narg=0)
 def _log_density(z, beta, m):
     if z < -beta:
         return _log_powerlaw(z, beta, m)
@@ -89,6 +113,21 @@ def _cdf(x, beta, m, loc, scale):
                 _powerlaw_integral(-beta, beta, m) + _normal_integral(-beta, z[i])
             ) / norm
     return z
+
+
+@_jit(4, cache=False)
+def _ppf(p, beta, m, loc, scale):
+    norm = _powerlaw_integral(-beta, beta, m) + _normal_integral(
+        -beta, type(beta)(np.inf)
+    )
+    pbeta = _powerlaw_integral(-beta, beta, m) / norm
+    r = np.empty_like(p)
+    for i in _prange(len(r)):
+        if p[i] < pbeta:
+            r[i] = _powerlaw_ppf(p[i] * norm, beta, m)
+        else:
+            r[i] = _normal_ppf((p[i] - pbeta) * norm, -beta)
+    return scale * r + loc
 
 
 _generate_wrappers(globals())

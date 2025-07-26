@@ -4,6 +4,7 @@ import pytest
 from scipy import stats as sc
 from numpy.testing import assert_allclose
 from scipy.integrate import quad
+from scipy_doublecrystalball import doublecrystalball as cb_scipy
 
 
 @pytest.mark.parametrize("beta", (0.1, 2, 3))
@@ -46,6 +47,26 @@ def test_pdf_integral(beta, m):
     assert_allclose(got, 1)
 
 
+@pytest.mark.parametrize("beta", (5, 1, 0.1))
+@pytest.mark.parametrize("m", (1.001, 2, 3))
+def test_logpdf(beta, m):
+    scale = 1.5
+    x = np.linspace(-10, 10, 10)
+    got = cb.logpdf(x, beta, m, scale, 2 * beta, 2 * m, scale, 0)
+    expected = cb_scipy.logpdf(x, beta, 2 * beta, m, 2 * m, 0, scale)
+    assert_allclose(got, expected)
+
+
+@pytest.mark.parametrize("beta", (0.1, 2, 3))
+@pytest.mark.parametrize("m", (1.001, 2, 3))
+def test_pdf(beta, m):
+    scale = 1.5
+    x = np.linspace(-10, 10, 10)
+    got = cb.pdf(x, beta, m, scale, 2 * beta, 2 * m, scale, 0)
+    expected = cb_scipy.pdf(x, beta, 2 * beta, m, 2 * m, 0, scale)
+    assert_allclose(got, expected)
+
+
 @pytest.mark.parametrize("beta", (0.1, 2, 3))
 @pytest.mark.parametrize("m", (1.001, 2, 3))
 def test_cdf(beta, m):
@@ -60,4 +81,17 @@ def test_cdf(beta, m):
         )[0]
         for xi in x
     ]
+    assert_allclose(got, expected)
+    got = cb.cdf(x, beta, m, scale, 2 * beta, 2 * m, scale, 0)
+    expected = cb_scipy.cdf(x, beta, 2 * beta, m, 2 * m, 0, scale)
+    assert_allclose(got, expected)
+
+
+@pytest.mark.parametrize("beta", (0.1, 2, 3))
+@pytest.mark.parametrize("m", (1.001, 2, 3))
+def test_ppf(beta, m):
+    scale = 1.5
+    p = np.linspace(0, 1, 10)
+    got = cb.ppf(p, beta, m, scale, 2 * beta, 2 * m, scale, 0)
+    expected = cb_scipy.ppf(p, beta, 2 * beta, m, 2 * m, 0, scale)
     assert_allclose(got, expected)
