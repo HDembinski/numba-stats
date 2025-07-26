@@ -4,6 +4,7 @@ import pytest
 from scipy import stats as sc
 from numpy.testing import assert_allclose
 from scipy.integrate import quad
+from scipy_doublecrystalball import doublecrystalball as cb_scipy
 
 
 @pytest.mark.parametrize("beta", (0.1, 2, 3))
@@ -60,4 +61,14 @@ def test_cdf(beta, m):
         )[0]
         for xi in x
     ]
+    assert_allclose(got, expected)
+
+
+@pytest.mark.parametrize("beta", (0.1, 2, 3))
+@pytest.mark.parametrize("m", (1.001, 2, 3))
+def test_ppf(beta, m):
+    scale = 1.5
+    p = np.linspace(0.02, 0.99, 10)
+    got = cb.ppf(p, beta, m, scale, 2 * beta, 2 * m, scale, 0)
+    expected = cb_scipy.ppf(p, beta, 2 * beta, m, 2 * m, 0, scale)
     assert_allclose(got, expected)
