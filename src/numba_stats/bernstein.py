@@ -159,7 +159,7 @@ def _type_check(x, beta, xmin, xmax):
     T = type(arg.dtype)
     for i, tp in enumerate((xmin, xmax)):
         if not isinstance(tp, T):
-            raise TypingError(f"argument {i+1} must be of type {tp}")
+            raise TypingError(f"argument {i + 1} must be of type {tp}")
 
 
 _generate_wrappers(globals())

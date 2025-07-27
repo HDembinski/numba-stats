@@ -117,7 +117,7 @@ def _type_check(first, *rest):
     T = type(first.dtype)
     for i, tp in enumerate(rest):
         if not isinstance(tp, T):
-            raise TypingError(f"argument {i+1} must be of type {tp}")
+            raise TypingError(f"argument {i + 1} must be of type {tp}")
 
 
 def _generate_wrappers(d):
