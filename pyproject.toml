@@ -37,6 +37,7 @@ test = [
     "pytest-benchmark>=4",
     "pydocstyle>=6",
     "coverage>=6",
+    "nox"
 ]
 
 [tool.setuptools.packages.find]

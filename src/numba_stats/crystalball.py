@@ -11,6 +11,7 @@ See Also
 scipy.stats.crystalball: Scipy equivalent.
 """
 
+from . import norm as _norm
 from ._util import _jit, _trans, _generate_wrappers, _prange
 import numpy as np
 from math import erf as _erf
@@ -52,6 +53,29 @@ def _normal_integral(a, b):
 
 
 @_jit(3, narg=0)
+def _powerlaw_ppf(p, beta, m):
+    T = type(beta)
+    log_a = m * np.log(m / beta) - T(0.5) * beta * beta
+    b = m / beta - beta
+    m1 = m - T(1)
+    log_term = (-T(1) / m1) * (np.log(p) + np.log(m1) - log_a)
+    term = np.exp(log_term)
+    return b - term
+
+
+@_jit(2, narg=0, cache=False)
+def _normal_ppf(p, a):
+    # assumption is that p is always <= 1, so this function
+    # never return NaN; caller is responsible for ensuring this
+    T = type(a)
+    sqrt_2pi = np.sqrt(T(2 * np.pi))
+    cdf_a = _norm._cdf1(a)
+    cdf_target = cdf_a + p / sqrt_2pi
+    # protect against numerical rounding that can raise cdf_target above 1
+    return _norm._ppf1(min(T(1), cdf_target))
+
+
+@_jit(3, narg=0)
 def _log_density(z, beta, m):
     if z < -beta:
         return _log_powerlaw(z, beta, m)
@@ -77,10 +101,9 @@ def _pdf(x, beta, m, loc, scale):
 
 @_jit(4)
 def _cdf(x, beta, m, loc, scale):
+    T = type(beta)
     z = _trans(x, loc, scale)
-    norm = _powerlaw_integral(-beta, beta, m) + _normal_integral(
-        -beta, type(beta)(np.inf)
-    )
+    norm = _powerlaw_integral(-beta, beta, m) + _normal_integral(-beta, T(np.inf))
     for i in _prange(len(z)):
         if z[i] < -beta:
             z[i] = _powerlaw_integral(z[i], beta, m) / norm
@@ -89,6 +112,22 @@ def _cdf(x, beta, m, loc, scale):
                 _powerlaw_integral(-beta, beta, m) + _normal_integral(-beta, z[i])
             ) / norm
     return z
+
+
+@_jit(4, cache=False)
+def _ppf(p, beta, m, loc, scale):
+    T = type(beta)
+    norm = _powerlaw_integral(-beta, beta, m) + _normal_integral(-beta, T(np.inf))
+    pbeta = _powerlaw_integral(-beta, beta, m) / norm
+    r = np.empty_like(p)
+    for i in _prange(len(r)):
+        if p[i] < pbeta:
+            r[i] = _powerlaw_ppf(p[i] * norm, beta, m)
+        elif p[i] <= 1:
+            r[i] = _normal_ppf((p[i] - pbeta) * norm, -beta)
+        else:
+            r[i] = np.nan
+    return scale * r + loc
 
 
 _generate_wrappers(globals())

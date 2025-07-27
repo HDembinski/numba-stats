@@ -24,29 +24,45 @@ def test_normal_integral(beta, z):
 
 @pytest.mark.parametrize("beta", (5, 1, 0.1))
 @pytest.mark.parametrize("m", (1.001, 2, 3))
-def test_logpdf(beta, m):
+@pytest.mark.parametrize("loc", (-0.1, 0, 0.1))
+def test_logpdf(beta, m, loc):
     scale = 1.5
     x = np.linspace(-10, 5, 10)
-    got = cb.logpdf(x, beta, m, 0, scale)
-    expected = sc.crystalball.logpdf(x, beta, m, 0, scale)
+    got = cb.logpdf(x, beta, m, loc, scale)
+    expected = sc.crystalball.logpdf(x, beta, m, loc, scale)
     assert_allclose(got, expected)
 
 
 @pytest.mark.parametrize("beta", (5, 1, 0.1))
 @pytest.mark.parametrize("m", (1.001, 2, 3))
-def test_pdf(beta, m):
+@pytest.mark.parametrize("loc", (-0.1, 0, 0.1))
+def test_pdf(beta, m, loc):
     scale = 1.5
     x = np.linspace(-10, 5, 10)
-    got = cb.pdf(x, beta, m, 0, scale)
-    expected = sc.crystalball.pdf(x, beta, m, 0, scale)
+    got = cb.pdf(x, beta, m, loc, scale)
+    expected = sc.crystalball.pdf(x, beta, m, loc, scale)
     assert_allclose(got, expected)
 
 
 @pytest.mark.parametrize("beta", (5, 1, 0.1))
 @pytest.mark.parametrize("m", (1.001, 2, 3))
-def test_cdf(beta, m):
+@pytest.mark.parametrize("loc", (-0.1, 0, 0.1))
+def test_cdf(beta, m, loc):
     scale = 1.5
     x = np.linspace(-10, 5, 10)
-    got = cb.cdf(x, beta, m, 0, scale)
-    expected = sc.crystalball.cdf(x, beta, m, 0, scale)
+    got = cb.cdf(x, beta, m, loc, scale)
+    expected = sc.crystalball.cdf(x, beta, m, loc, scale)
+    assert_allclose(got, expected)
+
+
+@pytest.mark.parametrize("beta", (5, 1, 0.1))
+@pytest.mark.parametrize("m", (1.001, 2, 3))
+@pytest.mark.parametrize("loc", (-0.1, 0, 0.1))
+def test_ppf(beta, m, loc):
+    scale = 1.5
+    p = np.linspace(0, 1, 10)
+    p = np.append(p, [0.5, 1.01])
+    got = cb.ppf(p, beta, m, loc, scale)
+    with np.errstate(over="ignore"):
+        expected = sc.crystalball.ppf(p, beta, m, loc, scale)
     assert_allclose(got, expected)

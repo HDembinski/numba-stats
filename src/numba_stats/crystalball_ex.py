@@ -1,13 +1,31 @@
 """
-Generalised Crystal Ball distribution.
+Generalised Crystal Ball distribution (aka double-sided crystal ball).
 
 The generalised Crystal Ball distribution replaces the lower and upper tail of
 an asymmetric normal distribution with power-law tails. Furthermore, the scale
 is allowed to vary between the left and the right side of the peak. There is no
 discontinuity at the maximum or elsewhere.
+
+The generalized Crystal Ball distribution is often used to empirically model a
+bell curve with heavier tails than a normal distribution. For a symmetric
+distribution, the superior but less well-known alternative is the Student's
+t-distribution. A superior asymmetric form also exists, called the non-central
+Student's t-distribution - which is not implemented in numba-stats yet.
+
+The Student's t distribution is superior, because it can be derived from an actual
+statistical process, while the ad hoc Crystal Ball stitches unrelated distributions
+together, a better name would be the 'Frankenstein distribution'. The construction
+makes it numerically very difficult to fit, which has caused many a grievance among
+practitioners, which could have been avoided by using the more stable Student's t.
 """
 
-from .crystalball import _powerlaw_integral, _normal_integral, _log_density
+from .crystalball import (
+    _powerlaw_integral,
+    _normal_integral,
+    _powerlaw_ppf,
+    _normal_ppf,
+    _log_density,
+)
 from ._util import _jit, _generate_wrappers, _prange
 import numpy as np
 
@@ -117,6 +135,46 @@ def _cdf(x, beta_left, m_left, scale_left, beta_right, m_right, scale_right, loc
                 )
                 * scale_right
             ) / norm
+    return r
+
+
+@_jit(7, cache=False)
+def _ppf(x, beta_left, m_left, scale_left, beta_right, m_right, scale_right, loc):
+    T = type(beta_left)
+    norm = _norm_half(beta_left, m_left, scale_left) + _norm_half(
+        beta_right, m_right, scale_right
+    )
+    pbeta_left = _powerlaw_integral(-beta_left, beta_left, m_left) * scale_left / norm
+    pbeta_middle = (
+        _powerlaw_integral(-beta_left, beta_left, m_left) * scale_left
+        + _normal_integral(-beta_left, T(0)) * scale_left
+    ) / norm
+    pbeta_right = (
+        _powerlaw_integral(-beta_left, beta_left, m_left) * scale_left
+        + _normal_integral(-beta_left, T(0)) * scale_left
+        + _normal_integral(T(0), beta_right) * scale_right
+    ) / norm
+    r = np.empty_like(x)
+    for i in _prange(len(x)):
+        if x[i] < pbeta_left:
+            unnorm_p = x[i] * norm / scale_left
+            z = _powerlaw_ppf(unnorm_p, beta_left, m_left)
+            r[i] = loc + z * scale_left
+        elif x[i] < pbeta_middle:
+            left_powerlaw_contrib = _powerlaw_integral(-beta_left, beta_left, m_left)
+            normal_integral_needed = (x[i] * norm / scale_left) - left_powerlaw_contrib
+            z = _normal_ppf(normal_integral_needed, -beta_left)
+            r[i] = loc + z * scale_left
+        elif x[i] < pbeta_right:
+            left_total = _norm_half(beta_left, m_left, scale_left)
+            normal_integral_needed = (x[i] * norm - left_total) / scale_right
+            z = _normal_ppf(normal_integral_needed, T(0))
+            r[i] = loc + z * scale_right
+        else:
+            remaining_p = 1 - x[i]
+            tail_contrib = remaining_p * norm / scale_right
+            z = -_powerlaw_ppf(tail_contrib, beta_right, m_right)
+            r[i] = loc + z * scale_right
     return r
 
 

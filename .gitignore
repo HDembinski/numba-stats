@@ -16,3 +16,4 @@ venv
 .vscode
 bench/*.svg
 .nox
+uv.lock
