@@ -6,7 +6,7 @@ an asymmetric normal distribution with power-law tails. Furthermore, the scale
 is allowed to vary between the left and the right side of the peak. There is no
 discontinuity at the maximum or elsewhere.
 
-The generalized Crystal Ball distribution is often used to empirically model a 
+The generalized Crystal Ball distribution is often used to empirically model a
 bell curve with heavier tails than a normal distribution. For a symmetric
 distribution, the superior but less well-known alternative is the Student's
 t-distribution. A superior asymmetric form also exists, called the non-central
