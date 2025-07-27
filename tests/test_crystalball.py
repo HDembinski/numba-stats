@@ -56,7 +56,7 @@ def test_cdf(beta, m):
 @pytest.mark.parametrize("m", (1.001, 2, 3))
 def test_ppf(beta, m):
     scale = 1.5
-    p = np.linspace(0, 0.999, 10)
+    p = np.linspace(0, 1, 10)
     got = cb.ppf(p, beta, m, 0, scale)
     expected = sc.crystalball.ppf(p, beta, m, 0, scale)
     assert_allclose(got, expected)

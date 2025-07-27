@@ -120,7 +120,12 @@ def _ppf(p, beta, m, loc, scale):
     pbeta = _powerlaw_integral(-beta, beta, m) / norm
     r = np.empty_like(p)
     for i in _prange(len(r)):
-        if p[i] < pbeta:
+        # p=1.0 returns nan due to floating point precision inaccuracies
+        # the input to _norm.ppf1 is slightly larger than 1.0 (1 + eps for example)
+        # and therefore it becomes nan instead of inf
+        if p[i] == 1.0:
+            r[i] = np.inf
+        elif p[i] < pbeta:
             r[i] = _powerlaw_ppf(p[i] * norm, beta, m)
         else:
             r[i] = _normal_ppf((p[i] - pbeta) * norm, -beta)
