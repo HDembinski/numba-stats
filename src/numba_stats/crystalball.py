@@ -66,13 +66,10 @@ def _powerlaw_ppf(p, beta, m):
 @_jit(2, narg=0, cache=False)
 def _normal_ppf(p, a):
     T = type(a)
-    sqrt_half = np.sqrt(T(0.5))
-    sqrt_pi_half = np.sqrt(T(np.pi) * T(0.5))
-    y_normalized = p / sqrt_pi_half
-    erf_a = _erf(a * sqrt_half)
-    erf_b_target = y_normalized + erf_a
-    p = (erf_b_target + T(1)) / T(2)
-    return _norm._ppf1(p)
+    sqrt_2pi = np.sqrt(T(2) * np.pi)
+    cdf_a = _norm._cdf1(a)
+    cdf_target = cdf_a + p / sqrt_2pi
+    return _norm._ppf1(cdf_target)
 
 
 @_jit(3, narg=0)
