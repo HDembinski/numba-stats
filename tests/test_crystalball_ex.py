@@ -9,7 +9,7 @@ from scipy.integrate import quad
 # piecewise using the normal scipy Crystal Ball.
 # 1) Up to the loc, the lower side looks like a Crystal Ball, up to a normalization.
 # 2) At loc, the density is continuous.
-# 3) Above loc, the upper side looks like a mirrored Crystal Ball, 
+# 3) Above loc, the upper side looks like a mirrored Crystal Ball,
 # up to a normalization.
 
 

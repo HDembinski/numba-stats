@@ -65,7 +65,7 @@ def _powerlaw_ppf(p, beta, m):
 
 @_jit(2, narg=0, cache=False)
 def _normal_ppf(p, a):
-    # assumption is that p is always <= 1, so this function 
+    # assumption is that p is always <= 1, so this function
     # never return NaN; caller is responsible for ensuring this
     T = type(a)
     sqrt_2pi = np.sqrt(T(2 * np.pi))
@@ -103,9 +103,7 @@ def _pdf(x, beta, m, loc, scale):
 def _cdf(x, beta, m, loc, scale):
     T = type(beta)
     z = _trans(x, loc, scale)
-    norm = _powerlaw_integral(-beta, beta, m) + _normal_integral(
-        -beta, T(np.inf)
-    )
+    norm = _powerlaw_integral(-beta, beta, m) + _normal_integral(-beta, T(np.inf))
     for i in _prange(len(z)):
         if z[i] < -beta:
             z[i] = _powerlaw_integral(z[i], beta, m) / norm
@@ -119,9 +117,7 @@ def _cdf(x, beta, m, loc, scale):
 @_jit(4, cache=False)
 def _ppf(p, beta, m, loc, scale):
     T = type(beta)
-    norm = _powerlaw_integral(-beta, beta, m) + _normal_integral(
-        -beta, T(np.inf)
-    )
+    norm = _powerlaw_integral(-beta, beta, m) + _normal_integral(-beta, T(np.inf))
     pbeta = _powerlaw_integral(-beta, beta, m) / norm
     r = np.empty_like(p)
     for i in _prange(len(r)):
