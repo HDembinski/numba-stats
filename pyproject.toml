@@ -47,8 +47,11 @@ where = ["src"]
 
 [tool.pytest.ini_options]
 minversion = "6.0"
-addopts = "-q -ra --ff"
+addopts = "-q -ra --ff --strict-config --strict-markers"
 testpaths = ["tests"]
+log_cli_level = "INFO"
+xfail_strict = true
+filterwarnings = ["error"]
 
 [tool.ruff]
 src = ["src"]
