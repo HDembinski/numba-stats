@@ -65,11 +65,14 @@ def _powerlaw_ppf(p, beta, m):
 
 @_jit(2, narg=0, cache=False)
 def _normal_ppf(p, a):
+    # assumption is that p is always <= 1, so this function 
+    # never return NaN; caller is responsible for ensuring this
     T = type(a)
-    sqrt_2pi = np.sqrt(T(2) * np.pi)
+    sqrt_2pi = np.sqrt(T(2 * np.pi))
     cdf_a = _norm._cdf1(a)
     cdf_target = cdf_a + p / sqrt_2pi
-    return _norm._ppf1(cdf_target)
+    # protect against numerical rounding that can raise cdf_target above 1
+    return _norm._ppf1(min(T(1), cdf_target))
 
 
 @_jit(3, narg=0)
@@ -98,9 +101,10 @@ def _pdf(x, beta, m, loc, scale):
 
 @_jit(4)
 def _cdf(x, beta, m, loc, scale):
+    T = type(beta)
     z = _trans(x, loc, scale)
     norm = _powerlaw_integral(-beta, beta, m) + _normal_integral(
-        -beta, type(beta)(np.inf)
+        -beta, T(np.inf)
     )
     for i in _prange(len(z)):
         if z[i] < -beta:
@@ -114,21 +118,19 @@ def _cdf(x, beta, m, loc, scale):
 
 @_jit(4, cache=False)
 def _ppf(p, beta, m, loc, scale):
+    T = type(beta)
     norm = _powerlaw_integral(-beta, beta, m) + _normal_integral(
-        -beta, type(beta)(np.inf)
+        -beta, T(np.inf)
     )
     pbeta = _powerlaw_integral(-beta, beta, m) / norm
     r = np.empty_like(p)
     for i in _prange(len(r)):
-        # p=1.0 returns nan due to floating point precision inaccuracies
-        # the input to _norm._ppf1 is slightly larger than 1.0 (1 + eps for example)
-        # and therefore it becomes nan instead of inf
-        if p[i] == 1.0:
-            r[i] = np.inf
-        elif p[i] < pbeta:
+        if p[i] < pbeta:
             r[i] = _powerlaw_ppf(p[i] * norm, beta, m)
-        else:
+        elif p[i] <= 1:
             r[i] = _normal_ppf((p[i] - pbeta) * norm, -beta)
+        else:
+            r[i] = np.nan
     return scale * r + loc
 
 

@@ -1,10 +1,22 @@
 """
-Generalised Crystal Ball distribution.
+Generalised Crystal Ball distribution (aka double-sided crystal ball).
 
 The generalised Crystal Ball distribution replaces the lower and upper tail of
 an asymmetric normal distribution with power-law tails. Furthermore, the scale
 is allowed to vary between the left and the right side of the peak. There is no
 discontinuity at the maximum or elsewhere.
+
+The generalized Crystal Ball distribution is often used empirically to model bell curve
+that has heavier tails than a normal distribution. For a symmetric distribution, the
+superior but less well-known alternative is the Student's t-distribution. A superior
+asymmetric form also exists, called the non-central Student's t-distribution - which is
+not implemented in numba-stats yet.
+
+The Student's t distribution is superior, because it can be derived from an actual
+statistical process, while the ad hoc Crystal Ball stitches unrelated
+distributions together, a better name would be the 'Frankenstein distribution'. The
+construction makes it numerically very difficult to fit, which has caused many a
+grievance among physicists, which would have been avoided by using Student's t.
 """
 
 from .crystalball import (
