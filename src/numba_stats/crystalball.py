@@ -121,7 +121,7 @@ def _ppf(p, beta, m, loc, scale):
     r = np.empty_like(p)
     for i in _prange(len(r)):
         # p=1.0 returns nan due to floating point precision inaccuracies
-        # the input to _norm.ppf1 is slightly larger than 1.0 (1 + eps for example)
+        # the input to _norm._ppf1 is slightly larger than 1.0 (1 + eps for example)
         # and therefore it becomes nan instead of inf
         if p[i] == 1.0:
             r[i] = np.inf
