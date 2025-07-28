@@ -7,6 +7,7 @@ scipy.stats.poisson: Scipy equivalent.
 """
 
 from math import lgamma as _lgamma
+from typing import Optional
 
 import numba as nb
 import numpy as np
@@ -47,7 +48,7 @@ def _cdf(k: np.ndarray, mu: float) -> np.ndarray:
 
 
 @_jit_custom(nb.int64[:](nb.float32, nb.uint64, nb.optional(nb.uint64)))
-def _rvs(mu: float, size: int, random_state: int | None) -> np.ndarray:
+def _rvs(mu: float, size: int, random_state: Optional[int]) -> np.ndarray:
     _seed(random_state)
     return np.random.poisson(mu, size)
 

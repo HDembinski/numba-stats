@@ -6,6 +6,8 @@ See Also
 scipy.stats.laplace: Scipy equivalent.
 """
 
+from typing import Optional
+
 import numpy as np
 
 from ._util import (
@@ -67,7 +69,9 @@ def _ppf(p: np.ndarray, loc: float, scale: float) -> np.ndarray:
 
 
 @_rvs_jit(2)
-def _rvs(loc: float, scale: float, size: int, random_state: int | None) -> np.ndarray:
+def _rvs(
+    loc: float, scale: float, size: int, random_state: Optional[int]
+) -> np.ndarray:
     _seed(random_state)
     return np.random.laplace(loc, scale, size)
 

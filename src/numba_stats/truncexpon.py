@@ -6,6 +6,8 @@ See Also
 scipy.stats.truncexpon: Scipy equivalent.
 """
 
+from typing import Optional
+
 import numpy as np
 
 from . import expon as _expon
@@ -94,7 +96,7 @@ def _rvs(
     loc: float,
     scale: float,
     size: int,
-    random_state: int | None,
+    random_state: Optional[int],
 ) -> np.ndarray:
     _seed(random_state)
     p = np.random.uniform(0, 1, size)

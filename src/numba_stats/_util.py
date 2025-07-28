@@ -2,7 +2,7 @@
 
 import math
 import os
-from typing import Any, Callable
+from typing import Any, Callable, Optional
 
 import numba as nb
 import numpy as np
@@ -123,7 +123,7 @@ def _rvs_jit(
 
 
 @nb.njit(cache=True)  # type:ignore[misc]
-def _seed(seed: int | None) -> None:
+def _seed(seed: Optional[int]) -> None:
     if seed is None:
         with nb.objmode(seed="optional(uint8)"):
             seed = np.frombuffer(os.urandom(8), dtype=np.uint64)[0]

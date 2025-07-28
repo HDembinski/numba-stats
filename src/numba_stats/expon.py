@@ -8,6 +8,7 @@ scipy.stats.expon: Scipy equivalent.
 
 from math import expm1 as _expm1
 from math import log1p as _log1p
+from typing import Optional
 
 import numpy as np
 
@@ -71,7 +72,9 @@ def _ppf(p: np.ndarray, loc: float, scale: float) -> np.ndarray:
 
 
 @_rvs_jit(2)
-def _rvs(loc: float, scale: float, size: int, random_state: int | None) -> np.ndarray:
+def _rvs(
+    loc: float, scale: float, size: int, random_state: Optional[int]
+) -> np.ndarray:
     _seed(random_state)
     return loc + np.random.exponential(scale, size)
 
