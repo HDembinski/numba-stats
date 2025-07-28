@@ -194,8 +194,11 @@ def _generate_wrappers(d: dict[str, Any]) -> None:
         if impl not in d:
             continue
         fn = d[impl]
-        args = inspect.signature(fn).parameters
-        args = ", ".join([f"{x}" for x in args])
+        parameters = inspect.signature(fn).parameters
+        args = ", ".join(parameters)
+        args_with_types = ", ".join(
+            str(x).replace("numpy", "np") for x in parameters.values()
+        )
         doc_title = {
             "density": "Return density.",
             "integral": "Return integrated density.",
@@ -230,20 +233,20 @@ random_state : int or None
 
         if fname == "rvs":
             code = f"""
-def {fname}({args}):
+def {fname}({args_with_types}):
     return {impl}({args})
 
 @_overload({fname}, inline="always")
-def _ol_{fname}({args}):
+def _ol_{fname}({args_with_types}):
     return {impl}.__wrapped__
 """
         else:
             code = f"""
-def {fname}({args}):
+def {fname}({args_with_types}):
     return _wrap({impl})({args})
 
 @_overload({fname}, inline="always")
-def _ol_{fname}({args}):
+def _ol_{fname}({args_with_types}):
     _type_check({args})
     return {impl}.__wrapped__
 """
