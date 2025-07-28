@@ -19,15 +19,16 @@ makes it numerically very difficult to fit, which has caused many a grievance am
 practitioners, which could have been avoided by using the more stable Student's t.
 """
 
-from .crystalball import (
-    _powerlaw_integral,
-    _normal_integral,
-    _powerlaw_ppf,
-    _normal_ppf,
-    _log_density,
-)
-from ._util import _jit, _generate_wrappers, _prange, _jit_pointwise
 import numpy as np
+
+from ._util import _generate_wrappers, _jit, _jit_pointwise, _prange
+from .crystalball import (
+    _log_density,
+    _normal_integral,
+    _normal_ppf,
+    _powerlaw_integral,
+    _powerlaw_ppf,
+)
 
 _doc_par = """
 beta_left : float

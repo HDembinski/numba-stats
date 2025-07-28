@@ -6,11 +6,13 @@ See Also
 scipy.stats.poisson: Scipy equivalent.
 """
 
-import numpy as np
-from ._special import gammaincc as _gammaincc
 from math import lgamma as _lgamma
-from ._util import _jit, _generate_wrappers, _prange, _seed, _jit_custom
+
 import numba as nb
+import numpy as np
+
+from ._special import gammaincc as _gammaincc
+from ._util import _generate_wrappers, _jit, _jit_custom, _prange, _seed
 
 _doc_par = """
 mu : float

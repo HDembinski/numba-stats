@@ -11,10 +11,12 @@ See Also
 scipy.stats.crystalball: Scipy equivalent.
 """
 
-from . import norm as _norm
-from ._util import _jit, _trans, _generate_wrappers, _prange, _jit_pointwise
-import numpy as np
 from math import erf as _erf
+
+import numpy as np
+
+from . import norm as _norm
+from ._util import _generate_wrappers, _jit, _jit_pointwise, _prange, _trans
 
 _doc_par = """
 x : Array-like

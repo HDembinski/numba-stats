@@ -7,8 +7,9 @@ scipy.stats.truncexpon: Scipy equivalent.
 """
 
 import numpy as np
-from ._util import _jit, _trans, _generate_wrappers, _prange, _rvs_jit, _seed
+
 from . import expon as _expon
+from ._util import _generate_wrappers, _jit, _prange, _rvs_jit, _seed, _trans
 
 _doc_par = """
 xmin : float

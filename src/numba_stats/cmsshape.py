@@ -18,7 +18,8 @@ distribution.
 """
 
 import numpy as np
-from ._util import _jit, _generate_wrappers, _erf_inplace, _erfc_inplace
+
+from ._util import _erf_inplace, _erfc_inplace, _generate_wrappers, _jit
 
 _doc_par = """
 beta : float

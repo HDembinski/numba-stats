@@ -6,11 +6,15 @@ See Also
 scipy.stats.binom: Scipy equivalent.
 """
 
-import numpy as np
-from ._special import xlogy as _xlogy, xlog1py as _xlog1py, betainc as _betainc
 from math import lgamma as _lgamma
-from ._util import _jit, _generate_wrappers, _prange, _seed
+
 import numba as nb
+import numpy as np
+
+from ._special import betainc as _betainc
+from ._special import xlog1py as _xlog1py
+from ._special import xlogy as _xlogy
+from ._util import _generate_wrappers, _jit, _prange, _seed
 
 _doc_par = """
 k : int

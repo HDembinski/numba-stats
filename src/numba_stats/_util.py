@@ -1,14 +1,15 @@
 """Utilities for code and docs generation to reduce boilerplate code."""
 
 import math
-import numba as nb
-import numpy as np
-from numba.types import Array
-from numba.core.errors import TypingError
-from numba.extending import overload
-from numba import prange as _prange  # noqa
 import os
 from typing import Any, Callable
+
+import numba as nb
+import numpy as np
+from numba import prange as _prange  # noqa
+from numba.core.errors import TypingError
+from numba.extending import overload
+from numba.types import Array
 
 _Floats = (nb.float32, nb.float64)
 

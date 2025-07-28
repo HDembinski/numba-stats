@@ -6,18 +6,20 @@ See Also
 scipy.stats.norm: Scipy equivalent.
 """
 
+from math import erf as _erf
+
 import numpy as np
+
 from ._special import ndtri as _ndtri
 from ._util import (
-    _jit,
-    _trans,
     _generate_wrappers,
-    _prange,
-    _seed,
-    _rvs_jit,
+    _jit,
     _jit_pointwise,
+    _prange,
+    _rvs_jit,
+    _seed,
+    _trans,
 )
-from math import erf as _erf
 
 _doc_par = """
 loc : float

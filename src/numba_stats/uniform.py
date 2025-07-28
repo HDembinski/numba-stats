@@ -6,8 +6,9 @@ See Also
 scipy.stats.uniform: Equivalent in Scipy.
 """
 
-from ._util import _jit, _generate_wrappers, _prange, _rvs_jit, _seed
 import numpy as np
+
+from ._util import _generate_wrappers, _jit, _prange, _rvs_jit, _seed
 
 _doc_par = """
 a : float

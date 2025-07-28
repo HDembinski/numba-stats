@@ -53,16 +53,16 @@ log_cli_level = "INFO"
 xfail_strict = true
 filterwarnings = ["error"]
 
-[tool.ruff]
-src = ["src"]
-
 [tool.ruff.lint]
 select = [
     "E",
     "F", # flake8
     "D", # pydocstyle
+    "B", # flake8-bugbear
+    "I", # isort
+    "UP", # pyupgrade
 ]
-extend-ignore = [
+ignore = [
     "D212", # multi-line-summary-first-line
 ]
 unfixable = [

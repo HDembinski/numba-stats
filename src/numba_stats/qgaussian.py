@@ -10,10 +10,12 @@ a change of variables, which is exploited in this implementation.
 https://en.wikipedia.org/wiki/Q-Gaussian_distribution
 """
 
-import numpy as np
-from . import norm as _norm, t as _t
-from ._util import _jit, _generate_wrappers, _rvs_jit
 import numba as nb
+import numpy as np
+
+from . import norm as _norm
+from . import t as _t
+from ._util import _generate_wrappers, _jit, _rvs_jit
 
 _doc_par = """
 q : float

@@ -4,8 +4,9 @@ Cruijff distribution.
 See For example: https://arxiv.org/abs/1005.4087
 """
 
-from ._util import _jit, _generate_wrappers, _prange
 import numpy as np
+
+from ._util import _generate_wrappers, _jit, _prange
 
 _doc_par = """
 beta_left: float

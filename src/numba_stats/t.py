@@ -6,10 +6,13 @@ See Also
 scipy.stats.t: Scipy equivalent.
 """
 
-import numpy as np
-from ._special import stdtr as _stdtr, stdtrit as _stdtrit
-from ._util import _jit, _trans, _generate_wrappers, _prange, _seed, _rvs_jit
 from math import lgamma as _lgamma
+
+import numpy as np
+
+from ._special import stdtr as _stdtr
+from ._special import stdtrit as _stdtrit
+from ._util import _generate_wrappers, _jit, _prange, _rvs_jit, _seed, _trans
 
 _doc_par = """
 df : float

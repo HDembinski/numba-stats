@@ -6,16 +6,19 @@ See Also
 scipy.stats.expon: Scipy equivalent.
 """
 
+from math import expm1 as _expm1
+from math import log1p as _log1p
+
 import numpy as np
-from math import expm1 as _expm1, log1p as _log1p
+
 from ._util import (
-    _jit,
-    _trans,
     _generate_wrappers,
+    _jit,
+    _jit_pointwise,
     _prange,
     _rvs_jit,
     _seed,
-    _jit_pointwise,
+    _trans,
 )
 
 _doc_par = """

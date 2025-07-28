@@ -16,14 +16,17 @@ See Also
 scipy.interpolate.BPoly: Bernstein polynomials in Scipy.
 """
 
+from collections.abc import Iterable
+from typing import Any, Callable
+
 import numpy as np
+
 from ._util import (
-    _jit,
     _Floats,
     _generate_wrappers,
+    _jit,
     _trans,
 )
-from typing import Any, Callable, Iterable
 
 
 @_jit(0, narg=2)
@@ -154,8 +157,8 @@ def _wrap(
 
 
 def _type_check(x: Any, beta: Any, xmin: Any, xmax: Any) -> None:
-    from numba.types import Array
     from numba.core.errors import TypingError
+    from numba.types import Array
 
     for arg in (x, beta):
         if not (isinstance(arg, Array) and arg.dtype in _Floats):

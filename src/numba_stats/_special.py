@@ -2,9 +2,10 @@
 # scipy.stats.norm.ppf and scipy.stats.poisson.cdf in a JIT'ed
 # function. As a workaround, we wrap special functions from
 # scipy to implement the needed functions here.
+from typing import Any
+
 from numba.extending import get_cython_function_address
 from numba.types import WrapperAddressProtocol, float64
-from typing import Any
 
 
 def get(name: str, signature: Any) -> Any:

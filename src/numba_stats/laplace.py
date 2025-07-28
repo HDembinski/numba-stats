@@ -7,14 +7,15 @@ scipy.stats.laplace: Scipy equivalent.
 """
 
 import numpy as np
+
 from ._util import (
-    _jit,
-    _trans,
     _generate_wrappers,
+    _jit,
+    _jit_pointwise,
     _prange,
     _rvs_jit,
     _seed,
-    _jit_pointwise,
+    _trans,
 )
 
 _doc_par = """

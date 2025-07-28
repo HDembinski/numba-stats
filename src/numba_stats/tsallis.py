@@ -7,7 +7,8 @@ minimum bias particle collisions.
 """
 
 import numpy as np
-from ._util import _jit, _generate_wrappers
+
+from ._util import _generate_wrappers, _jit
 
 _doc_par = """
 m : float
