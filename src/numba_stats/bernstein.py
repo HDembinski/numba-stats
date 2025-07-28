@@ -23,10 +23,11 @@ from ._util import (
     _generate_wrappers,
     _trans,
 )
+from typing import Any, Callable, Iterable
 
 
 @_jit(0, narg=2)
-def _de_castlejau(z, beta):
+def _de_castlejau(z: np.ndarray, beta: np.ndarray) -> np.ndarray:
     # De Casteljau algorithm, numerically stable
     n = len(beta)
     res = np.full_like(z, np.nan)
@@ -43,7 +44,7 @@ def _de_castlejau(z, beta):
 
 
 @_jit(0)
-def _beta_int(beta):
+def _beta_int(beta: np.ndarray) -> np.ndarray:
     n = len(beta)
     r = np.zeros(n + 1, dtype=beta.dtype)
     for j in range(1, n + 1):
@@ -54,7 +55,7 @@ def _beta_int(beta):
 
 
 @_jit(2, narg=2)
-def _density(x, beta, xmin, xmax):
+def _density(x: np.ndarray, beta: np.ndarray, xmin: float, xmax: float) -> np.ndarray:
     """
     Return density described by a Bernstein polynomial.
 
@@ -96,7 +97,7 @@ def _density(x, beta, xmin, xmax):
 
 
 @_jit(2, narg=2)
-def _integral(x, beta, xmin, xmax):
+def _integral(x: np.ndarray, beta: np.ndarray, xmin: float, xmax: float) -> np.ndarray:
     """
     Return integral of a Bernstein polynomial from xmin to x.
 
@@ -133,21 +134,26 @@ def _integral(x, beta, xmin, xmax):
     return _de_castlejau(z, beta)
 
 
-def _wrap(fn):
-    def outer(x, beta, xmin, xmax):
+def _wrap(
+    fn: Callable[[np.ndarray, np.ndarray, float, float], np.ndarray],
+) -> Callable[[np.ndarray, np.ndarray, float, float], np.ndarray]:
+    def outer(x: np.ndarray, beta: np.ndarray, xmin: float, xmax: float) -> np.ndarray:
         shape = np.shape(x)
-        args = []
-        for arg in (x, beta):
+
+        def process(arg: Iterable[float]) -> np.ndarray:
             arg = np.array(arg).flatten()
             if arg.dtype.kind != "f":
                 arg = arg.astype(float)
-            args.append(arg)
-        return fn(*args, xmin, xmax).reshape(shape)
+            return arg
+
+        x = process(x)
+        beta = process(beta)
+        return fn(x, beta, xmin, xmax).reshape(shape)
 
     return outer
 
 
-def _type_check(x, beta, xmin, xmax):
+def _type_check(x: Any, beta: Any, xmin: Any, xmax: Any) -> None:
     from numba.types import Array
     from numba.core.errors import TypingError
 
@@ -165,7 +171,7 @@ def _type_check(x, beta, xmin, xmax):
 _generate_wrappers(globals())
 
 
-def __getattr__(key):
+def __getattr__(key: str) -> Any:
     # Temporary hack to maintain backward compatibility
     import warnings
 

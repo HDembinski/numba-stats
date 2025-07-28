@@ -28,7 +28,7 @@ scale : float
 
 
 @_jit(3, cache=False)
-def _pdf(x, gamma, loc, scale):
+def _pdf(x: np.ndarray, gamma: float, loc: float, scale: float) -> np.ndarray:
     r = np.empty_like(x)
     for i in _prange(len(x)):
         r[i] = _voigt(x[i] - loc, scale, gamma)

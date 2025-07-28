@@ -18,7 +18,7 @@ w : float
 
 
 @_jit(2)
-def _logpdf(x, a, w):
+def _logpdf(x: np.ndarray, a: float, w: float) -> np.ndarray:
     r = np.empty_like(x)
     for i in _prange(len(x)):
         if a <= x[i] <= a + w:
@@ -29,12 +29,12 @@ def _logpdf(x, a, w):
 
 
 @_jit(2)
-def _pdf(x, a, w):
+def _pdf(x: np.ndarray, a: float, w: float) -> np.ndarray:
     return np.exp(_logpdf(x, a, w))
 
 
 @_jit(2)
-def _cdf(x, a, w):
+def _cdf(x: np.ndarray, a: float, w: float) -> np.ndarray:
     r = np.empty_like(x)
     for i in _prange(len(x)):
         if a <= x[i]:
@@ -48,12 +48,12 @@ def _cdf(x, a, w):
 
 
 @_jit(2)
-def _ppf(p, a, w):
+def _ppf(p: np.ndarray, a: float, w: float) -> np.ndarray:
     return w * p + a
 
 
 @_rvs_jit(2)
-def _rvs(a, w, size, random_state):
+def _rvs(a: float, w: float, size: int, random_state: int | None) -> np.ndarray:
     _seed(random_state)
     return np.random.uniform(a, a + w, size)
 

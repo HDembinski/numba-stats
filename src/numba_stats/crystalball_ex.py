@@ -26,7 +26,7 @@ from .crystalball import (
     _normal_ppf,
     _log_density,
 )
-from ._util import _jit, _generate_wrappers, _prange
+from ._util import _jit, _generate_wrappers, _prange, _jit_pointwise
 import numpy as np
 
 _doc_par = """
@@ -49,14 +49,23 @@ loc : float
 """
 
 
-@_jit(3, narg=0)
-def _norm_half(beta, m, scale):
+@_jit_pointwise(3)
+def _norm_half(beta: float, m: float, scale: float) -> float:
     T = type(beta)
     return (_powerlaw_integral(-beta, beta, m) + _normal_integral(-beta, T(0))) * scale
 
 
 @_jit(7)
-def _logpdf(x, beta_left, m_left, scale_left, beta_right, m_right, scale_right, loc):
+def _logpdf(
+    x: np.ndarray,
+    beta_left: float,
+    m_left: float,
+    scale_left: float,
+    beta_right: float,
+    m_right: float,
+    scale_right: float,
+    loc: float,
+) -> np.ndarray:
     norm = _norm_half(beta_left, m_left, scale_left) + _norm_half(
         beta_right, m_right, scale_right
     )
@@ -76,7 +85,16 @@ def _logpdf(x, beta_left, m_left, scale_left, beta_right, m_right, scale_right, 
 
 
 @_jit(7)
-def _pdf(x, beta_left, m_left, scale_left, beta_right, m_right, scale_right, loc):
+def _pdf(
+    x: np.ndarray,
+    beta_left: float,
+    m_left: float,
+    scale_left: float,
+    beta_right: float,
+    m_right: float,
+    scale_right: float,
+    loc: float,
+) -> np.ndarray:
     return np.exp(
         _logpdf(
             x,
@@ -92,7 +110,16 @@ def _pdf(x, beta_left, m_left, scale_left, beta_right, m_right, scale_right, loc
 
 
 @_jit(7)
-def _cdf(x, beta_left, m_left, scale_left, beta_right, m_right, scale_right, loc):
+def _cdf(
+    x: np.ndarray,
+    beta_left: float,
+    m_left: float,
+    scale_left: float,
+    beta_right: float,
+    m_right: float,
+    scale_right: float,
+    loc: float,
+) -> np.ndarray:
     T = type(beta_left)
     norm = _norm_half(beta_left, m_left, scale_left) + _norm_half(
         beta_right, m_right, scale_right
@@ -139,7 +166,16 @@ def _cdf(x, beta_left, m_left, scale_left, beta_right, m_right, scale_right, loc
 
 
 @_jit(7, cache=False)
-def _ppf(x, beta_left, m_left, scale_left, beta_right, m_right, scale_right, loc):
+def _ppf(
+    p: np.ndarray,
+    beta_left: float,
+    m_left: float,
+    scale_left: float,
+    beta_right: float,
+    m_right: float,
+    scale_right: float,
+    loc: float,
+) -> np.ndarray:
     T = type(beta_left)
     norm = _norm_half(beta_left, m_left, scale_left) + _norm_half(
         beta_right, m_right, scale_right
@@ -154,24 +190,24 @@ def _ppf(x, beta_left, m_left, scale_left, beta_right, m_right, scale_right, loc
         + _normal_integral(-beta_left, T(0)) * scale_left
         + _normal_integral(T(0), beta_right) * scale_right
     ) / norm
-    r = np.empty_like(x)
-    for i in _prange(len(x)):
-        if x[i] < pbeta_left:
-            unnorm_p = x[i] * norm / scale_left
+    r = np.empty_like(p)
+    for i in _prange(len(p)):
+        if p[i] < pbeta_left:
+            unnorm_p = p[i] * norm / scale_left
             z = _powerlaw_ppf(unnorm_p, beta_left, m_left)
             r[i] = loc + z * scale_left
-        elif x[i] < pbeta_middle:
+        elif p[i] < pbeta_middle:
             left_powerlaw_contrib = _powerlaw_integral(-beta_left, beta_left, m_left)
-            normal_integral_needed = (x[i] * norm / scale_left) - left_powerlaw_contrib
+            normal_integral_needed = (p[i] * norm / scale_left) - left_powerlaw_contrib
             z = _normal_ppf(normal_integral_needed, -beta_left)
             r[i] = loc + z * scale_left
-        elif x[i] < pbeta_right:
+        elif p[i] < pbeta_right:
             left_total = _norm_half(beta_left, m_left, scale_left)
-            normal_integral_needed = (x[i] * norm - left_total) / scale_right
+            normal_integral_needed = (p[i] * norm - left_total) / scale_right
             z = _normal_ppf(normal_integral_needed, T(0))
             r[i] = loc + z * scale_right
         else:
-            remaining_p = 1 - x[i]
+            remaining_p = 1 - p[i]
             tail_contrib = remaining_p * norm / scale_right
             z = -_powerlaw_ppf(tail_contrib, beta_right, m_right)
             r[i] = loc + z * scale_right

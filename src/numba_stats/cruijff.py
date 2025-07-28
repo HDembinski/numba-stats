@@ -22,7 +22,14 @@ scale_right: float
 
 
 @_jit(5)
-def _density(x, beta_left, beta_right, loc, scale_left, scale_right):
+def _density(
+    x: np.ndarray,
+    beta_left: float,
+    beta_right: float,
+    loc: float,
+    scale_left: float,
+    scale_right: float,
+) -> np.ndarray:
     r = np.empty_like(x)
     for i in _prange(len(x)):
         if x[i] < loc:
@@ -33,7 +40,7 @@ def _density(x, beta_left, beta_right, loc, scale_left, scale_right):
             beta = beta_right
         z = (x[i] - loc) / scale
         r[i] = -0.5 * z**2 / (1 + beta * z**2)
-    return np.exp(r)
+    return np.exp(r)  # type:ignore[no-any-return]
 
 
 _generate_wrappers(globals())

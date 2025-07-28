@@ -76,14 +76,15 @@ unfixable = [
 "bench/*.py" = ["D"]
 "docs/*.py" = ["D"]
 
-[tool.ruff.pydocstyle]
+[tool.ruff.lint.pydocstyle]
 convention = "numpy"
 
 [tool.mypy]
 strict = true
+warn_unreachable = true
 ignore_missing_imports = true
 allow_redefinition = true
-plugins = "numpy.typing.mypy_plugin"
 pretty = true
 files = ["src"]
 no_implicit_optional = false
+enable_error_code = ["ignore-without-code", "redundant-expr", "truthy-bool"]

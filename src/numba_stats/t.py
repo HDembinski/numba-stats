@@ -22,7 +22,7 @@ scale : float
 
 
 @_jit(3, cache=False)
-def _logpdf(x, df, loc, scale):
+def _logpdf(x: np.ndarray, df: float, loc: float, scale: float) -> np.ndarray:
     T = type(df)
     z = _trans(x, loc, scale)
     k = T(0.5) * (df + T(1))
@@ -35,12 +35,12 @@ def _logpdf(x, df, loc, scale):
 
 
 @_jit(3, cache=False)
-def _pdf(x, df, loc, scale):
+def _pdf(x: np.ndarray, df: float, loc: float, scale: float) -> np.ndarray:
     return np.exp(_logpdf(x, df, loc, scale))
 
 
 @_jit(3, cache=False)
-def _cdf(x, df, loc, scale):
+def _cdf(x: np.ndarray, df: float, loc: float, scale: float) -> np.ndarray:
     z = _trans(x, loc, scale)
     for i in _prange(len(z)):
         z[i] = _stdtr(df, z[i])
@@ -48,7 +48,7 @@ def _cdf(x, df, loc, scale):
 
 
 @_jit(3, cache=False)
-def _ppf(p, df, loc, scale):
+def _ppf(p: np.ndarray, df: float, loc: float, scale: float) -> np.ndarray:
     T = type(df)
     r = np.empty_like(p)
     for i in _prange(len(p)):
@@ -62,7 +62,9 @@ def _ppf(p, df, loc, scale):
 
 
 @_rvs_jit(3)
-def _rvs(df, loc, scale, size, random_state):
+def _rvs(
+    df: float, loc: float, scale: float, size: int, random_state: int | None
+) -> np.ndarray:
     _seed(random_state)
     return loc + scale * np.random.standard_t(df, size)
 

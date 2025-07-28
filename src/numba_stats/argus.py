@@ -35,7 +35,7 @@ p : float
 
 
 @_jit(3, cache=False)
-def _logpdf(x, chi, c, p):
+def _logpdf(x: np.ndarray, chi: float, c: float, p: float) -> np.ndarray:
     T = type(p)
     one = T(1)
     two = T(2)
@@ -62,12 +62,12 @@ def _logpdf(x, chi, c, p):
 
 
 @_jit(3, cache=False)
-def _pdf(x, chi, c, p):
+def _pdf(x: np.ndarray, chi: float, c: float, p: float) -> np.ndarray:
     return np.exp(_logpdf(x, chi, c, p))
 
 
 @_jit(3, cache=False)
-def _cdf(x, chi, c, p):
+def _cdf(x: np.ndarray, chi: float, c: float, p: float) -> np.ndarray:
     T = type(p)
     zero = T(0)
     one = T(1)

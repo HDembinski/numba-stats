@@ -4,9 +4,10 @@
 # scipy to implement the needed functions here.
 from numba.extending import get_cython_function_address
 from numba.types import WrapperAddressProtocol, float64
+from typing import Any
 
 
-def get(name, signature):
+def get(name: str, signature: Any) -> Any:
     # create new function object with correct signature that numba can call
     from scipy.special import cython_special
 

@@ -28,7 +28,7 @@ mu : float
 
 
 @_jit(1, cache=False)
-def _cdf(x, mu):
+def _cdf(x: np.ndarray, mu: float) -> np.ndarray:
     r = np.empty_like(x)
     one = type(x[0])(1)
     for i in _prange(len(x)):
